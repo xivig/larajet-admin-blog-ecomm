@@ -113,12 +113,12 @@
                             </div>
                         </div>
                         <div class="profile-dis scrollable">
-                            <a class="dropdown-item" href="#">
+                            <a class="dropdown-item" href="{{route('user-profile')}}">
                                 <i class="ti-user m-r-5 m-l-5"></i> My Profile</a>
-                            <a class="dropdown-item" href="#">
+                            <a class="dropdown-item" href="{{route('user-inbox')}}">
                                 <i class="ti-email m-r-5 m-l-5"></i> Inbox</a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">
+                            <a class="dropdown-item" href="{{route('user-setting')}}">
                                 <i class="ti-settings m-r-5 m-l-5"></i> Account Setting</a>
                             <div class="dropdown-divider"></div>
                             <a class="btn btn-danger btn-lg dropdown-item sidebar-link waves-effect waves-dark sidebar-link"
