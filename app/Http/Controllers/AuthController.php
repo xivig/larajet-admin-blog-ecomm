@@ -7,7 +7,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\View;
+use Illuminate\Contracts\View\View;
 
 class AuthController
 {
@@ -27,9 +27,9 @@ class AuthController
     /**
      * Write code on Method
      *
-     * @return View ()
+     * @return View|Application|Factory ()
      */
-    public function profile(): View
+    public function profile(): Factory|View|Application
     {
         return view('auth.profile');
     }
@@ -37,9 +37,9 @@ class AuthController
     /**
      * Write code on Method
      *
-     * @return \Illuminate\Contracts\View\View|Application|Factory ()
+     * @return View|Application|Factory ()
      */
-    public function inbox(): Factory|\Illuminate\Contracts\View\View|Application
+    public function inbox(): Factory|View|Application
     {
         return view('auth.inbox');
     }
@@ -47,9 +47,9 @@ class AuthController
     /**
      * Write code on Method
      *
-     * @return \Illuminate\Contracts\View\View|Application|Factory ()
+     * @return View|Application|Factory ()
      */
-    public function setting(): Factory|\Illuminate\Contracts\View\View|Application
+    public function setting(): Factory|View|Application
     {
         return view('auth.setting');
     }

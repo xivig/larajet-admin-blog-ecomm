@@ -1,6 +1,11 @@
 <?php
 
+use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Front\BlogController;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 
 //Route::get('/', function () {
@@ -19,26 +24,18 @@ Route::get('/blog', [BlogController::class, 'index'])->name('single-post');
 Route::get('/blog/{slug}', [BlogController::class, 'singlePost'])->name('single-post');
 //Route::get('/blog/{slug}', [PostController::class, 'singlePost'])->name('single-post');
 
-Route::get('/blog-list', [PostController::class, 'index']);
-//Route::get('/blog-list', function () {
-//
-//    return view('blog.blog-list');
-//});
-Route::get('/about', function () {
-    return view('home.about');
+//Route::get('/blog-list', [PostController::class, 'index']);
+Route::get('/blog-list', function () {
+
+    return view('blog.blog-list');
 });
-Route::get('/contact', function () {
-    return view('home.contact');
-});
-Route::get('/services', function () {
-    return view('home.services');
-});
-Route::get('/pricing', function () {
-    return view('home.pricing');
-});
-Route::get('/project', function () {
-    return view('home.project');
-});
+Route::get('/about', static fn() => view('home.about'));
+Route::get('/contact', static fn() => view('home.contact'));
+Route::get('/services',static fn() => view('home.services'));
+Route::get('/pricing',static fn() => view('home.pricing'));
+Route::get(/**
+ * @return Factory|View|Application
+ */ '/project',static fn() => view('home.project'));
 
 
 
