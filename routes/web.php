@@ -1,6 +1,8 @@
 <?php
 
-use App\Http\Controllers\Admin\PostController;
+
+use App\Http\Controllers\Admin\LoginController;
+use App\Http\Controllers\Admin\RegisterController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Front\BlogController;
 use Illuminate\Contracts\View\Factory;
@@ -58,6 +60,46 @@ Route::middleware([
         return view('dashboard');
     })->name('dashboard');
 });
+
+Route::prefix('admin')->middleware('guest:admin')->group(function () {
+
+    Route::get('register', [RegisterController::class, 'create'])->name('admin.register');
+    Route::post('register', [RegisterController::class, 'store']);
+
+    Route::get('login', [LoginController::class, 'create'])->name('admin.login');
+    Route::post('login', [LoginController::class, 'store']);
+
+});
+
+Route::prefix('admin')->middleware('auth:admin')->group(function () {
+
+    Route::get('/dashboard', function () {
+//        return view('admin.dashboard');
+        return view('admin');
+    })->name('admin.dashboard');
+
+    Route::post('logout', [LoginController::class, 'destroy'])->name('admin.logout');
+
+});
+
+//Route::middleware([
+//    'auth:sanctum',
+//    config('jetstream.auth_session'),
+//    'admin',
+//    'verified',
+//])->group(function () {
+//    Route::get('admin/dashboard', static function () {
+//        return view('admin.dashboard');
+//    })->name('admin.dashboard');
+//});
+//
+//Route::group(['prefix' =>'admin', 'middleware'=>['admin:admin']], static function (){
+//    Route::get('/login',[AdminController::class, 'loginForm']);
+//    Route::post('/login',[AdminController::class, 'store'])->name('admin.login');
+//});
+
+
+
 
 Route::get('logout', [AuthController::class, 'logout'])->name('logout');
 
