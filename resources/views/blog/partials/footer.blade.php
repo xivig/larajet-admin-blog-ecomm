@@ -3,7 +3,7 @@
         <div class="row">
             <div class="col-lg-3 col-md-6 col-sm-6 mb-4 mb-lg-0">
                 <div class="widget">
-                    <h4 class="text-white mb-4">Platform</h4>
+                    <h4 class="footer-title mb-4">Platform</h4>
                     <ul class="list-unstyled footer-menu lh-35">
                         <li><a href="{{ url('/') }}">Home</a></li>
                         <li><a href="{{ url('/about') }}">About Us</a></li>
@@ -15,7 +15,7 @@
             </div>
             <div class="col-lg-2 col-md-6 col-sm-6 mb-4 mb-lg-0">
                 <div class="widget">
-                    <h4 class="text-white mb-4">Ecosystem</h4>
+                    <h4 class="footer-title mb-4">Ecosystem</h4>
                     <ul class="list-unstyled footer-menu lh-35">
                         <li><a href="{{ url('/blog-list') }}">Blog Magazine</a></li>
                         <li><a href="{{ url('/blog') }}">All Articles</a></li>
@@ -27,7 +27,7 @@
             </div>
             <div class="col-lg-4 col-md-6 col-sm-6 mb-4 mb-lg-0">
                 <div class="widget">
-                    <h4 class="text-white mb-4">Stay Ahead</h4>
+                    <h4 class="footer-title mb-4">Stay Ahead</h4>
                     <p class="text-muted">Subscribe for architecture insights, software engineering masterclasses, and releases.</p>
 
                     <form action="#" class="sub-form mt-3" onsubmit="event.preventDefault(); alert('Thank you for subscribing to Xivig insights!');">
@@ -53,11 +53,11 @@
             </div>
         </div>
 
-        <div class="footer-btm pt-5 mt-5" style="border-top: 1px solid rgba(255, 255, 255, 0.08);">
+        <div class="footer-btm pt-5 mt-5">
             <div class="row align-items-center">
                 <div class="col-lg-6 text-center text-lg-start text-lg-left mb-3 mb-lg-0">
                     <div class="copyright text-muted small">
-                        &copy; {{ date('Y') }} <a href="{{ url('/') }}" class="text-white font-weight-bold">Xivig</a>. All rights reserved. Crafted for high performance.
+                        &copy; {{ date('Y') }} <a href="{{ url('/') }}" class="footer-brand-link font-weight-bold">Xivig</a>. All rights reserved. Crafted for high performance.
                     </div>
                 </div>
                 <div class="col-lg-6 text-center text-lg-end text-lg-right">

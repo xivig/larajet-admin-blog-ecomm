@@ -5,7 +5,7 @@
 @section('content')
 
 <!-- Section Services Start -->
-<section class="section py-5 position-relative" style="background: #f8fafc;">
+<section class="section py-5 position-relative">
 	<div class="container">
 		<div class="row justify-content-center mb-5">
 			<div class="col-lg-7 text-center">

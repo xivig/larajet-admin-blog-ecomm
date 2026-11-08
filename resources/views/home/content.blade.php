@@ -33,7 +33,7 @@
 <!-- Hero Slider Section End -->
 
 <!-- Section Intro Start -->
-<section class="section py-5 position-relative" style="background: #ffffff; margin-top: -40px; z-index: 3;">
+<section class="section py-5 position-relative" style="margin-top: -40px; z-index: 3;">
     <div class="container">
         <div class="row mb-5">
             <div class="col-lg-8">
@@ -79,7 +79,7 @@
 <!-- Section Intro END -->
 
 <!-- Section About Start -->
-<section class="section py-5 position-relative" style="background: #f8fafc;">
+<section class="section py-5 position-relative">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6 mb-5 mb-lg-0">
@@ -111,7 +111,7 @@
 <!-- Section About End -->
 
 <!-- Section Counter Start -->
-<section class="section py-5" style="background: #ffffff; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
+<section class="section py-5 section-counter">
     <div class="container">
         <div class="row">
             <div class="col-lg-3 col-md-6 col-sm-6 mb-4 mb-lg-0">
@@ -144,7 +144,7 @@
 <!-- Section Counter End -->
 
 <!-- Section Services Start -->
-<section class="section py-5" style="background: #f8fafc;">
+<section class="section py-5">
     <div class="container">
         <div class="row justify-content-center mb-5">
             <div class="col-lg-7 text-center">
@@ -222,7 +222,7 @@
 <!-- Section Services End -->
 
 <!-- Section CTA Start -->
-<section class="section py-5 position-relative" style="background: #090d16; border-top: 1px solid rgba(255, 255, 255, 0.08); border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+<section class="section py-5 position-relative section-cta">
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center">
             <div class="col-lg-7 text-white mb-4 mb-lg-0">
@@ -230,7 +230,7 @@
                     <span class="badge-dot pulse"></span> Direct Architect Line
                 </span>
                 <h2 class="text-white font-weight-bold mb-3 display-4" style="letter-spacing: -0.02em;">Ready to build something extraordinary?</h2>
-                <p class="text-muted lead mb-0">Partner with our engineering team for rapid development and enterprise deployment.</p>
+                <p class="text-white-50 lead mb-0">Partner with our engineering team for rapid development and enterprise deployment.</p>
             </div>
             <div class="col-lg-5 text-lg-right">
                 <a href="{{ url('/contact') }}" class="btn-elite btn-elite-primary mr-3 mb-2">
@@ -246,7 +246,7 @@
 <!-- Section CTA End -->
 
 <!-- Section Testimonial Start -->
-<section class="section py-5" style="background: #ffffff;">
+<section class="section py-5">
     <div class="container">
         <div class="row justify-content-center mb-5">
             <div class="col-lg-7 text-center">
@@ -317,7 +317,7 @@
 <!-- Section Testimonial End -->
 
 <!-- Section Latest News Start -->
-<section class="section py-5" style="background: #f8fafc;">
+<section class="section py-5">
     <div class="container">
         <div class="row justify-content-between align-items-center mb-5">
             <div class="col-lg-7">
@@ -397,7 +397,7 @@
 <!-- Section Latest News End -->
 
 <!-- Section Final CTA -->
-<section class="py-5" style="background: #ffffff; border-top: 1px solid #e2e8f0;">
+<section class="py-5 section-partners">
     <div class="container">
         <div class="p-5 rounded-lg text-center" style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(236, 72, 153, 0.06) 100%); border: 1px solid rgba(79, 70, 229, 0.15); border-radius: 24px;">
             <span class="badge-elite mb-3">Empowering Innovation</span>

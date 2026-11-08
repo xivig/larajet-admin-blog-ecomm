@@ -49,7 +49,7 @@
         </div>
 
         <!-- Footer -->
-        <footer class="footer text-center py-4 text-muted small" style="border-top: 1px solid #e2e8f0; background: #ffffff;">
+        <footer class="footer text-center py-4 text-muted small" style="border-top: 1px solid #e2e8f0;">
             &copy; {{ date('Y') }} <a href="{{ url('/') }}" class="font-weight-bold text-dark">Xivig</a>. All rights reserved. Crafted for enterprise performance.
         </footer>
     </div>

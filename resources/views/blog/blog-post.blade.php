@@ -3,14 +3,14 @@
 @section('content')
 
 <!-- Header Breadcrumb Banner -->
-<section class="page-title bg-1" style="background: #090d16; padding: 100px 0 50px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+<section class="page-title bg-1" style="padding: 100px 0 50px 0;">
     <div class="container">
         <div class="row">
             <div class="col-lg-10 mx-auto text-center">
                 <span class="badge-elite badge-elite-dark mb-3">
                     <span class="badge-dot pulse"></span> {{ $post->category->name ?? 'Architecture' }}
                 </span>
-                <h1 class="text-white font-weight-bold mb-4 display-4" style="line-height: 1.2; letter-spacing: -0.02em;">
+                <h1 class="font-weight-bold mb-4 display-4" style="line-height: 1.2; letter-spacing: -0.02em;">
                     {{ $post->title }}
                 </h1>
                 <div class="d-flex align-items-center justify-content-center text-muted small flex-wrap" style="gap: 18px;">
@@ -28,7 +28,7 @@
 </section>
 
 <!-- Single Post Content Area -->
-<section class="section py-5" style="background: #f8fafc;">
+<section class="section py-5">
     <div class="container">
         <div class="row">
             <!-- Main Content Column -->
@@ -66,14 +66,14 @@
 
                             <div class="d-flex align-items-center my-2">
                                 <span class="font-weight-bold mr-3 text-dark">Share:</span>
-                                <a href="https://twitter.com/intent/tweet?text={{ urlencode($post->title) }}&url={{ urlencode(url()->current()) }}" target="_blank" class="footer-social-btn text-dark mr-2" style="background: #f1f5f9; color: #334155 !important;"><i class="fab fa-twitter"></i></a>
-                                <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode(url()->current()) }}" target="_blank" class="footer-social-btn text-dark mr-2" style="background: #f1f5f9; color: #334155 !important;"><i class="fab fa-linkedin-in"></i></a>
-                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}" target="_blank" class="footer-social-btn text-dark" style="background: #f1f5f9; color: #334155 !important;"><i class="fab fa-facebook-f"></i></a>
+                                <a href="https://twitter.com/intent/tweet?text={{ urlencode($post->title) }}&url={{ urlencode(url()->current()) }}" target="_blank" class="footer-social-btn mr-2" aria-label="Share on X"><i class="bi bi-twitter-x"></i></a>
+                                <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode(url()->current()) }}" target="_blank" class="footer-social-btn mr-2" aria-label="Share on LinkedIn"><i class="bi bi-linkedin"></i></a>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}" target="_blank" class="footer-social-btn" aria-label="Share on Facebook"><i class="bi bi-facebook"></i></a>
                             </div>
                         </div>
 
                         <!-- Author Bio Card -->
-                        <div class="p-4 my-5 rounded-lg d-flex align-items-center" style="background: #f1f5f9; border-radius: 16px;">
+                        <div class="p-4 my-5 rounded-lg d-flex align-items-center author-box" style="border-radius: 16px;">
                             <div class="mr-4">
                                 <div class="comment-avatar" style="width: 64px; height: 64px; font-size: 24px;">
                                     {{ strtoupper(substr($post->author->nickname ?? ($post->user->name ?? 'A'), 0, 1)) }}

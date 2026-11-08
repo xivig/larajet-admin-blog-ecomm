@@ -4,14 +4,14 @@
 @section('content')
 
 <!-- Blog Hero Banner -->
-<section class="page-title bg-1" style="background: #090d16; padding: 100px 0 60px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+<section class="page-title bg-1" style="padding: 100px 0 60px 0;">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-8">
                 <span class="badge-elite badge-elite-dark mb-3">
                     <span class="badge-dot pulse"></span> Engineering & Architecture Magazine
                 </span>
-                <h1 class="text-white font-weight-bold mb-3 display-4" style="letter-spacing: -0.03em;">Insights & Knowledge</h1>
+                <h1 class="font-weight-bold mb-3 display-4" style="letter-spacing: -0.03em;">Insights & Knowledge</h1>
                 <p class="text-muted lead mb-0">Explore deep-dive technical articles, architectural blueprints, and full-stack best practices.</p>
             </div>
             <div class="col-lg-4 mt-4 mt-lg-0 text-lg-right">
@@ -25,7 +25,7 @@
 </section>
 
 <!-- Main Blog Section -->
-<section class="section py-5" style="background: #f8fafc;">
+<section class="section py-5">
     <div class="container">
         @if(count($posts) > 0)
             <div class="row">

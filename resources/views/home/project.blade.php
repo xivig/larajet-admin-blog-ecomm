@@ -5,7 +5,7 @@
 @section('content')
 
 <!-- Section Portfolio Start -->
-<section class="section py-5 position-relative" style="background: #f8fafc;">
+<section class="section py-5 position-relative">
 	<div class="container mb-5">
 		<div class="row justify-content-center">
 			<div class="col-lg-7 text-center">

@@ -5,7 +5,7 @@
 @section('content')
 
 <!-- Section Pricing Start -->
-<section class="section py-5 position-relative" style="background: #f8fafc;">
+<section class="section py-5 position-relative">
 	<div class="container">
 		<div class="row justify-content-center mb-5">
 			<div class="col-lg-7 text-center">
@@ -48,7 +48,7 @@
 
 			<!-- Professional Tier (Featured) -->
 			<div class="col-lg-4 col-md-6 mb-4">
-				<div class="pricing-card featured" style="background: #ffffff;">
+				<div class="pricing-card featured">
 					<span class="badge-popular"><i class="fas fa-bolt mr-1"></i> Most Popular</span>
 					<div class="mb-4 mt-2">
 						<span class="badge badge-primary font-weight-bold px-3 py-1 rounded-pill small">Professional</span>
@@ -113,7 +113,7 @@
 		</div>
 
 		<!-- Bottom CTA Box -->
-		<div class="mt-5 p-5 rounded-lg text-center" style="background: #090d16; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px;">
+		<div class="mt-5 p-5 rounded-lg text-center pricing-cta-box" style="border-radius: 24px;">
 			<div class="row align-items-center">
 				<div class="col-lg-8 text-center text-lg-left mb-4 mb-lg-0">
 					<span class="badge-elite badge-elite-dark mb-2">Need a custom contract?</span>
