@@ -220,7 +220,7 @@
                                         </span>
                                         <h6 class="recent-post-title">
                                             <a href="{{ route('single-post', $recent->slug) }}" class="blog-title-link">
-                                                {{ $recent->title }}
+                                                {{ Str::limit($recent->title, 55) }}
                                             </a>
                                         </h6>
                                         <small class="text-muted"><i class="bi bi-clock me-1 mr-1"></i> {{ $recent->created_at ? $recent->created_at->format('M d, Y') : 'Recent' }}</small>
@@ -315,3 +315,4 @@
     </div>
 </section>
 @endsection
+

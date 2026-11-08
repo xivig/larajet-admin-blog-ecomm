@@ -2389,3 +2389,274 @@ textarea.form-control-elite {
   background: #ffffff !important;
   border-top: 1px solid #e2e8f0 !important;
 }
+
+/* ==============================================================
+   Universal Fixes: Elite Contrast & Visual Polish (Nov 2026)
+============================================================== */
+
+/* 1. Transparent Footer - Eliminates All Column Cards & Box Backgrounds */
+.footer,
+.footer .container,
+.footer .row,
+.footer [class*="col-"],
+.footer-widget,
+.footer .widget {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+[data-bs-theme="dark"] .footer,
+[data-theme="dark"] .footer {
+  background: #070a12 !important;
+  background-color: #070a12 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-bs-theme="dark"] .footer .container,
+[data-bs-theme="dark"] .footer .row,
+[data-bs-theme="dark"] .footer [class*="col-"],
+[data-bs-theme="dark"] .footer-widget,
+[data-bs-theme="dark"] .footer .widget,
+[data-theme="dark"] .footer .container,
+[data-theme="dark"] .footer .row,
+[data-theme="dark"] .footer [class*="col-"],
+[data-theme="dark"] .footer-widget,
+[data-theme="dark"] .footer .widget {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+[data-bs-theme="light"] .footer,
+[data-theme="light"] .footer {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+}
+
+[data-bs-theme="light"] .footer .container,
+[data-bs-theme="light"] .footer .row,
+[data-bs-theme="light"] .footer [class*="col-"],
+[data-bs-theme="light"] .footer-widget,
+[data-bs-theme="light"] .footer .widget,
+[data-theme="light"] .footer .container,
+[data-theme="light"] .footer .row,
+[data-theme="light"] .footer [class*="col-"],
+[data-theme="light"] .footer-widget,
+[data-theme="light"] .footer .widget {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* 2. Hero Slider Heading Contrast */
+[data-bs-theme="dark"] .slider .slider-hero-title,
+[data-theme="dark"] .slider .slider-hero-title,
+[data-bs-theme="dark"] .slider h1,
+[data-theme="dark"] .slider h1,
+[data-bs-theme="dark"] .slider .display-3,
+[data-theme="dark"] .slider .display-3 {
+  color: #ffffff !important;
+  --bs-heading-color: #ffffff !important;
+}
+
+[data-bs-theme="light"] .slider .slider-hero-title,
+[data-theme="light"] .slider .slider-hero-title,
+[data-bs-theme="light"] .slider h1,
+[data-theme="light"] .slider h1,
+[data-bs-theme="light"] .slider .display-3,
+[data-theme="light"] .slider .display-3 {
+  color: #0f172a !important;
+  --bs-heading-color: #0f172a !important;
+}
+
+/* 3. Counter Stat Numbers (Anti-Invisibility Fallback) */
+[data-bs-theme="dark"] .counter-stat,
+[data-theme="dark"] .counter-stat {
+  background: #111827 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-bs-theme="dark"] .counter-stat .count-number,
+[data-theme="dark"] .counter-stat .count-number {
+  color: #c084fc !important;
+  background: linear-gradient(135deg, #c084fc 0%, #f472b6 50%, #818cf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+[data-bs-theme="dark"] .counter-stat .count-label,
+[data-theme="dark"] .counter-stat .count-label {
+  color: #94a3b8 !important;
+}
+
+[data-bs-theme="light"] .counter-stat,
+[data-theme="light"] .counter-stat {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-bs-theme="light"] .counter-stat .count-number,
+[data-theme="light"] .counter-stat .count-number {
+  color: #4f46e5 !important;
+  background: none !important;
+  -webkit-text-fill-color: #4f46e5 !important;
+}
+
+[data-bs-theme="light"] .counter-stat .count-label,
+[data-theme="light"] .counter-stat .count-label {
+  color: #64748b !important;
+}
+
+/* 4. High-Contrast Pagination */
+[data-bs-theme="dark"] .pagination,
+[data-theme="dark"] .pagination {
+  --bs-pagination-bg: #141b2d;
+  --bs-pagination-border-color: rgba(255, 255, 255, 0.15);
+  --bs-pagination-color: #f1f5f9;
+  --bs-pagination-hover-bg: #242e47;
+  --bs-pagination-hover-border-color: #818cf8;
+  --bs-pagination-hover-color: #ffffff;
+  --bs-pagination-focus-bg: #242e47;
+  --bs-pagination-focus-color: #ffffff;
+  --bs-pagination-active-bg: #7c3aed;
+  --bs-pagination-active-border-color: transparent;
+  --bs-pagination-active-color: #ffffff;
+  --bs-pagination-disabled-bg: rgba(255, 255, 255, 0.03);
+  --bs-pagination-disabled-border-color: rgba(255, 255, 255, 0.06);
+  --bs-pagination-disabled-color: #64748b;
+}
+
+[data-bs-theme="dark"] .pagination .page-item .page-link,
+[data-bs-theme="dark"] .pagination .page-link,
+[data-theme="dark"] .pagination .page-item .page-link,
+[data-theme="dark"] .pagination .page-link {
+  background: #141b2d !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #f1f5f9 !important;
+  font-weight: 600 !important;
+}
+
+[data-bs-theme="dark"] .pagination .page-item.active .page-link,
+[data-theme="dark"] .pagination .page-item.active .page-link {
+  background: var(--gradient-primary) !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.5) !important;
+}
+
+[data-bs-theme="dark"] .pagination .page-item .page-link:hover,
+[data-theme="dark"] .pagination .page-item .page-link:hover {
+  background: #242e47 !important;
+  border-color: #818cf8 !important;
+  color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .pagination .page-item.disabled .page-link,
+[data-theme="dark"] .pagination .page-item.disabled .page-link {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+  color: #64748b !important;
+}
+
+/* 5. Trust Bar Light & Dark Modes */
+[data-bs-theme="dark"] .ecomm-trust-bar,
+[data-theme="dark"] .ecomm-trust-bar {
+  background: #0f172a !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-bs-theme="dark"] .ecomm-trust-bar h6,
+[data-theme="dark"] .ecomm-trust-bar h6 {
+  color: #f8fafc !important;
+}
+
+[data-bs-theme="dark"] .ecomm-trust-bar small,
+[data-theme="dark"] .ecomm-trust-bar small {
+  color: #94a3b8 !important;
+}
+
+[data-bs-theme="light"] .ecomm-trust-bar,
+[data-theme="light"] .ecomm-trust-bar {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+[data-bs-theme="light"] .ecomm-trust-bar h6,
+[data-theme="light"] .ecomm-trust-bar h6 {
+  color: #0f172a !important;
+}
+
+[data-bs-theme="light"] .ecomm-trust-bar small,
+[data-theme="light"] .ecomm-trust-bar small {
+  color: #64748b !important;
+}
+
+/* 6. Sidebar Recent / Trending Articles Robust Text Wrapping */
+.recent-post-item {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 12px !important;
+  padding-bottom: 14px !important;
+  margin-bottom: 14px !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.6) !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.recent-post-body {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.recent-post-title {
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  margin-bottom: 4px !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
+}
+
+.recent-post-title a {
+  color: inherit !important;
+  text-decoration: none !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+[data-bs-theme="dark"] .recent-post-item,
+[data-theme="dark"] .recent-post-item {
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-bs-theme="dark"] .recent-post-title,
+[data-theme="dark"] .recent-post-title {
+  color: #f1f5f9 !important;
+}
+
+[data-bs-theme="light"] .recent-post-title,
+[data-theme="light"] .recent-post-title {
+  color: #0f172a !important;
+}
+

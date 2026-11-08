@@ -57,21 +57,25 @@ class PostController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'tag_id' => 'nullable|exists:tags,id',
-            'image_id' => 'nullable|exists:pictures,id',
-            'author_id' => 'nullable|exists:authors,id',
+            'tag_id' => 'nullable',
+            'image_id' => 'nullable',
+            'author_id' => 'nullable',
             'content' => 'required|string',
             'excerpt' => 'nullable|string|max:500',
             'status' => 'nullable',
-            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:5120',
+            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:5120',
         ]);
 
         // Handle image upload if provided
-        $imageId = $request->input('image_id');
+        $imageId = $request->filled('image_id') ? $request->input('image_id') : null;
         if ($request->hasFile('featured_image')) {
+            $postsDir = public_path('uploads/posts');
+            if (!file_exists($postsDir)) {
+                mkdir($postsDir, 0755, true);
+            }
             $file = $request->file('featured_image');
             $fileName = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/posts'), $fileName);
+            $file->move($postsDir, $fileName);
             $picture = Picture::create([
                 'name' => $request->title,
                 'link' => 'uploads/posts/' . $fileName,
@@ -160,20 +164,24 @@ class PostController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'tag_id' => 'nullable|exists:tags,id',
-            'image_id' => 'nullable|exists:pictures,id',
-            'author_id' => 'nullable|exists:authors,id',
+            'tag_id' => 'nullable',
+            'image_id' => 'nullable',
+            'author_id' => 'nullable',
             'content' => 'required|string',
             'excerpt' => 'nullable|string|max:500',
             'status' => 'nullable',
-            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:5120',
+            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:5120',
         ]);
 
-        $imageId = $request->input('image_id', $post->image_id);
+        $imageId = $request->filled('image_id') ? $request->input('image_id') : $post->image_id;
         if ($request->hasFile('featured_image')) {
+            $postsDir = public_path('uploads/posts');
+            if (!file_exists($postsDir)) {
+                mkdir($postsDir, 0755, true);
+            }
             $file = $request->file('featured_image');
             $fileName = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/posts'), $fileName);
+            $file->move($postsDir, $fileName);
             $picture = Picture::create([
                 'name' => $request->title,
                 'link' => 'uploads/posts/' . $fileName,

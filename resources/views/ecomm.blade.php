@@ -3,14 +3,14 @@
 @section('content')
 
 <!-- E-Commerce Hero Banner -->
-<section class="page-title bg-1" style="background: #090d16; padding: 110px 0 60px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+<section class="page-title" style="padding: 110px 0 60px 0;">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-8">
                 <span class="badge-elite badge-elite-dark mb-3">
                     <span class="badge-dot pulse"></span> Official Enterprise Store
                 </span>
-                <h1 class="text-white font-weight-bold mb-3 display-4" style="letter-spacing: -0.03em;">Developer Toolkits & Software</h1>
+                <h1 class="font-weight-bold mb-3 display-4" style="letter-spacing: -0.03em;">Developer Toolkits & Software</h1>
                 <p class="text-muted lead mb-0">Production-grade boilerplates, architecture blueprints, and enterprise integrations engineered for scale.</p>
             </div>
             <div class="col-lg-4 mt-4 mt-lg-0 text-lg-right">
@@ -30,7 +30,7 @@
                 <div class="d-flex align-items-center justify-content-center">
                     <i class="fas fa-bolt text-primary fa-2x mr-3"></i>
                     <div class="text-left">
-                        <h6 class="mb-0 font-weight-bold text-dark">Instant Digital Delivery</h6>
+                        <h6 class="mb-0 font-weight-bold">Instant Digital Delivery</h6>
                         <small class="text-muted">Direct GitHub access & composer packages</small>
                     </div>
                 </div>
@@ -39,7 +39,7 @@
                 <div class="d-flex align-items-center justify-content-center">
                     <i class="fas fa-shield-alt text-success fa-2x mr-3"></i>
                     <div class="text-left">
-                        <h6 class="mb-0 font-weight-bold text-dark">Enterprise Grade Security</h6>
+                        <h6 class="mb-0 font-weight-bold">Enterprise Grade Security</h6>
                         <small class="text-muted">Fortify 2FA & strict vulnerability audits</small>
                     </div>
                 </div>
@@ -48,7 +48,7 @@
                 <div class="d-flex align-items-center justify-content-center">
                     <i class="fas fa-headset text-info fa-2x mr-3"></i>
                     <div class="text-left">
-                        <h6 class="mb-0 font-weight-bold text-dark">Dedicated Support</h6>
+                        <h6 class="mb-0 font-weight-bold">Dedicated Support</h6>
                         <small class="text-muted">Direct architect consultation included</small>
                     </div>
                 </div>
@@ -263,3 +263,4 @@
     </div>
 </section>
 @endsection
+

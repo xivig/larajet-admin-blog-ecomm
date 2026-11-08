@@ -11,7 +11,7 @@
                     <span class="badge-elite badge-elite-dark mb-4 animated fadeInDown">
                         <span class="badge-dot pulse"></span> Next-Gen Enterprise Architecture
                     </span>
-                    <h1 class="animated fadeInUp mb-4 display-3 font-weight-bold" style="letter-spacing: -0.03em; line-height: 1.15;">
+                    <h1 class="animated fadeInUp mb-4 display-3 font-weight-bold slider-hero-title" style="letter-spacing: -0.03em; line-height: 1.15;">
                         Engineering <span class="text-gradient">high-performance</span> digital ecosystems.
                     </h1>
                     <p class="animated fadeInUp text-muted lead mb-5" style="max-width: 680px;">
@@ -410,3 +410,4 @@
     </div>
 </section>
 @endsection
+
