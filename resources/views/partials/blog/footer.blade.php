@@ -89,5 +89,6 @@
 <script src="{{ asset('xivig-blog/plugins/slick/slick.min.js') }}"></script>
 <script src="{{ asset('xivig-blog/plugins/magnific-popup/magnific-popup.js') }}"></script>
 <script src="{{ asset('xivig-blog/js/script.js') }}"></script>
+<script src="{{ asset('xivig-blog/js/theme-switcher.js') }}"></script>
 </body>
 </html>

@@ -31,4 +31,12 @@
     <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
     <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
 <![endif]-->
+    <!-- Theme Controller Pre-loader -->
+    <script>
+        (function() {
+            var saved = localStorage.getItem('xivig-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-bs-theme', saved);
+            document.documentElement.setAttribute('data-theme', saved);
+        })();
+    </script>
 </head>

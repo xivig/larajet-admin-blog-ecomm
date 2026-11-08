@@ -87,6 +87,13 @@
             <!-- Right side toggle and nav items -->
             <!-- ============================================================== -->
             <ul class="navbar-nav float-right">
+                <!-- Theme Toggle Button -->
+                <li class="nav-item d-flex align-items-center me-2 mr-2">
+                    <button type="button" class="theme-toggle-btn" id="adminThemeToggleBtn" aria-label="Toggle Dark/Light Mode" title="Toggle Dark/Light Mode">
+                        <i class="bi bi-moon-stars-fill theme-icon-dark"></i>
+                        <i class="bi bi-sun-fill theme-icon-light"></i>
+                    </button>
+                </li>
                 <!-- ============================================================== -->
                 <!-- Messages -->
                 <!-- ============================================================== -->

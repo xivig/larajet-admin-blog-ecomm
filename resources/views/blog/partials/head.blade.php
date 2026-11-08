@@ -38,6 +38,15 @@
   <!-- Elite Modern Design System -->
   <link rel="stylesheet" href="{{asset('xivig-blog/css/elite-design.css')}}">
 
+  <!-- Theme Controller Pre-loader -->
+  <script>
+    (function() {
+      var saved = localStorage.getItem('xivig-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-bs-theme', saved);
+      document.documentElement.setAttribute('data-theme', saved);
+    })();
+  </script>
+
   <!--Favicon-->
   <link rel="icon" href="{{asset('xivig-blog/images/favicon.png')}}" type="image/x-icon">
 

@@ -25,6 +25,15 @@
     <!-- Elite Design Tokens -->
     <link rel="stylesheet" href="{{ asset('xivig-blog/css/elite-design.css') }}">
 
+    <!-- Theme Controller Pre-loader -->
+    <script>
+        (function() {
+            var saved = localStorage.getItem('xivig-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-bs-theme', saved);
+            document.documentElement.setAttribute('data-theme', saved);
+        })();
+    </script>
+
     <style>
         body, .page-wrapper { font-family: 'Plus Jakarta Sans', sans-serif !important; }
         h1, h2, h3, h4, h5, h6, .page-title { font-family: 'Outfit', sans-serif !important; font-weight: 700; }

@@ -30,6 +30,12 @@
 
                         <span class="top-util-divider me-3 mr-3"></span>
 
+                        <!-- Dark/Light Mode Switcher -->
+                        <button type="button" class="theme-toggle-btn me-3 mr-3" id="themeToggleBtn" aria-label="Toggle dark/light mode" title="Toggle dark/light mode">
+                            <i class="bi bi-moon-stars-fill theme-icon-dark"></i>
+                            <i class="bi bi-sun-fill theme-icon-light"></i>
+                        </button>
+
                         @if(Auth::guard('admin')->check())
                             <a href="{{ route('admin.dashboard') }}" class="top-auth-link me-3 mr-3">
                                 <i class="bi bi-shield-lock me-1 mr-1"></i> Admin Console
