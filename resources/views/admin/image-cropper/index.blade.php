@@ -470,7 +470,13 @@
                         cropper.replace(uploadedImageURL);
                         inputImage.value = null;
                     } else {
-                        alert('Please select a valid image file.');
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Invalid File',
+                            text: 'Please select a valid image file.',
+                            customClass: { confirmButton: 'btn btn-primary px-4 rounded-pill' },
+                            buttonsStyling: false
+                        });
                     }
                 }
             });
@@ -484,7 +490,13 @@
                 imageSmoothingQuality: 'high',
             });
             if (!canvas) {
-                alert('Failed to generate cropped canvas.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Crop Error',
+                    text: 'Failed to generate cropped canvas.',
+                    customClass: { confirmButton: 'btn btn-primary px-4 rounded-pill' },
+                    buttonsStyling: false
+                });
                 return;
             }
 
@@ -515,7 +527,7 @@
                     saveLibraryStatus.className = 'small mt-2 text-success fw-semibold';
                     saveLibraryStatus.innerHTML = '<i class="bi bi-check-circle me-1"></i> ' + data.message + ' <a href="{{ route("admin.media.index") }}" class="text-decoration-underline ms-1">View in Library</a>';
                 }
-                alert('Asset successfully saved into Media Library!');
+                showToast('Asset successfully saved into Media Library!', 'success');
                 setTimeout(() => {
                     triggerBtn.innerHTML = originalText;
                 }, 3000);
@@ -523,7 +535,13 @@
             .catch(err => {
                 triggerBtn.disabled = false;
                 triggerBtn.innerHTML = originalText;
-                alert('Failed to save cropped image to Media Library.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Save Failed',
+                    text: 'Failed to save cropped image to Media Library.',
+                    customClass: { confirmButton: 'btn btn-primary px-4 rounded-pill' },
+                    buttonsStyling: false
+                });
             });
         }
 

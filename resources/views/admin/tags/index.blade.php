@@ -145,7 +145,16 @@
 @push('scripts')
 <script>
   function deleteTag(id, name) {
-    if (confirm('Are you sure you want to delete tag "#' + name + '"?')) {
+    if (window.showConfirmDialog) {
+      window.showConfirmDialog({
+        title: 'Delete Tag?',
+        text: 'Are you sure you want to delete tag "#' + name + '"?',
+        icon: 'warning',
+        confirmButtonText: 'Yes, delete tag'
+      }, function() {
+        document.getElementById('delete-tag-' + id).submit();
+      });
+    } else if (confirm('Are you sure you want to delete tag "#' + name + '"?')) {
       document.getElementById('delete-tag-' + id).submit();
     }
   }

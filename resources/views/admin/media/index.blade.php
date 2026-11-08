@@ -632,7 +632,7 @@
 function copyAssetUrl(url) {
     if (!url) return;
     navigator.clipboard.writeText(url).then(() => {
-        alert('Public asset URL copied to clipboard:\n' + url);
+        showToast('Public asset URL copied to clipboard!', 'success');
     }).catch(err => {
         prompt('Copy the asset link:', url);
     });
@@ -640,11 +640,16 @@ function copyAssetUrl(url) {
 
 // Single asset soft deletion
 function deleteSingleAsset(id, name) {
-    if (confirm('Move media asset "' + name + '" to Trash?')) {
+    showConfirmDialog({
+        title: 'Move to Trash?',
+        text: 'Move media asset "' + name + '" to Trash?',
+        icon: 'warning',
+        confirmButtonText: 'Yes, Move'
+    }, function() {
         const form = document.getElementById('singleDeleteForm');
         form.action = '{{ url("admin/media") }}/' + id;
         form.submit();
-    }
+    });
 }
 
 // Single asset restore
@@ -656,11 +661,16 @@ function restoreSingleAsset(id) {
 
 // Single asset force delete
 function forceDeleteSingleAsset(id, name) {
-    if (confirm('PERMANENT DELETION: Are you sure you want to permanently delete media asset "' + name + '"? This will remove the file from storage and cannot be undone.')) {
+    showConfirmDialog({
+        title: 'Permanent Deletion',
+        text: 'Are you sure you want to permanently delete media asset "' + name + '"? This will remove the file from storage and cannot be undone.',
+        icon: 'error',
+        confirmButtonText: 'Delete Permanently'
+    }, function() {
         const form = document.getElementById('singleForceDeleteForm');
         form.action = '{{ url("admin/media") }}/' + id + '/force-delete';
         form.submit();
-    }
+    });
 }
 
 // Single asset duplicate
@@ -704,26 +714,40 @@ function executeBulkAction(action) {
     const selected = Array.from(document.querySelectorAll('.media-checkbox:checked')).map(cb => cb.value);
     if (selected.length === 0) return;
 
+    const proceed = () => {
+        const form = document.getElementById('bulkActionForm');
+        const container = document.getElementById('bulkIdsContainer');
+        document.getElementById('bulkActionType').value = action;
+        container.innerHTML = '';
+
+        selected.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'ids[]';
+            input.value = id;
+            container.appendChild(input);
+        });
+
+        form.submit();
+    };
+
     if (action === 'delete') {
-        if (!confirm('Are you sure you want to permanently delete ' + selected.length + ' selected media asset(s)?')) {
-            return;
-        }
+        showConfirmDialog({
+            title: 'Move Selected to Trash?',
+            text: 'Move ' + selected.length + ' selected media asset(s) to Trash?',
+            icon: 'warning',
+            confirmButtonText: 'Move to Trash'
+        }, proceed);
+    } else if (action === 'force_delete') {
+        showConfirmDialog({
+            title: 'Permanently Delete Selected?',
+            text: 'Are you sure you want to permanently delete ' + selected.length + ' media asset(s)? Files will be unlinked from storage.',
+            icon: 'error',
+            confirmButtonText: 'Delete Permanently'
+        }, proceed);
+    } else {
+        proceed();
     }
-
-    const form = document.getElementById('bulkActionForm');
-    const container = document.getElementById('bulkIdsContainer');
-    document.getElementById('bulkActionType').value = action;
-    container.innerHTML = '';
-
-    selected.forEach(id => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'ids[]';
-        input.value = id;
-        container.appendChild(input);
-    });
-
-    form.submit();
 }
 
 // Drag & Drop Queue Handling
@@ -860,7 +884,13 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(err => {
             console.error('Error fetching asset details:', err);
-            alert('Failed to load asset details.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Load Failed',
+                text: 'Failed to load asset details from server.',
+                customClass: { confirmButton: 'btn btn-primary px-4 rounded-pill' },
+                buttonsStyling: false
+            });
         });
     };
 
@@ -904,7 +934,13 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(err => {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Save Changes';
-                alert('Failed to save metadata updates.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Save Failed',
+                    text: 'Failed to save metadata updates.',
+                    customClass: { confirmButton: 'btn btn-primary px-4 rounded-pill' },
+                    buttonsStyling: false
+                });
             });
         });
     }

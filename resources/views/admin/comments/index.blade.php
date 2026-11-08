@@ -315,15 +315,67 @@
   }
 
   function deleteComment(id) {
-    if (confirm('Move this comment to Trash?')) {
+    showConfirmDialog({
+      title: 'Move to Trash?',
+      text: 'Move this comment to Trash?',
+      icon: 'warning',
+      confirmButtonText: 'Yes, Move'
+    }, function() {
       document.getElementById('delete-form-' + id).submit();
-    }
+    });
   }
 
   function confirmForceDeleteComment(id) {
-    if (confirm('PERMANENT DELETION: Are you sure you want to permanently delete this comment and its replies? This action cannot be undone.')) {
+    showConfirmDialog({
+      title: 'Permanent Deletion',
+      text: 'Are you sure you want to permanently delete this comment and its replies? This action cannot be undone.',
+      icon: 'error',
+      confirmButtonText: 'Delete Permanently'
+    }, function() {
       document.getElementById('force-delete-form-' + id).submit();
-    }
+    });
+  }
+
+  // Intercept Bulk Action Form with SweetAlert2
+  const bulkForm = document.getElementById('bulkForm');
+  if (bulkForm) {
+    bulkForm.addEventListener('submit', function(e) {
+      const selected = document.querySelectorAll('.item-check:checked');
+      if (selected.length === 0) {
+        e.preventDefault();
+        Swal.fire({
+          icon: 'info',
+          title: 'Selection Required',
+          text: 'Please select at least one comment using the checkboxes.',
+          customClass: { confirmButton: 'btn btn-primary px-4 rounded-pill' },
+          buttonsStyling: false
+        });
+        return false;
+      }
+
+      const action = bulkForm.querySelector('select[name="action"]').value;
+      if (action === 'delete') {
+        e.preventDefault();
+        showConfirmDialog({
+          title: 'Move Selected to Trash?',
+          text: 'Move ' + selected.length + ' selected comment(s) to Trash?',
+          icon: 'warning',
+          confirmButtonText: 'Move to Trash'
+        }, function() {
+          bulkForm.submit();
+        });
+      } else if (action === 'force_delete') {
+        e.preventDefault();
+        showConfirmDialog({
+          title: 'Permanently Delete Selected?',
+          text: 'Are you sure you want to permanently remove ' + selected.length + ' comment(s) and their replies? This cannot be undone.',
+          icon: 'error',
+          confirmButtonText: 'Delete Permanently'
+        }, function() {
+          bulkForm.submit();
+        });
+      }
+    });
   }
 </script>
 @endpush

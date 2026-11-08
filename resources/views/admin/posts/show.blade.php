@@ -104,10 +104,10 @@
           <a href="{{ route('single-post', $post->slug) }}" target="_blank" class="btn btn-outline-secondary">
             <i class="bi bi-box-arrow-up-right me-1"></i> View Live Article
           </a>
-          <form action="{{ route('admin.posts.destroy', $post->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this post?');">
+          <form id="showDeletePostForm" action="{{ route('admin.posts.destroy', $post->id) }}" method="POST">
             @csrf
             @method('DELETE')
-            <button type="submit" class="btn btn-outline-danger w-100">
+            <button type="button" class="btn btn-outline-danger w-100" onclick="showConfirmDialog({ title: 'Move to Trash?', text: 'Are you sure you want to move this article to Trash?' }, () => document.getElementById('showDeletePostForm').submit())">
               <i class="bi bi-trash me-1"></i> Delete Article
             </button>
           </form>

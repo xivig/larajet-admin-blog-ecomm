@@ -75,9 +75,9 @@
           </div>
           <div class="d-flex align-items-center gap-2">
             @if ($currentFolder === 'uploads/trash' && count($files) > 0)
-              <form action="{{ route('admin.file-manager.empty-trash') }}" method="POST" class="d-inline" onsubmit="return confirm('PERMANENT: Are you sure you want to empty the entire Recycle Bin? This cannot be undone.');">
+              <form id="emptyBinForm" action="{{ route('admin.file-manager.empty-trash') }}" method="POST" class="d-inline">
                 @csrf
-                <button type="submit" class="btn btn-sm btn-outline-danger">
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmEmptyBin()">
                   <i class="bi bi-trash3 me-1"></i> Empty Bin
                 </button>
               </form>
@@ -118,7 +118,7 @@
                           <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
                         </button>
                       </form>
-                      <form action="{{ route('admin.file-manager.force-delete') }}" method="POST" class="d-inline" onsubmit="return confirm('PERMANENT: Permanently delete file {{ $file['name'] }}?');">
+                      <form action="{{ route('admin.file-manager.force-delete') }}" method="POST" class="d-inline" onsubmit="return confirmForceDeleteFile(event, this, '{{ addslashes($file['name']) }}');">
                         @csrf
                         @method('DELETE')
                         <input type="hidden" name="path" value="{{ $file['path'] }}">
@@ -140,7 +140,7 @@
                           <i class="bi bi-copy"></i>
                         </button>
                       </form>
-                      <form action="{{ route('admin.file-manager.destroy') }}" method="POST" class="d-inline" onsubmit="return confirm('Move file {{ $file['name'] }} to Recycle Bin?');">
+                      <form action="{{ route('admin.file-manager.destroy') }}" method="POST" class="d-inline" onsubmit="return confirmTrashFile(event, this, '{{ addslashes($file['name']) }}');">
                         @csrf
                         @method('DELETE')
                         <input type="hidden" name="path" value="{{ $file['path'] }}">
@@ -222,11 +222,49 @@
   }
 
   function copyAssetLink(url) {
+    if (!url) return;
     navigator.clipboard.writeText(url).then(() => {
-      alert('Asset link copied to clipboard:\n' + url);
+      showToast('Asset link copied to clipboard!', 'success');
     }).catch(() => {
       prompt('Copy asset URL:', url);
     });
+  }
+
+  function confirmEmptyBin() {
+    showConfirmDialog({
+      title: 'Empty Recycle Bin?',
+      text: 'PERMANENT DELETION: Are you sure you want to empty the entire Recycle Bin? All trashed files will be deleted forever.',
+      icon: 'error',
+      confirmButtonText: 'Yes, Empty Bin'
+    }, function() {
+      document.getElementById('emptyBinForm').submit();
+    });
+  }
+
+  function confirmForceDeleteFile(e, form, name) {
+    e.preventDefault();
+    showConfirmDialog({
+      title: 'Permanent Deletion',
+      text: 'Are you sure you want to permanently delete "' + name + '"? This file cannot be recovered.',
+      icon: 'error',
+      confirmButtonText: 'Delete Permanently'
+    }, function() {
+      form.submit();
+    });
+    return false;
+  }
+
+  function confirmTrashFile(e, form, name) {
+    e.preventDefault();
+    showConfirmDialog({
+      title: 'Move to Recycle Bin?',
+      text: 'Move file "' + name + '" to Recycle Bin?',
+      icon: 'warning',
+      confirmButtonText: 'Move to Bin'
+    }, function() {
+      form.submit();
+    });
+    return false;
   }
 </script>
 @endpush

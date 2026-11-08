@@ -272,10 +272,10 @@
                                             {{ $u->created_at ? $u->created_at->format('M d, Y') : 'N/A' }}
                                         </td>
                                         <td class="text-end pe-4">
-                                            <form action="{{ route('admin.roles.remove-user', $currentRole->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Remove {{ $u->name }} from {{ $currentRole->name }} role?');">
+                                            <form id="removeUserForm-{{ $u->id }}" action="{{ route('admin.roles.remove-user', $currentRole->id) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 <input type="hidden" name="user_id" value="{{ $u->id }}">
-                                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Remove role from user">
+                                                <button type="button" class="btn btn-outline-danger btn-sm" title="Remove role from user" onclick="showConfirmDialog({ title: 'Remove Role Assignment?', text: 'Remove {{ $u->name }} from {{ $currentRole->name }} role?' }, () => document.getElementById('removeUserForm-{{ $u->id }}').submit())">
                                                     <i class="bi bi-person-x"></i>
                                                 </button>
                                             </form>
@@ -377,7 +377,7 @@
                     <hr>
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="text-danger small">Danger Zone: Permanently remove this role</span>
-                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="if(confirm('Are you sure you want to delete this role? Users will lose their role assignments.')) { document.getElementById('delete-role-form').submit(); }">
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="showConfirmDialog({ title: 'Delete Role?', text: 'Are you sure you want to delete this role? Users will lose their role assignments.', icon: 'error', confirmButtonText: 'Delete Role' }, () => document.getElementById('delete-role-form').submit())">
                             <i class="bi bi-trash me-1"></i> Delete Role
                         </button>
                     </div>

@@ -53,12 +53,93 @@
   <script src="{{ asset('admin-dist/vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
   <script src="{{ asset('admin-dist/vendor/simple-datatables/simple-datatables.js') }}"></script>
   <script src="{{ asset('admin-dist/vendor/quill/quill.js') }}"></script>
+  <script src="{{ asset('admin-dist/vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
+  <script>
+    if (typeof Swal === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"><\/script>');
+    }
+  </script>
 
   <!-- Template Main JS File -->
   <script src="{{ asset('admin-dist/js/main-4QRCOyTp.js') }}"></script>
 
-  <!-- Theme Toggle & Datatables auto-init script -->
+  <!-- SweetAlert2 Helper Suite & Theme Toggle Script -->
   <script>
+    // Global SweetAlert2 Toast configuration
+    window.SwalToast = typeof Swal !== 'undefined' ? Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3500,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+      }
+    }) : null;
+
+    // Global toast helper
+    window.showToast = function(message, icon = 'success') {
+      if (window.SwalToast) {
+        window.SwalToast.fire({
+          icon: icon,
+          title: message
+        });
+      } else if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          icon: icon,
+          title: message,
+          timer: 3000,
+          showConfirmButton: false
+        });
+      } else {
+        alert(message);
+      }
+    };
+
+    // Global Confirm Dialog helper
+    window.showConfirmDialog = function({
+      title = 'Are you sure?',
+      text = 'This action cannot be undone.',
+      icon = 'warning',
+      confirmButtonText = 'Yes, Proceed',
+      cancelButtonText = 'Cancel',
+      confirmButtonColor = '#dc2626',
+      cancelButtonColor = '#6b7280',
+      reverseButtons = true
+    } = {}, onConfirm) {
+      if (typeof Swal === 'undefined') {
+        if (confirm(text ? (title + '\n' + text) : title)) {
+          if (typeof onConfirm === 'function') onConfirm();
+          return Promise.resolve({ isConfirmed: true });
+        }
+        return Promise.resolve({ isConfirmed: false });
+      }
+
+      return Swal.fire({
+        title: title,
+        text: text,
+        icon: icon,
+        showCancelButton: true,
+        confirmButtonText: confirmButtonText,
+        cancelButtonText: cancelButtonText,
+        confirmButtonColor: confirmButtonColor,
+        cancelButtonColor: cancelButtonColor,
+        reverseButtons: reverseButtons,
+        customClass: {
+          popup: 'rounded-4 shadow-lg border-0',
+          confirmButton: 'btn btn-primary px-4 rounded-pill',
+          cancelButton: 'btn btn-outline-secondary px-4 rounded-pill me-2'
+        },
+        buttonsStyling: false
+      }).then((result) => {
+        if (result.isConfirmed && typeof onConfirm === 'function') {
+          onConfirm();
+        }
+        return result;
+      });
+    };
+
     document.addEventListener('DOMContentLoaded', function() {
       // Dark/Light Theme Switching
       const themeToggleBtns = document.querySelectorAll('.theme-toggle');
@@ -91,6 +172,65 @@
       });
     });
   </script>
+
+  {{-- SweetAlert2 Session Flash Triggers --}}
+  @if (session('success'))
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        if (window.showToast) {
+          window.showToast(@json(session('success')), 'success');
+        }
+      });
+    </script>
+  @endif
+
+  @if (session('error'))
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            icon: 'error',
+            title: 'Notice',
+            text: @json(session('error')),
+            customClass: { confirmButton: 'btn btn-primary px-4 rounded-pill' },
+            buttonsStyling: false
+          });
+        }
+      });
+    </script>
+  @endif
+
+  @if ($errors->any())
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        if (typeof Swal !== 'undefined') {
+          const errs = @json($errors->all()).map(e => '• ' + e).join('<br>');
+          Swal.fire({
+            icon: 'error',
+            title: 'Please review the following:',
+            html: '<div class="text-start mt-2 text-danger">' + errs + '</div>',
+            customClass: { confirmButton: 'btn btn-primary px-4 rounded-pill' },
+            buttonsStyling: false
+          });
+        }
+      });
+    </script>
+  @endif
+
+  <style>
+    .swal2-popup {
+      border-radius: 1rem !important;
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+    }
+    [data-bs-theme="dark"] .swal2-popup {
+      background-color: #1e293b !important;
+      color: #f8fafc !important;
+    }
+    [data-bs-theme="dark"] .swal2-title,
+    [data-bs-theme="dark"] .swal2-html-container {
+      color: #f1f5f9 !important;
+    }
+  </style>
 
   @stack('scripts')
 </body>

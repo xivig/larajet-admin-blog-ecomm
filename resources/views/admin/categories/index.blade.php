@@ -207,19 +207,36 @@
 @push('scripts')
 <script>
   function deleteCategory(id, name) {
-    if (confirm('Move category "' + name + '" to Trash?')) {
+    showConfirmDialog({
+      title: 'Move to Trash?',
+      text: 'Move category "' + name + '" to Trash?',
+      icon: 'warning',
+      confirmButtonText: 'Yes, Move to Trash'
+    }, function() {
       document.getElementById('delete-cat-' + id).submit();
-    }
+    });
   }
 
   function confirmForceDeleteCat(id, name, postCount) {
     if (postCount > 0) {
-      alert('Cannot delete category "' + name + '" because it still contains ' + postCount + ' post(s). Please reassign them first.');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Action Restricted',
+        text: 'Cannot delete category "' + name + '" because it still contains ' + postCount + ' post(s). Please reassign them first.',
+        customClass: { confirmButton: 'btn btn-primary px-4 rounded-pill' },
+        buttonsStyling: false
+      });
       return;
     }
-    if (confirm('PERMANENT DELETION: Are you sure you want to permanently delete category "' + name + '"? This action cannot be undone.')) {
+
+    showConfirmDialog({
+      title: 'Permanent Deletion',
+      text: 'Are you sure you want to permanently delete category "' + name + '"? This action cannot be undone.',
+      icon: 'error',
+      confirmButtonText: 'Delete Permanently'
+    }, function() {
       document.getElementById('force-delete-cat-' + id).submit();
-    }
+    });
   }
 </script>
 @endpush

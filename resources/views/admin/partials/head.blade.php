@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="{{ asset('admin-dist/vendor/phosphor-icons/phosphor-icons.css') }}">
   <link rel="stylesheet" href="{{ asset('admin-dist/vendor/quill/quill.snow.css') }}">
   <link rel="stylesheet" href="{{ asset('admin-dist/vendor/simple-datatables/style.css') }}">
+  <link rel="stylesheet" href="{{ asset('admin-dist/vendor/sweetalert2/sweetalert2.min.css') }}">
 
   <!-- Template Main CSS File (Compiled SCSS + Bootstrap 5 + Dark/Light Mode) -->
   <link rel="stylesheet" href="{{ asset('admin-dist/css/main-DjChhAQn.css') }}">

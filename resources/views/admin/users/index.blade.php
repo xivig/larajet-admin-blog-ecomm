@@ -117,9 +117,14 @@
 @push('scripts')
 <script>
   function confirmDeleteUser(id, name) {
-    if (confirm('Are you sure you want to delete user "' + name + '"? This will remove all their associated comments.')) {
+    showConfirmDialog({
+      title: 'Delete User Account?',
+      text: 'Are you sure you want to delete user "' + name + '"? This will also remove their associated comments and cannot be undone.',
+      icon: 'warning',
+      confirmButtonText: 'Yes, Delete User'
+    }, function() {
       document.getElementById('delete-user-' + id).submit();
-    }
+    });
   }
 </script>
 @endpush

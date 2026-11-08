@@ -236,9 +236,14 @@
     });
 
     window.confirmDelete = function() {
-      if (confirm('Are you sure you want to delete this article? This action cannot be undone.')) {
+      showConfirmDialog({
+        title: 'Delete Article?',
+        text: 'Are you sure you want to move this article to Trash?',
+        icon: 'warning',
+        confirmButtonText: 'Yes, Move to Trash'
+      }, function() {
         document.getElementById('deleteForm').submit();
-      }
+      });
     };
   });
 </script>

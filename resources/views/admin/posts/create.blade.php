@@ -267,7 +267,13 @@
       const hiddenContent = document.getElementById('hiddenContent');
       hiddenContent.value = quill.root.innerHTML;
       if (quill.getText().trim().length === 0) {
-        alert('Please enter article content before submitting.');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Content Required',
+          text: 'Please enter article body content before publishing.',
+          customClass: { confirmButton: 'btn btn-primary px-4 rounded-pill' },
+          buttonsStyling: false
+        });
         e.preventDefault();
         return false;
       }

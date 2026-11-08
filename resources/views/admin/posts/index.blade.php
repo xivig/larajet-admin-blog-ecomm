@@ -207,15 +207,25 @@
 @push('scripts')
 <script>
   function confirmDelete(id, title) {
-    if (confirm('Move article "' + title + '" to Trash?')) {
+    showConfirmDialog({
+      title: 'Move to Trash?',
+      text: 'Move article "' + title + '" to Trash?',
+      icon: 'warning',
+      confirmButtonText: 'Yes, Move to Trash'
+    }, function() {
       document.getElementById('delete-form-' + id).submit();
-    }
+    });
   }
 
   function confirmForceDelete(id, title) {
-    if (confirm('PERMANENT DELETION: Are you sure you want to permanently delete article "' + title + '"? This will remove all associated comments as well and CANNOT be undone.')) {
+    showConfirmDialog({
+      title: 'Permanent Deletion',
+      text: 'Are you sure you want to permanently delete article "' + title + '"? This will remove all associated comments as well and cannot be undone.',
+      icon: 'error',
+      confirmButtonText: 'Delete Permanently'
+    }, function() {
       document.getElementById('force-delete-form-' + id).submit();
-    }
+    });
   }
 </script>
 @endpush

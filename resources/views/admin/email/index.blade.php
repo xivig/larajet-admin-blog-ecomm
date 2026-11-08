@@ -142,10 +142,10 @@
                             </button>
                           </form>
                         @else
-                          <form action="{{ route('admin.email.destroy', $email->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Purge email permanently?');">
+                          <form action="{{ route('admin.email.destroy', $email->id) }}" method="POST" class="d-inline">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-outline-danger" title="Purge Permanently">
+                            <button type="button" class="btn btn-outline-danger" title="Purge Permanently" onclick="confirmPurgeEmail(event, this)">
                               <i class="bi bi-x-circle"></i>
                             </button>
                           </form>
@@ -244,5 +244,26 @@
     </div>
   </div>
 @endforeach
+
+@push('scripts')
+<script>
+  function confirmPurgeEmail(e, btn) {
+    e.preventDefault();
+    const form = btn.closest('form');
+    if (window.showConfirmDialog) {
+      window.showConfirmDialog({
+        title: 'Purge Email Permanently?',
+        text: 'This email will be removed permanently from your trash mailbox.',
+        icon: 'error',
+        confirmButtonText: 'Yes, purge email'
+      }, function() {
+        form.submit();
+      });
+    } else if (confirm('Purge email permanently?')) {
+      form.submit();
+    }
+  }
+</script>
+@endpush
 
 @endsection
