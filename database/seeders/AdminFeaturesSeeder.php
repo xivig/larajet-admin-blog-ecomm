@@ -37,6 +37,12 @@ class AdminFeaturesSeeder extends Seeder
                 'description' => 'Moderate reader discussions, approve pending comments, and flag spam.',
                 'color' => 'warning',
             ],
+            [
+                'name' => 'Subscriber',
+                'slug' => 'subscriber',
+                'description' => 'Standard community member and subscriber with basic read and comment access.',
+                'color' => 'secondary',
+            ],
         ];
 
         foreach ($roles as $r) {

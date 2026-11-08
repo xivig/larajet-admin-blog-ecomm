@@ -26,10 +26,22 @@ class CreateNewUser implements CreatesNewUsers
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
         ])->validate();
 
-        return User::create([
+        $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
         ]);
+
+        $subscriberRole = \App\Models\Role::firstOrCreate(
+            ['slug' => 'subscriber'],
+            [
+                'name' => 'Subscriber',
+                'description' => 'Standard community member and subscriber with basic read and comment access.',
+                'color' => 'secondary',
+            ]
+        );
+        $user->roles()->sync([$subscriberRole->id]);
+
+        return $user;
     }
 }

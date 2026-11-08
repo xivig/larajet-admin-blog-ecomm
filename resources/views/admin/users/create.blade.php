@@ -60,12 +60,19 @@
           <label class="form-label fw-semibold d-block">Security Authority &amp; System Roles</label>
           <div class="row g-2">
             @foreach ($roles as $role)
+              @php
+                $isSubscriber = in_array(strtolower($role->slug), ['subscriber', 'reader']) || strtolower($role->name) === 'subscriber';
+                $isChecked = old('roles') !== null ? in_array($role->id, (array) old('roles')) : $isSubscriber;
+              @endphp
               <div class="col-md-6">
-                <div class="border rounded p-2.5 h-100">
+                <div class="border rounded p-2.5 h-100 {{ $isSubscriber ? 'border-primary-subtle bg-primary-subtle bg-opacity-10' : '' }}">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="roles[]" value="{{ $role->id }}" id="role_{{ $role->id }}">
+                    <input class="form-check-input" type="checkbox" name="roles[]" value="{{ $role->id }}" id="role_{{ $role->id }}" {{ $isChecked ? 'checked' : '' }}>
                     <label class="form-check-label fw-semibold" for="role_{{ $role->id }}">
                       <span class="badge bg-{{ $role->color }}-subtle text-{{ $role->color }} me-1">{{ $role->name }}</span>
+                      @if ($isSubscriber)
+                        <span class="badge bg-secondary-subtle text-secondary small ms-1">(Default)</span>
+                      @endif
                     </label>
                     <div class="text-muted small mt-1" style="font-size: 11px;">{{ $role->description }}</div>
                   </div>
@@ -77,7 +84,7 @@
 
         <div class="mb-4">
           <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" name="is_author" id="isAuthor" value="1" checked>
+            <input class="form-check-input" type="checkbox" name="is_author" id="isAuthor" value="1" {{ old('is_author') ? 'checked' : '' }}>
             <label class="form-check-label fw-semibold" for="isAuthor">
               Register as Editorial Author (Can compose and publish blog posts)
             </label>

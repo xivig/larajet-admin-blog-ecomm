@@ -66,9 +66,19 @@ class UserController extends Controller
             'profile_photo_path' => $profilePhotoPath,
         ]);
 
-        if ($request->has('roles')) {
-            $user->roles()->sync($request->roles);
+        $roleIds = $request->input('roles', []);
+        if (empty($roleIds)) {
+            $subscriberRole = Role::firstOrCreate(
+                ['slug' => 'subscriber'],
+                [
+                    'name' => 'Subscriber',
+                    'description' => 'Standard community member and subscriber with basic read and comment access.',
+                    'color' => 'secondary',
+                ]
+            );
+            $roleIds = [$subscriberRole->id];
         }
+        $user->roles()->sync($roleIds);
 
         if ($request->has('is_author')) {
             Author::create([
