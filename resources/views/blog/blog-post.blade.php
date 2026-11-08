@@ -37,13 +37,9 @@
                     @if($post->image)
                         @php
                             $coverLink = $post->image->link;
-                            if (!Str::startsWith($coverLink, ['http://', 'https://', 'uploads/'])) {
-                                $coverLink = asset('xivig-blog/images/blog/' . $coverLink);
-                            } else {
-                                $coverLink = asset($coverLink);
-                            }
+                            $resolvedHero = Str::startsWith($coverLink, ['http://', 'https://']) ? $coverLink : asset($coverLink);
                         @endphp
-                        <img loading="lazy" src="{{ $coverLink }}" alt="{{ $post->title }}" class="single-post-hero-img" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                        <img loading="lazy" src="{{ $resolvedHero }}" alt="{{ $post->title }}" class="single-post-hero-img" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                     @endif
 
                     <div class="single-blog-content">
@@ -68,7 +64,7 @@
                         <!-- Tags and Social Share -->
                         <div class="d-flex flex-wrap justify-content-between align-items-center pt-4 pb-3 mt-5" style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
                             <div class="d-flex align-items-center my-2">
-                                <span class="font-weight-bold mr-3 text-dark"><i class="fas fa-tags text-primary mr-1"></i> Tags:</span>
+                                <span class="font-weight-bold mr-3 text-body"><i class="fas fa-tags text-primary mr-1"></i> Tags:</span>
                                 @if($post->tag)
                                     <span class="badge badge-light p-2 font-weight-bold mr-2 text-primary" style="font-size: 13px;">#{{ $post->tag->name }}</span>
                                 @endif
@@ -77,7 +73,7 @@
                             </div>
 
                             <div class="d-flex align-items-center my-2">
-                                <span class="font-weight-bold mr-3 text-dark">Share:</span>
+                                <span class="font-weight-bold mr-3 text-body">Share:</span>
                                 <a href="https://twitter.com/intent/tweet?text={{ urlencode($post->title) }}&url={{ urlencode(url()->current()) }}" target="_blank" class="footer-social-btn mr-2" aria-label="Share on X"><i class="bi bi-twitter-x"></i></a>
                                 <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode(url()->current()) }}" target="_blank" class="footer-social-btn mr-2" aria-label="Share on LinkedIn"><i class="bi bi-linkedin"></i></a>
                                 <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}" target="_blank" class="footer-social-btn" aria-label="Share on Facebook"><i class="bi bi-facebook"></i></a>
@@ -92,7 +88,7 @@
                                 </div>
                             </div>
                             <div>
-                                <h5 class="mb-1 font-weight-bold text-dark">{{ $post->author->nickname ?? ($post->user->name ?? 'Author') }}</h5>
+                                <h5 class="mb-1 font-weight-bold text-body">{{ $post->author->nickname ?? ($post->user->name ?? 'Author') }}</h5>
                                 <span class="text-primary font-weight-bold small">Senior Systems Contributor</span>
                                 <p class="text-muted small mb-0 mt-2">Writing on distributed computing, modern full-stack workflows, and enterprise application architectures.</p>
                             </div>
@@ -110,7 +106,7 @@
 
                         <!-- Comments Section -->
                         <div class="comment-area pt-4">
-                            <h4 class="mb-4 font-weight-bold text-dark">
+                            <h4 class="mb-4 font-weight-bold text-body">
                                 <i class="far fa-comments text-primary mr-2"></i> Discussion ({{ $post->comments ? $post->comments->count() : 0 }})
                             </h4>
 
@@ -123,12 +119,12 @@
                                                     {{ strtoupper(substr($comment->user->name ?? 'G', 0, 1)) }}
                                                 </div>
                                                 <div>
-                                                    <h6 class="mb-0 font-weight-bold text-dark">{{ $comment->user->name ?? 'Reader' }}</h6>
+                                                    <h6 class="mb-0 font-weight-bold text-body">{{ $comment->user->name ?? 'Reader' }}</h6>
                                                     <span class="text-muted small">{{ $comment->created_at ? $comment->created_at->diffForHumans() : 'Just now' }}</span>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="comment-content mt-2 text-dark" style="font-size: 15px;">
+                                        <div class="comment-content mt-2 text-body" style="font-size: 15px;">
                                             <p class="mb-0">{{ $comment->comment }}</p>
                                         </div>
 
@@ -138,10 +134,10 @@
                                                 @foreach($comment->replies as $reply)
                                                     <div class="mb-3">
                                                         <div class="d-flex align-items-center mb-1">
-                                                            <strong class="text-dark small mr-2">{{ $reply->user->name ?? 'Team Member' }}</strong>
+                                                            <strong class="text-body small mr-2">{{ $reply->user->name ?? 'Team Member' }}</strong>
                                                             <span class="text-muted" style="font-size: 12px;">{{ $reply->created_at ? $reply->created_at->diffForHumans() : 'Recent' }}</span>
                                                         </div>
-                                                        <p class="mb-0 small text-dark">{{ $reply->reply }}</p>
+                                                        <p class="mb-0 small text-body">{{ $reply->reply }}</p>
                                                     </div>
                                                 @endforeach
                                             </div>
@@ -157,7 +153,7 @@
 
                         <!-- Comment Submission Form -->
                         <div class="mt-5 p-4 bg-white rounded shadow-sm border">
-                            <h4 class="mb-3 font-weight-bold text-dark">Leave a Comment</h4>
+                            <h4 class="mb-3 font-weight-bold text-body">Leave a Comment</h4>
                             <p class="text-muted small mb-4">Share your perspectives or ask a question regarding this article.</p>
 
                             <form action="{{ route('comments.store') }}" method="POST">
@@ -165,7 +161,7 @@
                                 <input type="hidden" name="post_id" value="{{ $post->id }}">
                                 
                                 <div class="form-group mb-3">
-                                    <label class="font-weight-bold small text-dark">Your Comment</label>
+                                    <label class="font-weight-bold small text-body">Your Comment</label>
                                     <textarea class="form-control form-control-elite" name="comment" rows="4" placeholder="Write your thoughts..." required></textarea>
                                 </div>
 
@@ -212,8 +208,11 @@
                             @foreach($recentPosts as $recent)
                                 <div class="recent-post-item">
                                     <a href="{{ route('single-post', $recent->slug) }}" class="recent-post-thumb-link">
-                                        <img src="{{ $recent->image->link ?? 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=160&auto=format&fit=crop&q=60' }}" 
-                                             alt="{{ $recent->title }}" class="recent-post-thumb">
+                                        @php
+                                            $recentImg = $recent->image->link ?? 'admin-dist/img/blog-1-PTDVKJDt.webp';
+                                            $resolvedRecent = Str::startsWith($recentImg, ['http://', 'https://']) ? $recentImg : asset($recentImg);
+                                        @endphp
+                                        <img src="{{ $resolvedRecent }}" alt="{{ $recent->title }}" class="recent-post-thumb" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                                     </a>
                                     <div class="recent-post-body">
                                         <span class="badge badge-light text-primary font-weight-bold recent-post-badge">

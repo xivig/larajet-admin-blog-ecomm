@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\RegisterController;
 use App\Http\Controllers\Admin\TagController as AdminTagController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CommentReplyController;
@@ -88,6 +89,9 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::get('media', [AdminMediaController::class, 'index'])->name('admin.media.index');
     Route::post('media', [AdminMediaController::class, 'store'])->name('admin.media.store');
     Route::delete('media/{picture}', [AdminMediaController::class, 'destroy'])->name('admin.media.destroy');
+
+    // Users Management
+    Route::resource('users', AdminUserController::class)->names('admin.users');
 
     // Admin Profile
     Route::get('profile', [AdminProfileController::class, 'edit'])->name('admin.profile');

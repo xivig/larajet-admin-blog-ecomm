@@ -74,6 +74,29 @@
           </a>
         </li>
 
+        <li class="nav-heading"><span>User Management</span></li>
+
+        <!-- Users Directory -->
+        <li class="nav-item has-submenu {{ request()->routeIs('admin.users.*') ? 'open' : '' }}">
+          <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="#" aria-expanded="{{ request()->routeIs('admin.users.*') ? 'true' : 'false' }}">
+            <span class="nav-icon"><i class="ph-light ph-users-three"></i></span>
+            <span class="nav-text">Users</span>
+            <span class="nav-arrow"><i class="bi bi-chevron-right"></i></span>
+          </a>
+          <ul class="nav-submenu {{ request()->routeIs('admin.users.*') ? 'show' : '' }}">
+            <li>
+              <a class="nav-link {{ request()->routeIs('admin.users.index') ? 'active' : '' }}" href="{{ route('admin.users.index') }}">
+                <span class="nav-dot"></span>Users Directory
+              </a>
+            </li>
+            <li>
+              <a class="nav-link {{ request()->routeIs('admin.users.create') ? 'active' : '' }}" href="{{ route('admin.users.create') }}">
+                <span class="nav-dot"></span>Add New User
+              </a>
+            </li>
+          </ul>
+        </li>
+
         <li class="nav-heading"><span>Ecosystem &amp; Live Site</span></li>
 
         <li class="nav-item">
@@ -101,17 +124,49 @@
           </a>
         </li>
 
-        <li class="nav-item">
-          <a class="nav-link text-danger" href="#" onclick="event.preventDefault(); document.getElementById('adminSidebarLogoutForm').submit();">
-            <span class="nav-icon"><i class="ph-light ph-sign-out text-danger"></i></span>
-            <span class="nav-text">Sign Out</span>
-          </a>
-          <form id="adminSidebarLogoutForm" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
-            @csrf
-          </form>
-        </li>
-
       </ul>
     </nav>
+
+    <!-- Sidebar Bottom Card (XivigAdmin PRO) -->
+    <div class="sidebar-footer">
+      <div class="sidebar-account">
+        <a href="{{ route('admin.profile') }}" class="sidebar-account-main">
+          @php
+            $adminUser = Auth::guard('admin')->user();
+            $avatarUrl = ($adminUser && $adminUser->profile_photo_path) 
+              ? asset($adminUser->profile_photo_path) 
+              : asset('admin-dist/img/1-DZLDOIIi.jpg');
+          @endphp
+          <img src="{{ $avatarUrl }}" alt="{{ $adminUser->name ?? 'Admin' }}" class="sidebar-account-avatar">
+          <div class="sidebar-account-meta">
+            <div class="sidebar-account-name">{{ $adminUser->name ?? 'Executive Admin' }}</div>
+            <div class="sidebar-account-role">ENTERPRISE ADMIN</div>
+          </div>
+        </a>
+        <div class="sidebar-account-actions">
+          <a href="{{ route('admin.profile') }}" class="sidebar-account-action" title="Settings" aria-label="Settings">
+            <i class="bi bi-gear"></i>
+          </a>
+          <a href="#" class="sidebar-account-action sidebar-account-logout" title="Sign Out" aria-label="Sign Out" onclick="event.preventDefault(); document.getElementById('adminSidebarLogoutForm').submit();">
+            <i class="bi bi-box-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="sidebar-footer-links">
+        <a href="{{ url('/blog') }}" target="_blank" class="sidebar-footer-link">
+          <i class="bi bi-globe"></i>
+          <span>Live Blog</span>
+        </a>
+        <a href="{{ route('admin.comments.index') }}" class="sidebar-footer-link">
+          <i class="bi bi-bell"></i>
+          <span>Alerts</span>
+        </a>
+      </div>
+    </div>
+
+    <form id="adminSidebarLogoutForm" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
+      @csrf
+    </form>
   </div>
 </aside>

@@ -22,7 +22,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update admin profile info.
+     * Update admin profile info including avatar image.
      */
     public function update(Request $request): RedirectResponse
     {
@@ -31,14 +31,24 @@ class ProfileController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:admins,email,' . $admin->id,
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:5120',
         ]);
 
-        $admin->update([
+        $data = [
             'name' => $request->name,
             'email' => $request->email,
-        ]);
+        ];
 
-        return redirect()->route('admin.profile')->with('success', 'Admin profile updated successfully!');
+        if ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            $fileName = 'admin_' . $admin->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/avatars'), $fileName);
+            $data['profile_photo_path'] = 'uploads/avatars/' . $fileName;
+        }
+
+        $admin->update($data);
+
+        return redirect()->route('admin.profile')->with('success', 'Admin profile and avatar updated successfully!');
     }
 
     /**

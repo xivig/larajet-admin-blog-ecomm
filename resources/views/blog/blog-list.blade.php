@@ -38,8 +38,11 @@
                         <article class="blog-item h-100 d-flex flex-column">
                             <div class="blog-img-wrap">
                                 <a href="{{ route('single-post', $post->slug) }}">
-                                    <img loading="lazy" src="{{ $post->image->link ?? 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=60' }}" 
-                                         alt="{{ $post->title }}">
+                                    @php
+                                        $postImg = $post->image->link ?? 'admin-dist/img/blog-1-PTDVKJDt.webp';
+                                        $imgSrc = Str::startsWith($postImg, ['http://', 'https://']) ? $postImg : asset($postImg);
+                                    @endphp
+                                    <img loading="lazy" src="{{ $imgSrc }}" alt="{{ $post->title }}" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                                 </a>
                                 <span class="blog-category-tag">
                                     {{ $post->category->name ?? 'General' }}
