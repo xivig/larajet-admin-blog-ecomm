@@ -121,7 +121,7 @@
                         <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
                       </button>
                     </form>
-                    <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-3" title="Permanently Delete" onclick="confirmForceDeleteGallery({{ $gallery->id }}, '{{ addslashes($gallery->title) }}')">
+                    <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-3" title="Permanently Delete" data-id="{{ $gallery->id }}" data-title="{{ $gallery->title }}" onclick="confirmForceDeleteGallery(this.dataset.id, this.dataset.title)">
                       <i class="bi bi-x-octagon me-1"></i> Purge
                     </button>
                   </div>
@@ -150,7 +150,9 @@
                     <button type="button" 
                             class="btn btn-outline-danger btn-sm rounded-circle d-inline-flex align-items-center justify-content-center p-0" 
                             style="width: 32px; height: 32px;"
-                            onclick="confirmTrashGallery({{ $gallery->id }}, '{{ addslashes($gallery->title) }}')"
+                            data-id="{{ $gallery->id }}"
+                            data-title="{{ $gallery->title }}"
+                            onclick="confirmTrashGallery(this.dataset.id, this.dataset.title)"
                             title="Move to Trash">
                       <i class="bi bi-trash"></i>
                     </button>
@@ -302,57 +304,35 @@
 @push('scripts')
 <script>
   function confirmTrashGallery(id, title) {
-    if (window.showConfirmDialog) {
-      window.showConfirmDialog({
-        title: 'Move Gallery to Trash?',
-        text: 'Move gallery "' + title + '" and its assets to Trash?',
-        icon: 'warning',
-        confirmButtonText: 'Yes, Move to Trash'
-      }, function() {
-        const dynamicForm = document.createElement('form');
-        dynamicForm.method = 'POST';
-        dynamicForm.action = '/admin/galleries/' + id;
-        dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
-        document.body.appendChild(dynamicForm);
-        dynamicForm.submit();
-      });
-    } else {
-      if (confirm('Move gallery "' + title + '" to Trash?')) {
-        const dynamicForm = document.createElement('form');
-        dynamicForm.method = 'POST';
-        dynamicForm.action = '/admin/galleries/' + id;
-        dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
-        document.body.appendChild(dynamicForm);
-        dynamicForm.submit();
-      }
-    }
+    showConfirmDialog({
+      title: 'Move Gallery to Trash?',
+      text: 'Move gallery "' + (title || 'this gallery') + '" and its assets to Trash?',
+      icon: 'warning',
+      confirmButtonText: 'Yes, Move to Trash'
+    }, function() {
+      const dynamicForm = document.createElement('form');
+      dynamicForm.method = 'POST';
+      dynamicForm.action = '{{ url('admin/galleries') }}/' + id;
+      dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
+      document.body.appendChild(dynamicForm);
+      dynamicForm.submit();
+    });
   }
 
   function confirmForceDeleteGallery(id, title) {
-    if (window.showConfirmDialog) {
-      window.showConfirmDialog({
-        title: 'Permanently Purge Gallery?',
-        text: 'Permanently purge gallery "' + title + '" and all attached photos? This action cannot be recovered.',
-        icon: 'error',
-        confirmButtonText: 'Delete Permanently'
-      }, function() {
-        const dynamicForm = document.createElement('form');
-        dynamicForm.method = 'POST';
-        dynamicForm.action = '/admin/galleries/' + id + '/force-delete';
-        dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
-        document.body.appendChild(dynamicForm);
-        dynamicForm.submit();
-      });
-    } else {
-      if (confirm('Permanently delete gallery "' + title + '"?')) {
-        const dynamicForm = document.createElement('form');
-        dynamicForm.method = 'POST';
-        dynamicForm.action = '/admin/galleries/' + id + '/force-delete';
-        dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
-        document.body.appendChild(dynamicForm);
-        dynamicForm.submit();
-      }
-    }
+    showConfirmDialog({
+      title: 'Permanently Purge Gallery?',
+      text: 'Permanently purge gallery "' + (title || 'this gallery') + '" and all attached photos? This action cannot be recovered.',
+      icon: 'error',
+      confirmButtonText: 'Delete Permanently'
+    }, function() {
+      const dynamicForm = document.createElement('form');
+      dynamicForm.method = 'POST';
+      dynamicForm.action = '{{ url('admin/galleries') }}/' + id + '/force-delete';
+      dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
+      document.body.appendChild(dynamicForm);
+      dynamicForm.submit();
+    });
   }
 </script>
 @endpush

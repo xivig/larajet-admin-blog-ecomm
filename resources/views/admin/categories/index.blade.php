@@ -120,7 +120,7 @@
                               <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
                             </button>
                           </form>
-                          <button type="button" class="btn btn-outline-danger" onclick="confirmForceDeleteCat('{{ $cat->id }}', '{{ addslashes($cat->name) }}', {{ $cat->posts_count }})" title="Permanently Delete">
+                          <button type="button" class="btn btn-outline-danger" data-id="{{ $cat->id }}" data-name="{{ $cat->name }}" data-count="{{ $cat->posts_count }}" onclick="confirmForceDeleteCat(this.dataset.id, this.dataset.name, this.dataset.count)" title="Permanently Delete">
                             <i class="bi bi-x-octagon me-1"></i> Delete
                           </button>
                         </div>
@@ -140,7 +140,7 @@
                           <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editCatModal-{{ $cat->id }}" title="Edit Category">
                             <i class="bi bi-pencil"></i>
                           </button>
-                          <button type="button" class="btn btn-outline-danger" onclick="deleteCategory('{{ $cat->id }}', '{{ addslashes($cat->name) }}')" title="Move to Trash">
+                          <button type="button" class="btn btn-outline-danger" data-id="{{ $cat->id }}" data-name="{{ $cat->name }}" onclick="deleteCategory(this.dataset.id, this.dataset.name)" title="Move to Trash">
                             <i class="bi bi-trash"></i>
                           </button>
                         </div>
@@ -209,7 +209,7 @@
   function deleteCategory(id, name) {
     showConfirmDialog({
       title: 'Move to Trash?',
-      text: 'Move category "' + name + '" to Trash?',
+      text: 'Move category "' + (name || 'this category') + '" to Trash?',
       icon: 'warning',
       confirmButtonText: 'Yes, Move to Trash'
     }, function() {
@@ -219,7 +219,7 @@
       } else {
         const dynamicForm = document.createElement('form');
         dynamicForm.method = 'POST';
-        dynamicForm.action = '/admin/categories/' + id;
+        dynamicForm.action = '{{ url('admin/categories') }}/' + id;
         dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
         document.body.appendChild(dynamicForm);
         dynamicForm.submit();
@@ -230,7 +230,7 @@
   function confirmForceDeleteCat(id, name, postCount) {
     showConfirmDialog({
       title: 'Permanent Deletion',
-      text: 'Are you sure you want to permanently delete category "' + name + '"?' + (postCount > 0 ? ' Its attached posts will be preserved in another category.' : ''),
+      text: 'Are you sure you want to permanently delete category "' + (name || 'this category') + '"?' + (postCount > 0 ? ' Its attached posts will be preserved in another category.' : ''),
       icon: 'error',
       confirmButtonText: 'Delete Permanently'
     }, function() {
@@ -240,7 +240,7 @@
       } else {
         const dynamicForm = document.createElement('form');
         dynamicForm.method = 'POST';
-        dynamicForm.action = '/admin/categories/' + id + '/force-delete';
+        dynamicForm.action = '{{ url('admin/categories') }}/' + id + '/force-delete';
         dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
         document.body.appendChild(dynamicForm);
         dynamicForm.submit();

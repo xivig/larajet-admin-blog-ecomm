@@ -24,6 +24,17 @@
   <link rel="stylesheet" href="{{ asset('admin-dist/vendor/simple-datatables/style.css') }}">
   <link rel="stylesheet" href="{{ asset('admin-dist/vendor/sweetalert2/sweetalert2.min.css') }}">
 
+  <!-- Core SweetAlert2 v11 Suite (Loaded in head for universal availability) -->
+  <script src="{{ asset('admin-dist/vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
+  <script>
+    if (typeof window.Swal === 'undefined' && typeof window.Sweetalert2 !== 'undefined') {
+      window.Swal = window.Sweetalert2;
+    }
+    if (typeof window.swal === 'undefined' && typeof window.Swal !== 'undefined') {
+      window.swal = window.Swal;
+    }
+  </script>
+
   <!-- Template Main CSS File (Compiled SCSS + Bootstrap 5 + Dark/Light Mode) -->
   <link rel="stylesheet" href="{{ asset('admin-dist/css/main-DjChhAQn.css') }}">
 

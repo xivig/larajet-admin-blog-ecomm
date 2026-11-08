@@ -211,20 +211,14 @@
 <script>
   function confirmDeletePhoto(btn) {
     const form = btn.closest('form');
-    if (window.showConfirmDialog) {
-      window.showConfirmDialog({
-        title: 'Remove Photo?',
-        text: 'Are you sure you want to remove this photo from the gallery?',
-        icon: 'warning',
-        confirmButtonText: 'Yes, Remove'
-      }, function() {
-        if (form) form.submit();
-      });
-    } else {
-      if (confirm('Remove photo from gallery?')) {
-        if (form) form.submit();
-      }
-    }
+    showConfirmDialog({
+      title: 'Remove Photo?',
+      text: 'Are you sure you want to remove this photo from the gallery?',
+      icon: 'warning',
+      confirmButtonText: 'Yes, Remove'
+    }, function() {
+      if (form) form.submit();
+    });
   }
 </script>
 @endpush

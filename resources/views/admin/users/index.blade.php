@@ -172,7 +172,7 @@
                     <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-outline-primary" title="Edit User">
                       <i class="bi bi-pencil"></i>
                     </a>
-                    <button type="button" class="btn btn-outline-danger" title="Delete User" onclick="handleDeleteUser('{{ $user->id }}', '{{ addslashes($user->name) }}', {{ $user->posts_count }}, {{ $user->comments_count }})">
+                    <button type="button" class="btn btn-outline-danger" title="Delete User" data-id="{{ $user->id }}" data-name="{{ $user->name }}" onclick="handleDeleteUser(this.dataset.id, this.dataset.name)">
                       <i class="bi bi-trash"></i>
                     </button>
                   </div>
@@ -390,41 +390,25 @@
     }
   }
 
-  function handleDeleteUser(id, name, postsCount, commentsCount) {
-    if (window.showConfirmDialog) {
-      window.showConfirmDialog({
-        title: 'Delete User Account?',
-        text: 'Are you sure you want to delete user "' + name + '"? All their associated data and publications will be safely managed.',
-        icon: 'warning',
-        confirmButtonText: 'Yes, Delete User'
-      }, function() {
-        const form = document.getElementById('delete-user-' + id);
-        if (form) {
-          form.submit();
-        } else {
-          const dynamicForm = document.createElement('form');
-          dynamicForm.method = 'POST';
-          dynamicForm.action = '/admin/users/' + id;
-          dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
-          document.body.appendChild(dynamicForm);
-          dynamicForm.submit();
-        }
-      });
-    } else {
-      if (confirm('Delete user "' + name + '"?')) {
-        const form = document.getElementById('delete-user-' + id);
-        if (form) {
-          form.submit();
-        } else {
-          const dynamicForm = document.createElement('form');
-          dynamicForm.method = 'POST';
-          dynamicForm.action = '/admin/users/' + id;
-          dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
-          document.body.appendChild(dynamicForm);
-          dynamicForm.submit();
-        }
+  function handleDeleteUser(id, name) {
+    showConfirmDialog({
+      title: 'Delete User Account?',
+      text: 'Are you sure you want to delete user "' + (name || 'this user') + '"? All their associated data and publications will be safely managed.',
+      icon: 'warning',
+      confirmButtonText: 'Yes, Delete User'
+    }, function() {
+      const form = document.getElementById('delete-user-' + id);
+      if (form) {
+        form.submit();
+      } else {
+        const dynamicForm = document.createElement('form');
+        dynamicForm.method = 'POST';
+        dynamicForm.action = '{{ url('admin/users') }}/' + id;
+        dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
+        document.body.appendChild(dynamicForm);
+        dynamicForm.submit();
       }
-    }
+    });
   }
 </script>
 @endpush

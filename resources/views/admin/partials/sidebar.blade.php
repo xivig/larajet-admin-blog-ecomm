@@ -183,6 +183,20 @@
         </li>
 
         <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.activity-logs.*') ? 'active' : '' }}" href="{{ route('admin.activity-logs.index') }}">
+            <span class="nav-icon"><i class="ph-light ph-clock-counter-clockwise"></i></span>
+            <span class="nav-text">Activity Log</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.backups.*') ? 'active' : '' }}" href="{{ route('admin.backups.index') }}">
+            <span class="nav-icon"><i class="ph-light ph-hard-drive"></i></span>
+            <span class="nav-text">System Backups</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
           <a class="nav-link {{ request()->routeIs('admin.profile') ? 'active' : '' }}" href="{{ route('admin.profile') }}">
             <span class="nav-icon"><i class="ph-light ph-user-circle"></i></span>
             <span class="nav-text">Profile &amp; Security</span>

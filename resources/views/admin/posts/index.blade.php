@@ -160,7 +160,7 @@
                           <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
                         </button>
                       </form>
-                      <button type="button" class="btn btn-outline-danger" title="Permanently Delete" onclick="confirmForceDelete('{{ $post->id }}', '{{ addslashes($post->title) }}')">
+                      <button type="button" class="btn btn-outline-danger" title="Permanently Delete" data-id="{{ $post->id }}" data-title="{{ $post->title }}" onclick="confirmForceDelete(this.dataset.id, this.dataset.title)">
                         <i class="bi bi-x-octagon me-1"></i> Permanent Delete
                       </button>
                     </div>
@@ -183,7 +183,7 @@
                           <i class="bi bi-copy"></i>
                         </button>
                       </form>
-                      <button type="button" class="btn btn-outline-danger" title="Move to Trash" onclick="confirmDelete('{{ $post->id }}', '{{ addslashes($post->title) }}')">
+                      <button type="button" class="btn btn-outline-danger" title="Move to Trash" data-id="{{ $post->id }}" data-title="{{ $post->title }}" onclick="confirmDelete(this.dataset.id, this.dataset.title)">
                         <i class="bi bi-trash"></i>
                       </button>
                     </div>
@@ -209,7 +209,7 @@
   function confirmDelete(id, title) {
     showConfirmDialog({
       title: 'Move to Trash?',
-      text: 'Move article "' + title + '" to Trash?',
+      text: 'Move article "' + (title || 'this item') + '" to Trash?',
       icon: 'warning',
       confirmButtonText: 'Yes, Move to Trash'
     }, function() {
@@ -219,7 +219,7 @@
       } else {
         const dynamicForm = document.createElement('form');
         dynamicForm.method = 'POST';
-        dynamicForm.action = '/admin/posts/' + id;
+        dynamicForm.action = '{{ url('admin/posts') }}/' + id;
         dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
         document.body.appendChild(dynamicForm);
         dynamicForm.submit();
@@ -230,7 +230,7 @@
   function confirmForceDelete(id, title) {
     showConfirmDialog({
       title: 'Permanent Deletion',
-      text: 'Are you sure you want to permanently delete article "' + title + '"? This will remove all associated comments as well and cannot be undone.',
+      text: 'Are you sure you want to permanently delete article "' + (title || 'this item') + '"? This will remove all associated comments as well and cannot be undone.',
       icon: 'error',
       confirmButtonText: 'Delete Permanently'
     }, function() {
@@ -240,7 +240,7 @@
       } else {
         const dynamicForm = document.createElement('form');
         dynamicForm.method = 'POST';
-        dynamicForm.action = '/admin/posts/' + id + '/force-delete';
+        dynamicForm.action = '{{ url('admin/posts') }}/' + id + '/force-delete';
         dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
         document.body.appendChild(dynamicForm);
         dynamicForm.submit();

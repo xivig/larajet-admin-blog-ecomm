@@ -55,8 +55,11 @@
   <script src="{{ asset('admin-dist/vendor/quill/quill.js') }}"></script>
   <script src="{{ asset('admin-dist/vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
   <script>
-    if (typeof Swal === 'undefined') {
-      document.write('<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"><\/script>');
+    if (typeof window.Swal === 'undefined' && typeof window.Sweetalert2 !== 'undefined') {
+      window.Swal = window.Sweetalert2;
+    }
+    if (typeof window.swal === 'undefined' && typeof window.Swal !== 'undefined') {
+      window.swal = window.Swal;
     }
   </script>
 
@@ -65,18 +68,28 @@
 
   <!-- SweetAlert2 Helper Suite & Theme Toggle Script -->
   <script>
+    // Universal SweetAlert reference
+    const getSwal = () => (window.Swal || window.Sweetalert2 || window.swal || null);
+
     // Global SweetAlert2 Toast configuration
-    window.SwalToast = typeof Swal !== 'undefined' ? Swal.mixin({
-      toast: true,
-      position: 'top-end',
-      showConfirmButton: false,
-      timer: 3500,
-      timerProgressBar: true,
-      didOpen: (toast) => {
-        toast.addEventListener('mouseenter', Swal.stopTimer);
-        toast.addEventListener('mouseleave', Swal.resumeTimer);
-      }
-    }) : null;
+    window.SwalToast = (() => {
+      const s = getSwal();
+      if (!s || !s.mixin) return null;
+      return s.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3500,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          const swal = getSwal();
+          if (swal && swal.stopTimer) {
+            toast.addEventListener('mouseenter', swal.stopTimer);
+            toast.addEventListener('mouseleave', swal.resumeTimer);
+          }
+        }
+      });
+    })();
 
     // Global toast helper
     window.showToast = function(message, icon = 'success') {
@@ -85,58 +98,77 @@
           icon: icon,
           title: message
         });
-      } else if (typeof Swal !== 'undefined') {
-        Swal.fire({
-          icon: icon,
-          title: message,
-          timer: 3000,
-          showConfirmButton: false
-        });
       } else {
-        alert(message);
+        const s = getSwal();
+        if (s && s.fire) {
+          s.fire({
+            icon: icon,
+            title: message,
+            timer: 3000,
+            showConfirmButton: false
+          });
+        } else {
+          alert(message);
+        }
       }
     };
 
-    // Global Confirm Dialog helper
-    window.showConfirmDialog = function({
-      title = 'Are you sure?',
-      text = 'This action cannot be undone.',
-      icon = 'warning',
-      confirmButtonText = 'Yes, Proceed',
-      cancelButtonText = 'Cancel',
-      confirmButtonColor = '#dc2626',
-      cancelButtonColor = '#6b7280',
-      reverseButtons = true
-    } = {}, onConfirm) {
-      if (typeof Swal === 'undefined') {
-        if (confirm(text ? (title + '\n' + text) : title)) {
-          if (typeof onConfirm === 'function') onConfirm();
-          return Promise.resolve({ isConfirmed: true });
+    // Global Confirm Dialog helper (bulletproof SweetAlert2 + native fallback)
+    window.showConfirmDialog = function(options = {}, onConfirm) {
+      const opts = typeof options === 'string' ? { title: options } : (options || {});
+      const title = opts.title || 'Are you sure?';
+      const text = opts.text || 'This action cannot be undone.';
+      const icon = opts.icon || 'warning';
+      const confirmButtonText = opts.confirmButtonText || 'Yes, Proceed';
+      const cancelButtonText = opts.cancelButtonText || 'Cancel';
+      const isDanger = (icon === 'warning' || icon === 'error' || (opts.confirmButtonColor && opts.confirmButtonColor.includes('dc2626')));
+      const confirmButtonClass = opts.confirmButtonClass || (isDanger ? 'btn btn-danger px-4 rounded-pill' : 'btn btn-primary px-4 rounded-pill');
+      const cancelButtonClass = opts.cancelButtonClass || 'btn btn-outline-secondary px-4 rounded-pill me-2';
+
+      const s = getSwal();
+
+      if (!s || !s.fire) {
+        if (window.confirm(text ? (title + '\n' + text) : title)) {
+          if (typeof onConfirm === 'function') {
+            try { onConfirm(); } catch (e) { console.error('Confirm callback error:', e); }
+          }
+          return Promise.resolve({ isConfirmed: true, value: true });
         }
-        return Promise.resolve({ isConfirmed: false });
+        return Promise.resolve({ isConfirmed: false, value: false });
       }
 
-      return Swal.fire({
+      return s.fire({
         title: title,
         text: text,
         icon: icon,
         showCancelButton: true,
         confirmButtonText: confirmButtonText,
         cancelButtonText: cancelButtonText,
-        confirmButtonColor: confirmButtonColor,
-        cancelButtonColor: cancelButtonColor,
-        reverseButtons: reverseButtons,
+        reverseButtons: opts.reverseButtons !== undefined ? opts.reverseButtons : true,
         customClass: {
           popup: 'rounded-4 shadow-lg border-0',
-          confirmButton: 'btn btn-primary px-4 rounded-pill',
-          cancelButton: 'btn btn-outline-secondary px-4 rounded-pill me-2'
+          confirmButton: confirmButtonClass,
+          cancelButton: cancelButtonClass
         },
         buttonsStyling: false
       }).then((result) => {
-        if (result.isConfirmed && typeof onConfirm === 'function') {
-          onConfirm();
+        if (result && (result.isConfirmed || result.value === true)) {
+          if (typeof onConfirm === 'function') {
+            try {
+              onConfirm();
+            } catch (err) {
+              console.error('Error executing confirm callback:', err);
+            }
+          }
         }
         return result;
+      }).catch((err) => {
+        console.warn('SweetAlert encounter:', err);
+        if (window.confirm(text ? (title + '\n' + text) : title)) {
+          if (typeof onConfirm === 'function') {
+            onConfirm();
+          }
+        }
       });
     };
 
@@ -190,8 +222,9 @@
   @if (session('error'))
     <script>
       document.addEventListener('DOMContentLoaded', function() {
-        if (typeof Swal !== 'undefined') {
-          Swal.fire({
+        const s = window.Swal || window.Sweetalert2 || window.swal;
+        if (s && s.fire) {
+          s.fire({
             icon: 'error',
             title: 'Notice',
             text: @json(session('error')),
@@ -206,9 +239,10 @@
   @if ($errors->any())
     <script>
       document.addEventListener('DOMContentLoaded', function() {
-        if (typeof Swal !== 'undefined') {
+        const s = window.Swal || window.Sweetalert2 || window.swal;
+        if (s && s.fire) {
           const errs = @json($errors->all()).map(e => '• ' + e).join('<br>');
-          Swal.fire({
+          s.fire({
             icon: 'error',
             title: 'Please review the following:',
             html: '<div class="text-start mt-2 text-danger">' + errs + '</div>',

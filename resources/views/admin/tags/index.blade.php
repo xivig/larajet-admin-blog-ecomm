@@ -86,7 +86,7 @@
                         <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editTagModal-{{ $tag->id }}" title="Edit Tag">
                           <i class="bi bi-pencil"></i>
                         </button>
-                        <button type="button" class="btn btn-outline-danger" onclick="deleteTag('{{ $tag->id }}', '{{ addslashes($tag->name) }}')" title="Delete Tag">
+                        <button type="button" class="btn btn-outline-danger" data-id="{{ $tag->id }}" data-name="{{ $tag->name }}" onclick="deleteTag(this.dataset.id, this.dataset.name)" title="Delete Tag">
                           <i class="bi bi-trash"></i>
                         </button>
                       </div>
@@ -145,38 +145,24 @@
 @push('scripts')
 <script>
   function deleteTag(id, name) {
-    if (window.showConfirmDialog) {
-      window.showConfirmDialog({
-        title: 'Delete Tag?',
-        text: 'Are you sure you want to delete tag "#' + name + '"?',
-        icon: 'warning',
-        confirmButtonText: 'Yes, delete tag'
-      }, function() {
-        const form = document.getElementById('delete-tag-' + id);
-        if (form) {
-          form.submit();
-        } else {
-          const dynamicForm = document.createElement('form');
-          dynamicForm.method = 'POST';
-          dynamicForm.action = '/admin/tags/' + id;
-          dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
-          document.body.appendChild(dynamicForm);
-          dynamicForm.submit();
-        }
-      });
-    } else if (confirm('Are you sure you want to delete tag "#' + name + '"?')) {
+    showConfirmDialog({
+      title: 'Delete Tag?',
+      text: 'Are you sure you want to delete tag "#' + (name || 'this tag') + '"?',
+      icon: 'warning',
+      confirmButtonText: 'Yes, delete tag'
+    }, function() {
       const form = document.getElementById('delete-tag-' + id);
       if (form) {
         form.submit();
       } else {
         const dynamicForm = document.createElement('form');
         dynamicForm.method = 'POST';
-        dynamicForm.action = '/admin/tags/' + id;
+        dynamicForm.action = '{{ url('admin/tags') }}/' + id;
         dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
         document.body.appendChild(dynamicForm);
         dynamicForm.submit();
       }
-    }
+    });
   }
 </script>
 @endpush

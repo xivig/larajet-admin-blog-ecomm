@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\ActivityLogController as AdminActivityLogController;
+use App\Http\Controllers\Admin\BackupController as AdminBackupController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\ChatController as AdminChatController;
 use App\Http\Controllers\Admin\CommentController as AdminCommentController;
@@ -187,6 +189,18 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('settings/maintenance', [AdminSettingController::class, 'updateMaintenance'])->name('admin.settings.maintenance');
     Route::post('settings/integrations', [AdminSettingController::class, 'updateIntegrations'])->name('admin.settings.integrations');
     Route::post('settings/editorial', [AdminSettingController::class, 'updateEditorial'])->name('admin.settings.editorial');
+
+    // Activity Logs
+    Route::get('activity-logs', [AdminActivityLogController::class, 'index'])->name('admin.activity-logs.index');
+    Route::post('activity-logs/clear', [AdminActivityLogController::class, 'clear'])->name('admin.activity-logs.clear');
+    Route::get('activity-logs/export', [AdminActivityLogController::class, 'export'])->name('admin.activity-logs.export');
+
+    // System Backups
+    Route::get('backups', [AdminBackupController::class, 'index'])->name('admin.backups.index');
+    Route::post('backups', [AdminBackupController::class, 'store'])->name('admin.backups.store');
+    Route::get('backups/{backup}/download', [AdminBackupController::class, 'download'])->name('admin.backups.download');
+    Route::post('backups/{backup}/restore', [AdminBackupController::class, 'restore'])->name('admin.backups.restore');
+    Route::delete('backups/{backup}', [AdminBackupController::class, 'destroy'])->name('admin.backups.destroy');
 
     // Admin Profile
     Route::get('profile', [AdminProfileController::class, 'edit'])->name('admin.profile');
