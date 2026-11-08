@@ -1,5 +1,6 @@
-<body>
+<body class="boxed-layout-body">
 
+<div class="boxed-layout-wrapper">
 <!-- Header Start -->
 <header class="navigation">
     <div class="header-top">

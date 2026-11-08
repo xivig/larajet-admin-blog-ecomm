@@ -46,6 +46,56 @@ html {
   scroll-behavior: smooth;
 }
 
+/* ==============================================================
+   Elite Boxed Layout System
+============================================================== */
+body.boxed-layout-body {
+  background-color: #070a12 !important;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.08) 0px, transparent 50%),
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px) !important;
+  background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px !important;
+  background-attachment: fixed !important;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+.boxed-layout-wrapper {
+  width: 100%;
+  max-width: 1380px;
+  margin: 0 auto;
+  background: #ffffff;
+  box-shadow: 0 0 70px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow-x: hidden;
+}
+
+@media (min-width: 1440px) {
+  .boxed-layout-wrapper {
+    margin-top: 24px;
+    margin-bottom: 28px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+@media (max-width: 1380px) {
+  .boxed-layout-wrapper {
+    max-width: 100%;
+    margin-top: 0;
+    margin-bottom: 0;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
 body {
   font-family: var(--font-sans);
   color: #334155;

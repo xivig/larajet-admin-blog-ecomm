@@ -81,6 +81,8 @@
     </div>
 </footer>
 
+</div><!-- /.boxed-layout-wrapper -->
+
 <!-- Essential Scripts -->
 <script src="{{ asset('xivig-blog/plugins/jquery/jquery.js') }}"></script>
 <script src="{{ asset('xivig-blog/plugins/bootstrap/bootstrap.min.js') }}"></script>
