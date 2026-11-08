@@ -108,6 +108,14 @@
           </a>
         </li>
 
+        <!-- Image Cropper Studio -->
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.image-cropper.*') ? 'active' : '' }}" href="{{ route('admin.image-cropper.index') }}">
+            <span class="nav-icon"><i class="ph-light ph-crop"></i></span>
+            <span class="nav-text">Image Cropper</span>
+          </a>
+        </li>
+
         <li class="nav-heading"><span>User Management</span></li>
 
         <!-- Users Directory -->

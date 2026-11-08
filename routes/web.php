@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\EmailController as AdminEmailController;
 use App\Http\Controllers\Admin\FileManagerController as AdminFileManagerController;
 use App\Http\Controllers\Admin\ForgotPasswordController;
+use App\Http\Controllers\Admin\ImageCropperController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
@@ -144,6 +145,10 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::put('media/{picture}', [AdminMediaController::class, 'update'])->name('admin.media.update');
     Route::post('media/bulk', [AdminMediaController::class, 'bulkAction'])->name('admin.media.bulk');
     Route::delete('media/{picture}', [AdminMediaController::class, 'destroy'])->name('admin.media.destroy');
+
+    // Image Cropper Studio
+    Route::get('image-cropper', [ImageCropperController::class, 'index'])->name('admin.image-cropper.index');
+    Route::post('image-cropper/save', [ImageCropperController::class, 'save'])->name('admin.image-cropper.save');
 
     // Users Management
     Route::resource('users', AdminUserController::class)->names('admin.users');

@@ -298,6 +298,9 @@
                                     <button type="button" class="btn btn-outline-secondary btn-sm p-1 px-1.5" onclick="copyAssetUrl('{{ $pic->url }}')" title="Copy URL">
                                         <i class="bi bi-clipboard"></i>
                                     </button>
+                                    <a href="{{ route('admin.image-cropper.index', ['media_id' => $pic->id]) }}" class="btn btn-outline-warning btn-sm p-1 px-1.5" title="Crop & Resize in Studio">
+                                        <i class="bi bi-crop"></i>
+                                    </a>
                                     <button type="button" class="btn btn-outline-primary btn-sm p-1 px-1.5" onclick="openInspectorModal({{ $pic->id }})" title="Inspect & Edit">
                                         <i class="bi bi-pencil"></i>
                                     </button>
@@ -386,6 +389,9 @@
                                             <button type="button" class="btn btn-outline-secondary" onclick="copyAssetUrl('{{ $pic->url }}')" title="Copy URL">
                                                 <i class="bi bi-clipboard"></i>
                                             </button>
+                                            <a href="{{ route('admin.image-cropper.index', ['media_id' => $pic->id]) }}" class="btn btn-outline-warning" title="Crop & Resize in Studio">
+                                                <i class="bi bi-crop"></i>
+                                            </a>
                                             <button type="button" class="btn btn-outline-primary" onclick="openInspectorModal({{ $pic->id }})" title="Edit Details">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
@@ -526,9 +532,14 @@
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center">
-                                <button type="button" class="btn btn-outline-danger btn-sm" id="btnInspectorDelete">
-                                    <i class="bi bi-trash me-1"></i> Delete
-                                </button>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-outline-danger btn-sm" id="btnInspectorDelete">
+                                        <i class="bi bi-trash me-1"></i> Delete
+                                    </button>
+                                    <a href="#" id="inspectorCropBtn" class="btn btn-outline-warning btn-sm">
+                                        <i class="bi bi-crop me-1"></i> Crop in Studio
+                                    </a>
+                                </div>
                                 <button type="submit" class="btn btn-primary btn-sm px-4" id="btnInspectorSave">
                                     <i class="bi bi-check-lg me-1"></i> Save Changes
                                 </button>
@@ -737,6 +748,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         `).join('') + '</ul>';
                 } else {
                     postsList.innerHTML = '<span class="text-muted">No blog posts currently use this image.</span>';
+                }
+
+                // Bind crop button
+                const cropBtn = document.getElementById('inspectorCropBtn');
+                if (cropBtn) {
+                    cropBtn.href = '{{ url("admin/image-cropper") }}?media_id=' + a.id;
                 }
 
                 // Bind delete button
