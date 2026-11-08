@@ -3,7 +3,7 @@
 @section('content')
 
 <!-- Header Breadcrumb Banner -->
-<section class="page-title bg-1" style="padding: 100px 0 50px 0;">
+<section class="page-title" style="padding: 100px 0 50px 0;">
     <div class="container">
         <div class="row">
             <div class="col-lg-10 mx-auto text-center">

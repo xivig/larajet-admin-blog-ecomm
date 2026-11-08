@@ -4,7 +4,7 @@
 @section('content')
 
 <!-- Blog Hero Banner -->
-<section class="page-title bg-1" style="padding: 100px 0 60px 0;">
+<section class="page-title" style="padding: 100px 0 60px 0;">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-8">

@@ -4,7 +4,7 @@
 {{--@section('page-title', 'Contact Us')--}}
 {{--@section('page-heading', 'Get in Touch')--}}
 @section('content')
-<section class="page-title bg-1">
+<section class="page-title">
   <div class="container">
     <div class="row">
       <div class="col-md-12">

@@ -34,9 +34,9 @@
   <link rel="stylesheet" href="{{asset('xivig-blog/plugins/slick/slick-theme.css')}}">
 
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="{{asset('xivig-blog/css/style.css')}}">
+  <link rel="stylesheet" href="{{asset('xivig-blog/css/style.css')}}?v={{ filemtime(public_path('xivig-blog/css/style.css')) }}">
   <!-- Elite Modern Design System -->
-  <link rel="stylesheet" href="{{asset('xivig-blog/css/elite-design.css')}}">
+  <link rel="stylesheet" href="{{asset('xivig-blog/css/elite-design.css')}}?v={{ filemtime(public_path('xivig-blog/css/elite-design.css')) }}">
 
   <!-- Theme Controller Pre-loader -->
   <script>
