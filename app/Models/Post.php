@@ -28,7 +28,30 @@ class Post extends Model
 
     public function getRouteKeyName(): string
     {
-        return 'slug';
+        return 'id';
+    }
+
+    /**
+     * Retrieve the model for a bound value (supports both numeric ID and slug).
+     *
+     * @param  mixed  $value
+     * @param  string|null  $field
+     * @return \Illuminate\Database\Eloquent\Model|null
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        if ($field) {
+            return $this->where($field, $value)->first();
+        }
+
+        if (is_numeric($value)) {
+            $post = $this->where('id', $value)->first();
+            if ($post) {
+                return $post;
+            }
+        }
+
+        return $this->where('slug', $value)->first();
     }
 
     /**
@@ -73,3 +96,4 @@ class Post extends Model
         return $this->hasMany(Comment::class);
     }
 }
+
