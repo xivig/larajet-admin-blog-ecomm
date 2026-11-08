@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('xivig-blog/plugins/bootstrap-icons/bootstrap-icons.min.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
@@ -282,7 +283,7 @@
                 <div class="form-group">
                     <label class="form-label" for="adminName">Full Name</label>
                     <div class="input-wrapper">
-                        <i class="fas fa-user input-icon"></i>
+                        <i class="bi bi-person input-icon"></i>
                         <input 
                             type="text" 
                             name="name" 
@@ -299,7 +300,7 @@
                 <div class="form-group">
                     <label class="form-label" for="adminEmail">Administrator Email</label>
                     <div class="input-wrapper">
-                        <i class="fas fa-envelope input-icon"></i>
+                        <i class="bi bi-envelope input-icon"></i>
                         <input 
                             type="email" 
                             name="email" 
@@ -315,7 +316,7 @@
                 <div class="form-group">
                     <label class="form-label" for="adminPassword">Password</label>
                     <div class="input-wrapper">
-                        <i class="fas fa-lock input-icon"></i>
+                        <i class="bi bi-shield-lock input-icon"></i>
                         <input 
                             type="password" 
                             name="password" 
@@ -331,7 +332,7 @@
                 <div class="form-group">
                     <label class="form-label" for="adminPasswordConfirm">Confirm Password</label>
                     <div class="input-wrapper">
-                        <i class="fas fa-shield-alt input-icon"></i>
+                        <i class="bi bi-shield-check input-icon"></i>
                         <input 
                             type="password" 
                             name="password_confirmation" 
@@ -346,17 +347,17 @@
 
                 <button type="submit" class="btn-submit">
                     <span>Create Administrator Account</span>
-                    <i class="fas fa-arrow-right"></i>
+                    <i class="bi bi-arrow-right"></i>
                 </button>
             </form>
 
             <!-- Card Footer Links -->
             <div class="auth-footer">
                 <a href="{{ url('/') }}" class="auth-link">
-                    <i class="fas fa-arrow-left"></i> Return to Site
+                    <i class="bi bi-arrow-left"></i> Return to Site
                 </a>
                 <a href="{{ route('admin.login') }}" class="auth-link">
-                    Already an Admin? Sign In <i class="fas fa-sign-in-alt"></i>
+                    Already an Admin? Sign In <i class="bi bi-box-arrow-in-right"></i>
                 </a>
             </div>
         </div>

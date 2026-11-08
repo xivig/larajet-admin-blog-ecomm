@@ -47,7 +47,7 @@
                         <span class="text-gradient font-weight-bold h3">Xivig</span>
                     </div>
                     <p class="text-muted small">Modern Elite Enterprise Framework built with Laravel 13 compatibility, Fortify, and Jetstream.</p>
-                    <h6 class="mt-3"><a href="mailto:support@xivig.com"><i class="fas fa-envelope mr-1 text-primary"></i> support@xivig.com</a></h6>
+                    <h6 class="mt-3"><a href="mailto:support@xivig.com"><i class="bi bi-envelope me-1 mr-1 text-primary"></i> support@xivig.com</a></h6>
                     <a href="tel:+23-345-67890"><span class="text-gradient font-weight-bold h5">+91 98367 26662</span></a>
                 </div>
             </div>
@@ -55,24 +55,24 @@
 
         <div class="footer-btm pt-5 mt-5" style="border-top: 1px solid rgba(255, 255, 255, 0.08);">
             <div class="row align-items-center">
-                <div class="col-lg-6 text-center text-lg-left mb-3 mb-lg-0">
+                <div class="col-lg-6 text-center text-lg-start text-lg-left mb-3 mb-lg-0">
                     <div class="copyright text-muted small">
                         &copy; {{ date('Y') }} <a href="{{ url('/') }}" class="text-white font-weight-bold">Xivig</a>. All rights reserved. Crafted for high performance.
                     </div>
                 </div>
-                <div class="col-lg-6 text-center text-lg-right">
+                <div class="col-lg-6 text-center text-lg-end text-lg-right">
                     <ul class="list-inline mb-0">
                         <li class="list-inline-item">
-                            <a href="https://facebook.com/xivig" class="footer-social-btn" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                            <a href="https://facebook.com/xivig" class="footer-social-btn" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
                         </li>
                         <li class="list-inline-item">
-                            <a href="https://twitter.com/xivig" class="footer-social-btn" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                            <a href="https://twitter.com/xivig" class="footer-social-btn" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
                         </li>
                         <li class="list-inline-item">
-                            <a href="https://github.com/xivig/" class="footer-social-btn" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                            <a href="https://github.com/xivig/" class="footer-social-btn" aria-label="GitHub"><i class="bi bi-github"></i></a>
                         </li>
                         <li class="list-inline-item">
-                            <a href="https://linkedin.com/company/xivig" class="footer-social-btn" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                            <a href="https://linkedin.com/company/xivig" class="footer-social-btn" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
                         </li>
                     </ul>
                 </div>

@@ -270,7 +270,7 @@
                         <img src="{{asset('xivig-public/assets/images/users/2.jpg')}}" alt="user" class="rounded-circle"
                              width="40">
                         <span class="m-l-5 font-medium d-none d-sm-inline-block">{{ $adminUser?->name ?? 'Administrator' }} <i
-                                class="mdi mdi-chevron-down"></i></span>
+                                class="bi bi-chevron-down"></i></span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right user-dd animated flipInY">
                                 <span class="with-arrow">
@@ -288,12 +288,12 @@
                         </div>
                         <div class="profile-dis scrollable">
                             <a class="dropdown-item" href="{{ url('/') }}" target="_blank">
-                                <i class="ti-world m-r-5 m-l-5"></i> View Website</a>
+                                <i class="bi bi-globe me-2 mr-2"></i> View Website</a>
                             <div class="dropdown-divider"></div>
                             <a class="btn btn-danger btn-lg dropdown-item sidebar-link waves-effect waves-dark sidebar-link"
                                href="javascript:void(0)"
                                onclick="event.preventDefault(); document.getElementById('admin-logout-form').submit();">
-                                <i class="fa fa-power-off m-r-5 m-l-5"></i>
+                                <i class="bi bi-power me-2 mr-2"></i>
                                 {{ __('Logout') }}
                             </a>
 

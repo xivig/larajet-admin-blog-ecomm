@@ -23,6 +23,8 @@
 
   <!-- bootstrap.min css -->
   <link rel="stylesheet" href="{{asset('xivig-blog/plugins/bootstrap/bootstrap.min.css')}}">
+  <!-- Bootstrap Icons (Latest v1.13.1) -->
+  <link rel="stylesheet" href="{{asset('xivig-blog/plugins/bootstrap-icons/bootstrap-icons.min.css')}}">
   <!-- Icon Font Css -->
   <link rel="stylesheet" href="{{asset('xivig-blog/plugins/themify/css/themify-icons.css')}}">
   <link rel="stylesheet" href="{{asset('xivig-blog/plugins/fontawesome/css/all.min.css')}}">
