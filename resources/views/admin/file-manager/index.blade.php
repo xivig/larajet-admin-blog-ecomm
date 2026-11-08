@@ -133,22 +133,26 @@
                       <a href="{{ asset($file['path']) }}" download class="btn btn-sm btn-outline-primary py-0.5 px-2" title="Download">
                         <i class="bi bi-download"></i>
                       </a>
-                      <form action="{{ route('admin.file-manager.duplicate') }}" method="POST" class="d-inline">
-                        @csrf
-                        <input type="hidden" name="path" value="{{ $file['path'] }}">
-                        <button type="submit" class="btn btn-sm btn-outline-success py-0.5 px-2" title="Duplicate File">
-                          <i class="bi bi-copy"></i>
-                        </button>
-                      </form>
-                      <form action="{{ route('admin.file-manager.destroy') }}" method="POST" class="d-inline">
-                        @csrf
-                        @method('DELETE')
-                        <input type="hidden" name="path" value="{{ $file['path'] }}">
-                        <button type="button" class="btn btn-sm btn-outline-danger py-0.5 px-2" title="Move to Trash" onclick="confirmTrashFile(this, '{{ addslashes($file['name']) }}')">
-                          <i class="bi bi-trash"></i>
-                        </button>
-                      </form>
+                      <button type="submit" form="dup-file-form-{{ $loop->index }}" class="btn btn-sm btn-outline-success py-0.5 px-2" title="Duplicate File">
+                        <i class="bi bi-copy"></i>
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-danger py-0.5 px-2" title="Move to Trash" onclick="confirmTrashFile(document.getElementById('del-file-form-{{ $loop->index }}'), '{{ addslashes($file['name']) }}')">
+                        <i class="bi bi-trash"></i>
+                      </button>
                     @endif
+                  </div>
+
+                  @if(empty($file['is_dir']))
+                    <form id="dup-file-form-{{ $loop->index }}" action="{{ route('admin.file-manager.duplicate') }}" method="POST" class="d-none">
+                      @csrf
+                      <input type="hidden" name="path" value="{{ $file['path'] }}">
+                    </form>
+                    <form id="del-file-form-{{ $loop->index }}" action="{{ route('admin.file-manager.destroy') }}" method="POST" class="d-none">
+                      @csrf
+                      @method('DELETE')
+                      <input type="hidden" name="path" value="{{ $file['path'] }}">
+                    </form>
+                  @endif
                   </div>
                 </div>
               </div>

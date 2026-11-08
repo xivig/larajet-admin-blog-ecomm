@@ -154,18 +154,18 @@
                 <td class="text-end">
                   @if ($post->trashed())
                     <div class="btn-group btn-group-sm">
-                      <form action="{{ route('admin.posts.restore', $post->id) }}" method="POST" class="d-inline">
-                        @csrf
-                        <button type="submit" class="btn btn-outline-success" title="Restore Article from Trash">
-                          <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
-                        </button>
-                      </form>
+                      <button type="submit" form="restore-form-{{ $post->id }}" class="btn btn-outline-success" title="Restore Article from Trash">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
+                      </button>
                       <button type="button" class="btn btn-outline-danger" title="Permanently Delete" data-id="{{ $post->id }}" data-title="{{ $post->title }}" onclick="confirmForceDelete(this.dataset.id, this.dataset.title)">
                         <i class="bi bi-x-octagon me-1"></i> Permanent Delete
                       </button>
                     </div>
 
-                    <form id="force-delete-form-{{ $post->id }}" action="{{ route('admin.posts.force-delete', $post->id) }}" method="POST" style="display: none;">
+                    <form id="restore-form-{{ $post->id }}" action="{{ route('admin.posts.restore', $post->id) }}" method="POST" class="d-none">
+                      @csrf
+                    </form>
+                    <form id="force-delete-form-{{ $post->id }}" action="{{ route('admin.posts.force-delete', $post->id) }}" method="POST" class="d-none">
                       @csrf
                       @method('DELETE')
                     </form>
@@ -177,18 +177,18 @@
                       <a href="{{ route('admin.posts.edit', $post->id) }}" class="btn btn-outline-primary" title="Edit Article with Quill">
                         <i class="bi bi-pencil-square"></i>
                       </a>
-                      <form action="{{ route('admin.posts.duplicate', $post->id) }}" method="POST" class="d-inline">
-                        @csrf
-                        <button type="submit" class="btn btn-outline-success" title="Duplicate Article as Draft">
-                          <i class="bi bi-copy"></i>
-                        </button>
-                      </form>
+                      <button type="submit" form="duplicate-post-{{ $post->id }}" class="btn btn-outline-success" title="Duplicate Article as Draft">
+                        <i class="bi bi-copy"></i>
+                      </button>
                       <button type="button" class="btn btn-outline-danger" title="Move to Trash" data-id="{{ $post->id }}" data-title="{{ $post->title }}" onclick="confirmDelete(this.dataset.id, this.dataset.title)">
                         <i class="bi bi-trash"></i>
                       </button>
                     </div>
 
-                    <form id="delete-form-{{ $post->id }}" action="{{ route('admin.posts.destroy', $post->id) }}" method="POST" style="display: none;">
+                    <form id="duplicate-post-{{ $post->id }}" action="{{ route('admin.posts.duplicate', $post->id) }}" method="POST" class="d-none">
+                      @csrf
+                    </form>
+                    <form id="delete-form-{{ $post->id }}" action="{{ route('admin.posts.destroy', $post->id) }}" method="POST" class="d-none">
                       @csrf
                       @method('DELETE')
                     </form>

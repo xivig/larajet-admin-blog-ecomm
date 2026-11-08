@@ -171,16 +171,17 @@
                   <td class="text-end">
                     @if ($comment->trashed())
                       <div class="btn-group btn-group-sm">
-                        <form action="{{ route('admin.comments.restore', $comment->id) }}" method="POST" class="d-inline">
-                          @csrf
-                          <button type="submit" class="btn btn-outline-success" title="Restore Comment">
-                            <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
-                          </button>
-                        </form>
+                        <button type="submit" form="restore-comment-{{ $comment->id }}" class="btn btn-outline-success" title="Restore Comment">
+                          <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
+                        </button>
                         <button type="button" class="btn btn-outline-danger" onclick="confirmForceDeleteComment('{{ $comment->id }}')" title="Permanently Delete">
                           <i class="bi bi-x-octagon me-1"></i> Delete
                         </button>
                       </div>
+
+                      <form id="restore-comment-{{ $comment->id }}" action="{{ route('admin.comments.restore', $comment->id) }}" method="POST" class="d-none">
+                        @csrf
+                      </form>
 
                       <form id="force-delete-form-{{ $comment->id }}" action="{{ route('admin.comments.force-delete', $comment->id) }}" method="POST" style="display: none;">
                         @csrf

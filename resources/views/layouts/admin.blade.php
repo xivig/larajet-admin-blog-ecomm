@@ -270,6 +270,52 @@
     [data-bs-theme="dark"] .swal2-html-container {
       color: #f1f5f9 !important;
     }
+
+    /* Normalize button groups and handle any form wrappers seamlessly */
+    .btn-group {
+      display: inline-flex;
+      vertical-align: middle;
+    }
+    .btn-group > .btn {
+      position: relative;
+      flex: 1 1 auto;
+    }
+    .btn-group > .btn:not(:first-child):not(:last-child) {
+      border-radius: 0 !important;
+    }
+    .btn-group > .btn:first-child {
+      border-top-left-radius: var(--bs-border-radius-sm, 0.25rem) !important;
+      border-bottom-left-radius: var(--bs-border-radius-sm, 0.25rem) !important;
+      border-top-right-radius: 0 !important;
+      border-bottom-right-radius: 0 !important;
+    }
+    .btn-group > .btn:last-child {
+      border-top-right-radius: var(--bs-border-radius-sm, 0.25rem) !important;
+      border-bottom-right-radius: var(--bs-border-radius-sm, 0.25rem) !important;
+      border-top-left-radius: 0 !important;
+      border-bottom-left-radius: 0 !important;
+    }
+    .btn-group > form.d-inline {
+      display: inline-flex !important;
+      margin: 0 !important;
+    }
+    .btn-group > form.d-inline > .btn {
+      border-radius: 0 !important;
+      margin-left: -1px;
+    }
+    .btn-group > form.d-inline:first-child > .btn {
+      margin-left: 0;
+      border-top-left-radius: var(--bs-border-radius-sm, 0.25rem) !important;
+      border-bottom-left-radius: var(--bs-border-radius-sm, 0.25rem) !important;
+      border-top-right-radius: 0 !important;
+      border-bottom-right-radius: 0 !important;
+    }
+    .btn-group > form.d-inline:last-child > .btn {
+      border-top-right-radius: var(--bs-border-radius-sm, 0.25rem) !important;
+      border-bottom-right-radius: var(--bs-border-radius-sm, 0.25rem) !important;
+      border-top-left-radius: 0 !important;
+      border-bottom-left-radius: 0 !important;
+    }
   </style>
 
   @stack('scripts')

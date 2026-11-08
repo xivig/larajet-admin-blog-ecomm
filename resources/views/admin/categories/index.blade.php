@@ -114,29 +114,26 @@
                     <td class="text-end">
                       @if ($cat->trashed())
                         <div class="btn-group btn-group-sm">
-                          <form action="{{ route('admin.categories.restore', $cat->id) }}" method="POST" class="d-inline">
-                            @csrf
-                            <button type="submit" class="btn btn-outline-success" title="Restore Category">
-                              <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
-                            </button>
-                          </form>
+                          <button type="submit" form="restore-cat-{{ $cat->id }}" class="btn btn-outline-success" title="Restore Category">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
+                          </button>
                           <button type="button" class="btn btn-outline-danger" data-id="{{ $cat->id }}" data-name="{{ $cat->name }}" data-count="{{ $cat->posts_count }}" onclick="confirmForceDeleteCat(this.dataset.id, this.dataset.name, this.dataset.count)" title="Permanently Delete">
                             <i class="bi bi-x-octagon me-1"></i> Delete
                           </button>
                         </div>
 
-                        <form id="force-delete-cat-{{ $cat->id }}" action="{{ route('admin.categories.force-delete', $cat->id) }}" method="POST" style="display: none;">
+                        <form id="restore-cat-{{ $cat->id }}" action="{{ route('admin.categories.restore', $cat->id) }}" method="POST" class="d-none">
+                          @csrf
+                        </form>
+                        <form id="force-delete-cat-{{ $cat->id }}" action="{{ route('admin.categories.force-delete', $cat->id) }}" method="POST" class="d-none">
                           @csrf
                           @method('DELETE')
                         </form>
                       @else
                         <div class="btn-group btn-group-sm">
-                          <form action="{{ route('admin.categories.duplicate', $cat->id) }}" method="POST" class="d-inline">
-                            @csrf
-                            <button type="submit" class="btn btn-outline-success" title="Duplicate Category">
-                              <i class="bi bi-copy"></i>
-                            </button>
-                          </form>
+                          <button type="submit" form="duplicate-cat-{{ $cat->id }}" class="btn btn-outline-success" title="Duplicate Category">
+                            <i class="bi bi-copy"></i>
+                          </button>
                           <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editCatModal-{{ $cat->id }}" title="Edit Category">
                             <i class="bi bi-pencil"></i>
                           </button>
@@ -145,7 +142,10 @@
                           </button>
                         </div>
 
-                        <form id="delete-cat-{{ $cat->id }}" action="{{ route('admin.categories.destroy', $cat->id) }}" method="POST" style="display: none;">
+                        <form id="duplicate-cat-{{ $cat->id }}" action="{{ route('admin.categories.duplicate', $cat->id) }}" method="POST" class="d-none">
+                          @csrf
+                        </form>
+                        <form id="delete-cat-{{ $cat->id }}" action="{{ route('admin.categories.destroy', $cat->id) }}" method="POST" class="d-none">
                           @csrf
                           @method('DELETE')
                         </form>
