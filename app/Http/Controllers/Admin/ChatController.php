@@ -75,7 +75,7 @@ class ChatController extends Controller
         ChatMessage::create([
             'sender_id' => auth()->id() ?: 1,
             'receiver_id' => $request->receiver_id ?: null,
-            'channel' => $request->receiver_id ? null : ($request->channel ?: 'general'),
+            'channel' => $request->receiver_id ? ($request->channel ?: 'direct') : ($request->channel ?: 'general'),
             'message' => $request->message,
             'attachment' => $attachmentPath,
         ]);
