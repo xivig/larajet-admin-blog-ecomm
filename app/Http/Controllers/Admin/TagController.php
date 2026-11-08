@@ -20,6 +20,30 @@ class TagController extends Controller
     }
 
     /**
+     * Show the form for creating a new tag.
+     */
+    public function create(): RedirectResponse
+    {
+        return redirect()->route('admin.tags.index');
+    }
+
+    /**
+     * Display the specified tag.
+     */
+    public function show(Tag $tag): RedirectResponse
+    {
+        return redirect()->route('admin.tags.index');
+    }
+
+    /**
+     * Show the form for editing the specified tag.
+     */
+    public function edit(Tag $tag): RedirectResponse
+    {
+        return redirect()->route('admin.tags.index');
+    }
+
+    /**
      * Store a newly created tag.
      */
     public function store(Request $request): RedirectResponse

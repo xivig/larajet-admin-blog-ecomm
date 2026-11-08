@@ -36,6 +36,22 @@ class GalleryController extends Controller
     }
 
     /**
+     * Show the form for creating a new gallery (modal on index).
+     */
+    public function create(): RedirectResponse
+    {
+        return redirect()->route('admin.galleries.index');
+    }
+
+    /**
+     * Show the form for editing the specified gallery.
+     */
+    public function edit(Gallery $gallery): View|RedirectResponse
+    {
+        return redirect()->route('admin.galleries.show', $gallery);
+    }
+
+    /**
      * Store a newly created gallery.
      */
     public function store(Request $request): RedirectResponse

@@ -77,6 +77,14 @@ class CommentController extends Controller
     }
 
     /**
+     * Alias for setStatus matching route definition.
+     */
+    public function updateStatus(Request $request, Comment $comment): RedirectResponse
+    {
+        return $this->setStatus($request, $comment);
+    }
+
+    /**
      * Update comment content.
      */
     public function update(Request $request, Comment $comment): RedirectResponse

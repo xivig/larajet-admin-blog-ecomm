@@ -16,6 +16,14 @@ class ProfileController extends Controller
     /**
      * Show admin profile edit form.
      */
+    public function index(): View
+    {
+        return $this->edit();
+    }
+
+    /**
+     * Show admin profile edit form.
+     */
     public function edit(): View
     {
         $admin = Auth::guard('admin')->user() ?? Admin::first();

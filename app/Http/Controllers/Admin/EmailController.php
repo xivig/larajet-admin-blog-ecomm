@@ -135,6 +135,14 @@ class EmailController extends Controller
     }
 
     /**
+     * Alias for moveFolder matching admin.email.move route.
+     */
+    public function moveFolder(Request $request, AdminEmail $email): RedirectResponse
+    {
+        return $this->moveToFolder($request, $email);
+    }
+
+    /**
      * Permanently delete an email.
      */
     public function destroy(AdminEmail $email): RedirectResponse

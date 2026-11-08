@@ -115,4 +115,12 @@ class ChatController extends Controller
             'messages' => $messages,
         ]);
     }
+
+    /**
+     * Alias for route admin.chat.messages
+     */
+    public function fetchMessages(Request $request): JsonResponse
+    {
+        return $this->apiMessages($request);
+    }
 }

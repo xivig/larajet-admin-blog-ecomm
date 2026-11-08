@@ -114,6 +114,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
     // Comments Moderation & Actions
     Route::get('comments', [AdminCommentController::class, 'index'])->name('admin.comments.index');
+    Route::match(['get', 'post'], 'comments/{comment}/approve', [AdminCommentController::class, 'approve'])->name('admin.comments.approve');
     Route::post('comments/{comment}/status', [AdminCommentController::class, 'updateStatus'])->name('admin.comments.status');
     Route::post('comments/{comment}/reply', [AdminCommentController::class, 'reply'])->name('admin.comments.reply');
     Route::put('comments/{comment}', [AdminCommentController::class, 'update'])->name('admin.comments.update');

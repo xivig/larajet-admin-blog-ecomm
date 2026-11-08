@@ -32,6 +32,30 @@ class CategoryController extends Controller
     }
 
     /**
+     * Show the form for creating a new category (redirects to modal on index).
+     */
+    public function create(): RedirectResponse
+    {
+        return redirect()->route('admin.categories.index');
+    }
+
+    /**
+     * Display the specified category.
+     */
+    public function show(Category $category): RedirectResponse
+    {
+        return redirect()->route('admin.categories.index');
+    }
+
+    /**
+     * Show the form for editing the specified category.
+     */
+    public function edit(Category $category): RedirectResponse
+    {
+        return redirect()->route('admin.categories.index');
+    }
+
+    /**
      * Store a newly created category.
      */
     public function store(Request $request): RedirectResponse

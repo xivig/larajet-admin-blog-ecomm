@@ -20,6 +20,14 @@ class SeoSettingController extends Controller
     /**
      * Display the SEO & Search Engine Intelligence Suite.
      */
+    public function seo(): View
+    {
+        return $this->index();
+    }
+
+    /**
+     * Display the SEO & Search Engine Intelligence Suite.
+     */
     public function index(): View
     {
         $settings = Setting::getAll();
