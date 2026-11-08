@@ -60,9 +60,18 @@
 
     <!-- Categories List DataTable -->
     <div class="col-lg-8">
+      <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+        <a href="{{ route('admin.categories.index') }}" class="btn btn-sm rounded-pill {{ !request('status') ? 'btn-primary' : 'btn-outline-secondary' }}">
+          Active Categories <span class="badge {{ !request('status') ? 'bg-white text-primary' : 'bg-secondary' }} ms-1">{{ $counts['active'] ?? 0 }}</span>
+        </a>
+        <a href="{{ route('admin.categories.index', ['status' => 'trash']) }}" class="btn btn-sm rounded-pill {{ request('status') === 'trash' ? 'btn-danger' : 'btn-outline-danger' }}">
+          <i class="bi bi-trash me-1"></i> Trash <span class="badge {{ request('status') === 'trash' ? 'bg-white text-danger' : 'bg-danger' }} ms-1">{{ $counts['trash'] ?? 0 }}</span>
+        </a>
+      </div>
+
       <div class="card">
         <div class="card-header py-3">
-          <h5 class="card-title mb-0">Active Categories Directory</h5>
+          <h5 class="card-title mb-0">{{ request('status') === 'trash' ? 'Trashed Categories' : 'Active Categories Directory' }}</h5>
           <small class="text-muted">Listing of all registered topic taxonomies and related post volumes</small>
         </div>
         <div class="card-body">
@@ -94,26 +103,53 @@
                       </span>
                     </td>
                     <td>
-                      @if ($cat->status)
+                      @if ($cat->trashed())
+                        <span class="badge bg-danger-subtle text-danger px-2 py-0.5 small"><i class="bi bi-trash me-1"></i> Trashed</span>
+                      @elseif ($cat->status)
                         <span class="badge badge-published px-2 py-0.5 small">Active</span>
                       @else
                         <span class="badge badge-draft px-2 py-0.5 small">Inactive</span>
                       @endif
                     </td>
                     <td class="text-end">
-                      <div class="btn-group btn-group-sm">
-                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editCatModal-{{ $cat->id }}" title="Edit Category">
-                          <i class="bi bi-pencil"></i>
-                        </button>
-                        <button type="button" class="btn btn-outline-danger" onclick="deleteCategory('{{ $cat->id }}', '{{ addslashes($cat->name) }}', {{ $cat->posts_count }})" title="Delete Category">
-                          <i class="bi bi-trash"></i>
-                        </button>
-                      </div>
+                      @if ($cat->trashed())
+                        <div class="btn-group btn-group-sm">
+                          <form action="{{ route('admin.categories.restore', $cat->id) }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-success" title="Restore Category">
+                              <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
+                            </button>
+                          </form>
+                          <button type="button" class="btn btn-outline-danger" onclick="confirmForceDeleteCat('{{ $cat->id }}', '{{ addslashes($cat->name) }}', {{ $cat->posts_count }})" title="Permanently Delete">
+                            <i class="bi bi-x-octagon me-1"></i> Delete
+                          </button>
+                        </div>
 
-                      <form id="delete-cat-{{ $cat->id }}" action="{{ route('admin.categories.destroy', $cat->id) }}" method="POST" style="display: none;">
-                        @csrf
-                        @method('DELETE')
-                      </form>
+                        <form id="force-delete-cat-{{ $cat->id }}" action="{{ route('admin.categories.force-delete', $cat->id) }}" method="POST" style="display: none;">
+                          @csrf
+                          @method('DELETE')
+                        </form>
+                      @else
+                        <div class="btn-group btn-group-sm">
+                          <form action="{{ route('admin.categories.duplicate', $cat->id) }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-success" title="Duplicate Category">
+                              <i class="bi bi-copy"></i>
+                            </button>
+                          </form>
+                          <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editCatModal-{{ $cat->id }}" title="Edit Category">
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                          <button type="button" class="btn btn-outline-danger" onclick="deleteCategory('{{ $cat->id }}', '{{ addslashes($cat->name) }}')" title="Move to Trash">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </div>
+
+                        <form id="delete-cat-{{ $cat->id }}" action="{{ route('admin.categories.destroy', $cat->id) }}" method="POST" style="display: none;">
+                          @csrf
+                          @method('DELETE')
+                        </form>
+                      @endif
                     </td>
                   </tr>
                 @endforeach
@@ -170,13 +206,19 @@
 
 @push('scripts')
 <script>
-  function deleteCategory(id, name, postCount) {
+  function deleteCategory(id, name) {
+    if (confirm('Move category "' + name + '" to Trash?')) {
+      document.getElementById('delete-cat-' + id).submit();
+    }
+  }
+
+  function confirmForceDeleteCat(id, name, postCount) {
     if (postCount > 0) {
       alert('Cannot delete category "' + name + '" because it still contains ' + postCount + ' post(s). Please reassign them first.');
       return;
     }
-    if (confirm('Are you sure you want to delete category "' + name + '"?')) {
-      document.getElementById('delete-cat-' + id).submit();
+    if (confirm('PERMANENT DELETION: Are you sure you want to permanently delete category "' + name + '"? This action cannot be undone.')) {
+      document.getElementById('force-delete-cat-' + id).submit();
     }
   }
 </script>

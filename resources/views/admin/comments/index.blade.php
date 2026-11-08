@@ -53,6 +53,11 @@
               Spam <span class="badge bg-danger-subtle text-danger ms-1">{{ $counts['spam'] }}</span>
             </a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link {{ request('status') === 'trash' ? 'active text-danger' : '' }}" href="{{ route('admin.comments.index', ['status' => 'trash']) }}">
+              <i class="bi bi-trash me-1"></i> Trash <span class="badge {{ request('status') === 'trash' ? 'bg-danger text-white' : 'bg-danger-subtle text-danger' }} ms-1">{{ $counts['trash'] ?? 0 }}</span>
+            </a>
+          </li>
         </ul>
 
         <form action="{{ route('admin.comments.index') }}" method="GET" class="d-flex gap-2">
@@ -82,10 +87,15 @@
         <div class="p-3 bg-body-tertiary border-bottom d-flex align-items-center gap-2">
           <select name="action" class="form-select form-select-sm w-auto" required>
             <option value="">Bulk Actions</option>
-            <option value="approve">Mark as Approved</option>
-            <option value="pending">Mark as Pending</option>
-            <option value="spam">Mark as Spam</option>
-            <option value="delete">Delete Selected</option>
+            @if(request('status') === 'trash')
+              <option value="restore">Restore Selected</option>
+              <option value="force_delete">Permanently Delete Selected</option>
+            @else
+              <option value="approve">Mark as Approved</option>
+              <option value="pending">Mark as Pending</option>
+              <option value="spam">Mark as Spam</option>
+              <option value="delete">Move to Trash</option>
+            @endif
           </select>
           <button type="submit" class="btn btn-sm btn-primary">Apply</button>
         </div>
@@ -145,7 +155,9 @@
                     @endif
                   </td>
                   <td>
-                    @if ($comment->status === 'approved')
+                    @if ($comment->trashed())
+                      <span class="badge bg-danger-subtle text-danger px-2 py-1"><i class="bi bi-trash me-1"></i> Trashed</span>
+                    @elseif ($comment->status === 'approved')
                       <span class="badge bg-success-subtle text-success px-2 py-1">Approved</span>
                     @elseif ($comment->status === 'pending')
                       <span class="badge bg-warning-subtle text-warning px-2 py-1">Pending</span>
@@ -157,25 +169,44 @@
                     <span class="small text-muted">{{ $comment->created_at ? $comment->created_at->diffForHumans() : 'N/A' }}</span>
                   </td>
                   <td class="text-end">
-                    <div class="btn-group btn-group-sm">
-                      @if ($comment->status !== 'approved')
-                        <a href="{{ route('admin.comments.approve', $comment->id) }}" class="btn btn-outline-success" title="Approve Comment">
-                          <i class="bi bi-check-lg"></i>
-                        </a>
-                      @endif
+                    @if ($comment->trashed())
+                      <div class="btn-group btn-group-sm">
+                        <form action="{{ route('admin.comments.restore', $comment->id) }}" method="POST" class="d-inline">
+                          @csrf
+                          <button type="submit" class="btn btn-outline-success" title="Restore Comment">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
+                          </button>
+                        </form>
+                        <button type="button" class="btn btn-outline-danger" onclick="confirmForceDeleteComment('{{ $comment->id }}')" title="Permanently Delete">
+                          <i class="bi bi-x-octagon me-1"></i> Delete
+                        </button>
+                      </div>
 
-                      <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#replyModal-{{ $comment->id }}" title="Reply to Reader">
-                        <i class="bi bi-reply-fill"></i>
-                      </button>
+                      <form id="force-delete-form-{{ $comment->id }}" action="{{ route('admin.comments.force-delete', $comment->id) }}" method="POST" style="display: none;">
+                        @csrf
+                        @method('DELETE')
+                      </form>
+                    @else
+                      <div class="btn-group btn-group-sm">
+                        @if ($comment->status !== 'approved')
+                          <a href="{{ route('admin.comments.approve', $comment->id) }}" class="btn btn-outline-success" title="Approve Comment">
+                            <i class="bi bi-check-lg"></i>
+                          </a>
+                        @endif
 
-                      <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editCommentModal-{{ $comment->id }}" title="Edit Comment">
-                        <i class="bi bi-pencil"></i>
-                      </button>
+                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#replyModal-{{ $comment->id }}" title="Reply to Reader">
+                          <i class="bi bi-reply-fill"></i>
+                        </button>
 
-                      <button type="button" class="btn btn-outline-danger" onclick="deleteComment('{{ $comment->id }}')" title="Delete Comment">
-                        <i class="bi bi-trash"></i>
-                      </button>
-                    </div>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editCommentModal-{{ $comment->id }}" title="Edit Comment">
+                          <i class="bi bi-pencil"></i>
+                        </button>
+
+                        <button type="button" class="btn btn-outline-danger" onclick="deleteComment('{{ $comment->id }}')" title="Move to Trash">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
+                    @endif
                   </td>
                 </tr>
               @empty
@@ -284,8 +315,14 @@
   }
 
   function deleteComment(id) {
-    if (confirm('Are you sure you want to delete this comment and its replies?')) {
+    if (confirm('Move this comment to Trash?')) {
       document.getElementById('delete-form-' + id).submit();
+    }
+  }
+
+  function confirmForceDeleteComment(id) {
+    if (confirm('PERMANENT DELETION: Are you sure you want to permanently delete this comment and its replies? This action cannot be undone.')) {
+      document.getElementById('force-delete-form-' + id).submit();
     }
   }
 </script>

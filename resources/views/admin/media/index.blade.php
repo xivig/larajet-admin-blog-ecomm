@@ -157,6 +157,16 @@
         </div>
     </div>
 
+    <!-- Media View Filter Tabs -->
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+        <a href="{{ route('admin.media.index') }}" class="btn btn-sm rounded-pill {{ !request('status') ? 'btn-primary' : 'btn-outline-secondary' }}">
+            <i class="bi bi-images me-1"></i> Active Media <span class="badge {{ !request('status') ? 'bg-white text-primary' : 'bg-secondary' }} ms-1">{{ number_format($totalCount) }}</span>
+        </a>
+        <a href="{{ route('admin.media.index', ['status' => 'trash']) }}" class="btn btn-sm rounded-pill {{ request('status') === 'trash' ? 'btn-danger' : 'btn-outline-danger' }}">
+            <i class="bi bi-trash me-1"></i> Trash <span class="badge {{ request('status') === 'trash' ? 'bg-white text-danger' : 'bg-danger' }} ms-1">{{ number_format($trashCount ?? 0) }}</span>
+        </a>
+    </div>
+
     <!-- Controls & Filters Bar -->
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-3">
@@ -228,9 +238,18 @@
                     <span class="fw-semibold small">asset(s) selected</span>
                 </div>
                 <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="executeBulkAction('delete')">
-                        <i class="bi bi-trash me-1"></i> Delete Selected
-                    </button>
+                    @if(request('status') === 'trash')
+                        <button type="button" class="btn btn-outline-success btn-sm" onclick="executeBulkAction('restore')">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> Restore Selected
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="executeBulkAction('force_delete')">
+                            <i class="bi bi-x-octagon me-1"></i> Delete Permanently
+                        </button>
+                    @else
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="executeBulkAction('delete')">
+                            <i class="bi bi-trash me-1"></i> Move to Trash
+                        </button>
+                    @endif
                     <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearBulkSelection()">
                         Clear Selection
                     </button>
@@ -295,18 +314,30 @@
                                 @endif
 
                                 <div class="btn-group btn-group-sm">
-                                    <button type="button" class="btn btn-outline-secondary btn-sm p-1 px-1.5" onclick="copyAssetUrl('{{ $pic->url }}')" title="Copy URL">
-                                        <i class="bi bi-clipboard"></i>
-                                    </button>
-                                    <a href="{{ route('admin.image-cropper.index', ['media_id' => $pic->id]) }}" class="btn btn-outline-warning btn-sm p-1 px-1.5" title="Crop & Resize in Studio">
-                                        <i class="bi bi-crop"></i>
-                                    </a>
-                                    <button type="button" class="btn btn-outline-primary btn-sm p-1 px-1.5" onclick="openInspectorModal({{ $pic->id }})" title="Inspect & Edit">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-outline-danger btn-sm p-1 px-1.5" onclick="deleteSingleAsset({{ $pic->id }}, '{{ addslashes($pic->name) }}')" title="Delete">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                    @if($pic->trashed())
+                                        <button type="button" class="btn btn-outline-success btn-sm p-1 px-1.5" onclick="restoreSingleAsset({{ $pic->id }})" title="Restore from Trash">
+                                            <i class="bi bi-arrow-counterclockwise"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger btn-sm p-1 px-1.5" onclick="forceDeleteSingleAsset({{ $pic->id }}, '{{ addslashes($pic->name) }}')" title="Delete Permanently">
+                                            <i class="bi bi-x-octagon"></i>
+                                        </button>
+                                    @else
+                                        <button type="button" class="btn btn-outline-secondary btn-sm p-1 px-1.5" onclick="copyAssetUrl('{{ $pic->url }}')" title="Copy URL">
+                                            <i class="bi bi-clipboard"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-success btn-sm p-1 px-1.5" onclick="duplicateSingleAsset({{ $pic->id }})" title="Duplicate Asset">
+                                            <i class="bi bi-copy"></i>
+                                        </button>
+                                        <a href="{{ route('admin.image-cropper.index', ['media_id' => $pic->id]) }}" class="btn btn-outline-warning btn-sm p-1 px-1.5" title="Crop & Resize in Studio">
+                                            <i class="bi bi-crop"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-primary btn-sm p-1 px-1.5" onclick="openInspectorModal({{ $pic->id }})" title="Inspect & Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger btn-sm p-1 px-1.5" onclick="deleteSingleAsset({{ $pic->id }}, '{{ addslashes($pic->name) }}')" title="Move to Trash">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -386,18 +417,30 @@
                                     </td>
                                     <td class="text-end pe-3">
                                         <div class="btn-group btn-group-sm">
-                                            <button type="button" class="btn btn-outline-secondary" onclick="copyAssetUrl('{{ $pic->url }}')" title="Copy URL">
-                                                <i class="bi bi-clipboard"></i>
-                                            </button>
-                                            <a href="{{ route('admin.image-cropper.index', ['media_id' => $pic->id]) }}" class="btn btn-outline-warning" title="Crop & Resize in Studio">
-                                                <i class="bi bi-crop"></i>
-                                            </a>
-                                            <button type="button" class="btn btn-outline-primary" onclick="openInspectorModal({{ $pic->id }})" title="Edit Details">
-                                                <i class="bi bi-pencil"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-outline-danger" onclick="deleteSingleAsset({{ $pic->id }}, '{{ addslashes($pic->name) }}')" title="Delete">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
+                                            @if($pic->trashed())
+                                                <button type="button" class="btn btn-outline-success" onclick="restoreSingleAsset({{ $pic->id }})" title="Restore Asset">
+                                                    <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
+                                                </button>
+                                                <button type="button" class="btn btn-outline-danger" onclick="forceDeleteSingleAsset({{ $pic->id }}, '{{ addslashes($pic->name) }}')" title="Delete Permanently">
+                                                    <i class="bi bi-x-octagon me-1"></i> Delete
+                                                </button>
+                                            @else
+                                                <button type="button" class="btn btn-outline-secondary" onclick="copyAssetUrl('{{ $pic->url }}')" title="Copy URL">
+                                                    <i class="bi bi-clipboard"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-outline-success" onclick="duplicateSingleAsset({{ $pic->id }})" title="Duplicate Asset">
+                                                    <i class="bi bi-copy"></i>
+                                                </button>
+                                                <a href="{{ route('admin.image-cropper.index', ['media_id' => $pic->id]) }}" class="btn btn-outline-warning" title="Crop & Resize in Studio">
+                                                    <i class="bi bi-crop"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-outline-primary" onclick="openInspectorModal({{ $pic->id }})" title="Edit Details">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-outline-danger" onclick="deleteSingleAsset({{ $pic->id }}, '{{ addslashes($pic->name) }}')" title="Move to Trash">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -533,8 +576,11 @@
 
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-outline-success btn-sm" id="btnInspectorDuplicate">
+                                        <i class="bi bi-copy me-1"></i> Duplicate
+                                    </button>
                                     <button type="button" class="btn btn-outline-danger btn-sm" id="btnInspectorDelete">
-                                        <i class="bi bi-trash me-1"></i> Delete
+                                        <i class="bi bi-trash me-1"></i> Trash
                                     </button>
                                     <a href="#" id="inspectorCropBtn" class="btn btn-outline-warning btn-sm">
                                         <i class="bi bi-crop me-1"></i> Crop in Studio
@@ -565,6 +611,22 @@
     @method('DELETE')
 </form>
 
+<!-- Single Restore Form -->
+<form id="singleRestoreForm" action="" method="POST" class="d-none">
+    @csrf
+</form>
+
+<!-- Single Force Delete Form -->
+<form id="singleForceDeleteForm" action="" method="POST" class="d-none">
+    @csrf
+    @method('DELETE')
+</form>
+
+<!-- Single Duplicate Form -->
+<form id="singleDuplicateForm" action="" method="POST" class="d-none">
+    @csrf
+</form>
+
 <script>
 // Copy URL Helper
 function copyAssetUrl(url) {
@@ -576,13 +638,36 @@ function copyAssetUrl(url) {
     });
 }
 
-// Single asset deletion
+// Single asset soft deletion
 function deleteSingleAsset(id, name) {
-    if (confirm('Are you sure you want to permanently delete "' + name + '"?')) {
+    if (confirm('Move media asset "' + name + '" to Trash?')) {
         const form = document.getElementById('singleDeleteForm');
         form.action = '{{ url("admin/media") }}/' + id;
         form.submit();
     }
+}
+
+// Single asset restore
+function restoreSingleAsset(id) {
+    const form = document.getElementById('singleRestoreForm');
+    form.action = '{{ url("admin/media") }}/' + id + '/restore';
+    form.submit();
+}
+
+// Single asset force delete
+function forceDeleteSingleAsset(id, name) {
+    if (confirm('PERMANENT DELETION: Are you sure you want to permanently delete media asset "' + name + '"? This will remove the file from storage and cannot be undone.')) {
+        const form = document.getElementById('singleForceDeleteForm');
+        form.action = '{{ url("admin/media") }}/' + id + '/force-delete';
+        form.submit();
+    }
+}
+
+// Single asset duplicate
+function duplicateSingleAsset(id) {
+    const form = document.getElementById('singleDuplicateForm');
+    form.action = '{{ url("admin/media") }}/' + id + '/duplicate';
+    form.submit();
 }
 
 // Bulk Selection Management
@@ -754,6 +839,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 const cropBtn = document.getElementById('inspectorCropBtn');
                 if (cropBtn) {
                     cropBtn.href = '{{ url("admin/image-cropper") }}?media_id=' + a.id;
+                }
+
+                // Bind duplicate button
+                const dupBtn = document.getElementById('btnInspectorDuplicate');
+                if (dupBtn) {
+                    dupBtn.onclick = function() {
+                        duplicateSingleAsset(a.id);
+                    };
                 }
 
                 // Bind delete button

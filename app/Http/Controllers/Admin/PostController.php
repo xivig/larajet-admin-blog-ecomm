@@ -20,20 +20,34 @@ class PostController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Post::with(['category', 'author.user', 'image', 'tag', 'comments'])->latest();
+        $status = $request->input('status');
+
+        if ($status === 'trash') {
+            $query = Post::onlyTrashed()->with(['category', 'author.user', 'image', 'tag', 'comments'])->latest();
+        } else {
+            $query = Post::with(['category', 'author.user', 'image', 'tag', 'comments'])->latest();
+            if ($status === 'published') {
+                $query->where('status', true);
+            } elseif ($status === 'draft') {
+                $query->where('status', false);
+            }
+        }
 
         if ($request->filled('category_id')) {
             $query->where('category_id', $request->category_id);
         }
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status === 'published');
-        }
-
         $posts = $query->get();
         $categories = Category::all();
 
-        return view('admin.posts.index', compact('posts', 'categories'));
+        $counts = [
+            'all' => Post::count(),
+            'published' => Post::where('status', true)->count(),
+            'draft' => Post::where('status', false)->count(),
+            'trash' => Post::onlyTrashed()->count(),
+        ];
+
+        return view('admin.posts.index', compact('posts', 'categories', 'counts'));
     }
 
     /**
@@ -223,15 +237,71 @@ class PostController extends Controller
     }
 
     /**
-     * Remove the specified post from storage.
+     * Move the specified post to trash (Soft Delete).
      */
     public function destroy(Post $post): RedirectResponse
     {
         $title = $post->title;
-        $post->comments()->delete();
         $post->delete();
 
-        return redirect()->route('admin.posts.index')->with('success', 'Article "' . $title . '" deleted successfully!');
+        return redirect()->route('admin.posts.index')->with('success', 'Article "' . $title . '" moved to trash successfully!');
+    }
+
+    /**
+     * Restore a soft-deleted post from trash.
+     */
+    public function restore(int|string $id): RedirectResponse
+    {
+        $post = Post::onlyTrashed()->findOrFail($id);
+        $post->restore();
+
+        return redirect()->route('admin.posts.index', ['status' => 'trash'])->with('success', 'Article "' . $post->title . '" restored successfully!');
+    }
+
+    /**
+     * Permanently remove a post from storage.
+     */
+    public function forceDelete(int|string $id): RedirectResponse
+    {
+        $post = Post::withTrashed()->findOrFail($id);
+        $title = $post->title;
+
+        // Permanently remove related comments
+        $post->comments()->forceDelete();
+        $post->forceDelete();
+
+        return redirect()->route('admin.posts.index', ['status' => 'trash'])->with('success', 'Article "' . $title . '" permanently deleted.');
+    }
+
+    /**
+     * Duplicate a post into a new draft.
+     */
+    public function duplicate(Post $post): RedirectResponse
+    {
+        $baseTitle = $post->title . ' (Copy)';
+        $baseSlug = Str::slug($baseTitle);
+        $slug = $baseSlug;
+        $counter = 1;
+
+        while (Post::withTrashed()->where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
+        $newPost = Post::create([
+            'user_id' => auth()->id() ?? $post->user_id,
+            'category_id' => $post->category_id,
+            'tag_id' => $post->tag_id,
+            'image_id' => $post->image_id,
+            'author_id' => $post->author_id,
+            'title' => $baseTitle,
+            'slug' => $slug,
+            'content' => $post->content,
+            'excerpt' => $post->excerpt,
+            'status' => false, // draft by default
+        ]);
+
+        return redirect()->route('admin.posts.edit', $newPost->id)->with('success', 'Article duplicated successfully as draft! You are now editing the duplicate.');
     }
 
     /**

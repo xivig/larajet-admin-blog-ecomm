@@ -17,7 +17,13 @@ class MediaController extends Controller
      */
     public function index(Request $request): View|JsonResponse
     {
-        $query = Picture::withCount('posts');
+        $status = $request->input('status');
+
+        if ($status === 'trash') {
+            $query = Picture::onlyTrashed()->withCount('posts');
+        } else {
+            $query = Picture::withCount('posts');
+        }
 
         // Search filter
         if ($request->filled('q')) {
@@ -88,6 +94,7 @@ class MediaController extends Controller
         $formattedTotalSize = $this->formatBytes($totalBytes);
         $usedInPostsCount = Picture::has('posts')->count();
         $unusedCount = Picture::doesntHave('posts')->count();
+        $trashCount = Picture::onlyTrashed()->count();
         $availableFolders = Picture::select('folder')->distinct()->whereNotNull('folder')->pluck('folder');
 
         $activeView = $request->query('view', 'grid');
@@ -98,6 +105,7 @@ class MediaController extends Controller
             'formattedTotalSize',
             'usedInPostsCount',
             'unusedCount',
+            'trashCount',
             'availableFolders',
             'activeView'
         ));
@@ -253,10 +261,47 @@ class MediaController extends Controller
     }
 
     /**
-     * Delete a single media item and its physical file.
+     * Move media item to trash (Soft Delete).
      */
     public function destroy(Request $request, Picture $picture): RedirectResponse|JsonResponse
     {
+        $name = $picture->name;
+        $picture->delete();
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Media asset '{$name}' moved to trash successfully!",
+            ]);
+        }
+
+        return redirect()->route('admin.media.index')->with('success', "Media asset '{$name}' moved to trash successfully!");
+    }
+
+    /**
+     * Restore a soft-deleted media item from trash.
+     */
+    public function restore(Request $request, int|string $id): RedirectResponse|JsonResponse
+    {
+        $picture = Picture::onlyTrashed()->findOrFail($id);
+        $picture->restore();
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Media asset '{$picture->name}' restored successfully!",
+            ]);
+        }
+
+        return redirect()->route('admin.media.index', ['status' => 'trash'])->with('success', "Media asset '{$picture->name}' restored successfully!");
+    }
+
+    /**
+     * Permanently delete a media item and remove physical file from disk.
+     */
+    public function forceDelete(Request $request, int|string $id): RedirectResponse|JsonResponse
+    {
+        $picture = Picture::withTrashed()->findOrFail($id);
         $name = $picture->name;
 
         // Safely unlink physical file if within uploads/
@@ -264,45 +309,102 @@ class MediaController extends Controller
             @unlink(public_path($picture->link));
         }
 
-        $picture->delete();
+        $picture->forceDelete();
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => "Media asset '{$name}' deleted successfully!",
+                'message' => "Media asset '{$name}' permanently deleted.",
             ]);
         }
 
-        return redirect()->route('admin.media.index')->with('success', "Media asset '{$name}' deleted successfully!");
+        return redirect()->route('admin.media.index', ['status' => 'trash'])->with('success', "Media asset '{$name}' permanently deleted.");
     }
 
     /**
-     * Handle bulk actions (bulk delete, bulk move folder).
+     * Duplicate a media item and its physical file.
+     */
+    public function duplicate(Request $request, Picture $picture): RedirectResponse|JsonResponse
+    {
+        $newLink = $picture->link;
+
+        if (Str::startsWith($picture->link, 'uploads/') && file_exists(public_path($picture->link))) {
+            $fullPath = public_path($picture->link);
+            $dir = dirname($fullPath);
+            $ext = pathinfo($fullPath, PATHINFO_EXTENSION);
+            $base = pathinfo($fullPath, PATHINFO_FILENAME);
+            $dotExt = $ext ? ('.' . $ext) : '';
+
+            $targetName = $base . '_copy' . $dotExt;
+            $targetPath = $dir . DIRECTORY_SEPARATOR . $targetName;
+            $counter = 2;
+
+            while (file_exists($targetPath)) {
+                $targetPath = $dir . DIRECTORY_SEPARATOR . $base . '_copy_' . $counter++ . $dotExt;
+            }
+
+            copy($fullPath, $targetPath);
+
+            $newLink = str_replace(public_path() . DIRECTORY_SEPARATOR, '', $targetPath);
+            $newLink = str_replace('\\', '/', $newLink);
+        }
+
+        $newPicture = Picture::create([
+            'name' => $picture->name . ' (Copy)',
+            'alt_text' => $picture->alt_text,
+            'caption' => $picture->caption,
+            'description' => $picture->description,
+            'link' => $newLink,
+            'mime_type' => $picture->mime_type,
+            'file_size' => $picture->file_size,
+            'dimensions' => $picture->dimensions,
+            'folder' => $picture->folder,
+        ]);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Media asset '{$picture->name}' duplicated successfully!",
+                'asset' => $newPicture,
+            ]);
+        }
+
+        return redirect()->route('admin.media.index')->with('success', "Media asset '{$picture->name}' duplicated successfully!");
+    }
+
+    /**
+     * Handle bulk actions (bulk delete, bulk restore, bulk force delete, bulk move folder).
      */
     public function bulkAction(Request $request): RedirectResponse|JsonResponse
     {
         $request->validate([
-            'action' => 'required|string|in:delete,move',
+            'action' => 'required|string|in:delete,restore,force_delete,move',
             'ids' => 'required|array',
-            'ids.*' => 'exists:pictures,id',
+            'ids.*' => 'integer',
             'target_folder' => 'nullable|string|max:100',
         ]);
 
-        $pictures = Picture::whereIn('id', $request->ids)->get();
-        $count = $pictures->count();
+        $ids = $request->ids;
 
         if ($request->action === 'delete') {
+            Picture::whereIn('id', $ids)->delete();
+            $msg = count($ids) . " media asset(s) moved to trash.";
+        } elseif ($request->action === 'restore') {
+            Picture::onlyTrashed()->whereIn('id', $ids)->restore();
+            $msg = count($ids) . " media asset(s) restored from trash.";
+        } elseif ($request->action === 'force_delete') {
+            $pictures = Picture::onlyTrashed()->whereIn('id', $ids)->get();
             foreach ($pictures as $pic) {
                 if (Str::startsWith($pic->link, 'uploads/') && file_exists(public_path($pic->link))) {
                     @unlink(public_path($pic->link));
                 }
-                $pic->delete();
+                $pic->forceDelete();
             }
-            $msg = "{$count} media asset(s) deleted permanently.";
+            $msg = count($ids) . " media asset(s) permanently deleted.";
         } elseif ($request->action === 'move') {
             $folder = $request->filled('target_folder') ? Str::slug($request->target_folder) : 'general';
-            Picture::whereIn('id', $request->ids)->update(['folder' => $folder]);
-            $msg = "{$count} media asset(s) moved to '{$folder}' folder.";
+            Picture::whereIn('id', $ids)->update(['folder' => $folder]);
+            $msg = count($ids) . " media asset(s) moved to '{$folder}' folder.";
         } else {
             $msg = 'Action processed.';
         }

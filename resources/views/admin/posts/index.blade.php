@@ -27,6 +27,22 @@
     </div>
   </div>
 
+  <!-- Status Nav Pills -->
+  <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+    <a href="{{ route('admin.posts.index') }}" class="btn btn-sm rounded-pill {{ !request('status') ? 'btn-primary' : 'btn-outline-secondary' }}">
+      All Articles <span class="badge {{ !request('status') ? 'bg-white text-primary' : 'bg-secondary' }} ms-1">{{ $counts['all'] ?? count($posts) }}</span>
+    </a>
+    <a href="{{ route('admin.posts.index', ['status' => 'published']) }}" class="btn btn-sm rounded-pill {{ request('status') === 'published' ? 'btn-primary' : 'btn-outline-secondary' }}">
+      <i class="bi bi-check-circle me-1"></i> Published <span class="badge {{ request('status') === 'published' ? 'bg-white text-primary' : 'bg-secondary' }} ms-1">{{ $counts['published'] ?? 0 }}</span>
+    </a>
+    <a href="{{ route('admin.posts.index', ['status' => 'draft']) }}" class="btn btn-sm rounded-pill {{ request('status') === 'draft' ? 'btn-primary' : 'btn-outline-secondary' }}">
+      <i class="bi bi-file-earmark me-1"></i> Drafts <span class="badge {{ request('status') === 'draft' ? 'bg-white text-primary' : 'bg-secondary' }} ms-1">{{ $counts['draft'] ?? 0 }}</span>
+    </a>
+    <a href="{{ route('admin.posts.index', ['status' => 'trash']) }}" class="btn btn-sm rounded-pill {{ request('status') === 'trash' ? 'btn-danger' : 'btn-outline-danger' }}">
+      <i class="bi bi-trash me-1"></i> Trash <span class="badge {{ request('status') === 'trash' ? 'bg-white text-danger' : 'bg-danger' }} ms-1">{{ $counts['trash'] ?? 0 }}</span>
+    </a>
+  </div>
+
   <!-- Filter & Management Bar -->
   <div class="card mb-4">
     <div class="card-body py-3">
@@ -48,6 +64,7 @@
             <option value="">All Statuses</option>
             <option value="published" {{ request('status') === 'published' ? 'selected' : '' }}>Published Only</option>
             <option value="draft" {{ request('status') === 'draft' ? 'selected' : '' }}>Drafts Only</option>
+            <option value="trash" {{ request('status') === 'trash' ? 'selected' : '' }}>Trash (Deleted)</option>
           </select>
         </div>
         <div class="col-md-5 d-flex align-items-end justify-content-md-end gap-2">
@@ -121,7 +138,11 @@
                   </span>
                 </td>
                 <td>
-                  @if ($post->status)
+                  @if ($post->trashed())
+                    <span class="badge bg-danger-subtle text-danger px-2.5 py-1">
+                      <i class="bi bi-trash me-1"></i> Trashed
+                    </span>
+                  @elseif ($post->status)
                     <span class="badge badge-published px-2.5 py-1">Published</span>
                   @else
                     <span class="badge badge-draft px-2.5 py-1">Draft</span>
@@ -131,22 +152,47 @@
                   <span class="small text-muted">{{ $post->created_at ? $post->created_at->format('M d, Y') : 'N/A' }}</span>
                 </td>
                 <td class="text-end">
-                  <div class="btn-group btn-group-sm">
-                    <a href="{{ route('single-post', $post->slug) }}" target="_blank" class="btn btn-outline-secondary" title="View live article">
-                      <i class="bi bi-box-arrow-up-right"></i>
-                    </a>
-                    <a href="{{ route('admin.posts.edit', $post->id) }}" class="btn btn-outline-primary" title="Edit Article with Quill">
-                      <i class="bi bi-pencil-square"></i>
-                    </a>
-                    <button type="button" class="btn btn-outline-danger" title="Delete Article" onclick="confirmDelete('{{ $post->id }}', '{{ addslashes($post->title) }}')">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </div>
+                  @if ($post->trashed())
+                    <div class="btn-group btn-group-sm">
+                      <form action="{{ route('admin.posts.restore', $post->id) }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-success" title="Restore Article from Trash">
+                          <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
+                        </button>
+                      </form>
+                      <button type="button" class="btn btn-outline-danger" title="Permanently Delete" onclick="confirmForceDelete('{{ $post->id }}', '{{ addslashes($post->title) }}')">
+                        <i class="bi bi-x-octagon me-1"></i> Permanent Delete
+                      </button>
+                    </div>
 
-                  <form id="delete-form-{{ $post->id }}" action="{{ route('admin.posts.destroy', $post->id) }}" method="POST" style="display: none;">
-                    @csrf
-                    @method('DELETE')
-                  </form>
+                    <form id="force-delete-form-{{ $post->id }}" action="{{ route('admin.posts.force-delete', $post->id) }}" method="POST" style="display: none;">
+                      @csrf
+                      @method('DELETE')
+                    </form>
+                  @else
+                    <div class="btn-group btn-group-sm">
+                      <a href="{{ route('single-post', $post->slug) }}" target="_blank" class="btn btn-outline-secondary" title="View live article">
+                        <i class="bi bi-box-arrow-up-right"></i>
+                      </a>
+                      <a href="{{ route('admin.posts.edit', $post->id) }}" class="btn btn-outline-primary" title="Edit Article with Quill">
+                        <i class="bi bi-pencil-square"></i>
+                      </a>
+                      <form action="{{ route('admin.posts.duplicate', $post->id) }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-success" title="Duplicate Article as Draft">
+                          <i class="bi bi-copy"></i>
+                        </button>
+                      </form>
+                      <button type="button" class="btn btn-outline-danger" title="Move to Trash" onclick="confirmDelete('{{ $post->id }}', '{{ addslashes($post->title) }}')">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+
+                    <form id="delete-form-{{ $post->id }}" action="{{ route('admin.posts.destroy', $post->id) }}" method="POST" style="display: none;">
+                      @csrf
+                      @method('DELETE')
+                    </form>
+                  @endif
                 </td>
               </tr>
             @endforeach
@@ -161,8 +207,14 @@
 @push('scripts')
 <script>
   function confirmDelete(id, title) {
-    if (confirm('Are you sure you want to delete article "' + title + '"? This will remove all associated comments as well.')) {
+    if (confirm('Move article "' + title + '" to Trash?')) {
       document.getElementById('delete-form-' + id).submit();
+    }
+  }
+
+  function confirmForceDelete(id, title) {
+    if (confirm('PERMANENT DELETION: Are you sure you want to permanently delete article "' + title + '"? This will remove all associated comments as well and CANNOT be undone.')) {
+      document.getElementById('force-delete-form-' + id).submit();
     }
   }
 </script>

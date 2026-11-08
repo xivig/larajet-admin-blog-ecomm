@@ -36,10 +36,15 @@
           @foreach ($allowedFolders as $folderKey => $folderLabel)
             <a href="{{ route('admin.file-manager.index', ['folder' => $folderKey]) }}" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between {{ $currentFolder === $folderKey ? 'active' : '' }}">
               <div class="d-flex align-items-center gap-2">
-                <i class="bi {{ $currentFolder === $folderKey ? 'bi-folder2-open' : 'bi-folder' }} fs-5"></i>
+                <i class="bi {{ $folderKey === 'uploads/trash' ? 'bi-trash' : ($currentFolder === $folderKey ? 'bi-folder2-open' : 'bi-folder') }} fs-5"></i>
                 <span class="fw-semibold">{{ $folderLabel }}</span>
               </div>
-              <code class="small {{ $currentFolder === $folderKey ? 'text-white' : 'text-muted' }}" style="font-size: 11px;">/{{ $folderKey }}</code>
+              <div class="d-flex align-items-center gap-1">
+                @if ($folderKey === 'uploads/trash' && ($trashCount ?? 0) > 0)
+                  <span class="badge {{ $currentFolder === $folderKey ? 'bg-white text-danger' : 'bg-danger-subtle text-danger' }} rounded-pill">{{ $trashCount }}</span>
+                @endif
+                <code class="small {{ $currentFolder === $folderKey ? 'text-white' : 'text-muted' }}" style="font-size: 11px;">/{{ $folderKey }}</code>
+              </div>
             </a>
           @endforeach
         </div>
@@ -64,8 +69,19 @@
           <div class="d-flex align-items-center gap-2">
             <h5 class="card-title mb-0">{{ $allowedFolders[$currentFolder] ?? 'Files' }}</h5>
             <span class="badge bg-secondary-subtle text-secondary small">{{ count($files) }} items</span>
+            @if ($currentFolder === 'uploads/trash')
+              <span class="badge bg-danger-subtle text-danger small">Recycle Bin Mode</span>
+            @endif
           </div>
-          <div class="d-flex gap-2">
+          <div class="d-flex align-items-center gap-2">
+            @if ($currentFolder === 'uploads/trash' && count($files) > 0)
+              <form action="{{ route('admin.file-manager.empty-trash') }}" method="POST" class="d-inline" onsubmit="return confirm('PERMANENT: Are you sure you want to empty the entire Recycle Bin? This cannot be undone.');">
+                @csrf
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                  <i class="bi bi-trash3 me-1"></i> Empty Bin
+                </button>
+              </form>
+            @endif
             <input type="text" id="fileFilterInput" class="form-control form-control-sm" placeholder="Filter files in directory..." style="max-width: 220px;">
           </div>
         </div>
@@ -94,27 +110,56 @@
                     <small class="text-muted d-block mt-1" style="font-size: 10px;">{{ $file['modified'] }}</small>
                   </div>
                   <div class="card-footer p-2 bg-transparent border-top d-flex justify-content-between align-items-center">
-                    <button type="button" class="btn btn-sm btn-outline-secondary py-0.5 px-2" onclick="copyAssetLink('{{ asset($file['path']) }}')" title="Copy Link">
-                      <i class="bi bi-link-45deg"></i>
-                    </button>
-                    <a href="{{ asset($file['path']) }}" download class="btn btn-sm btn-outline-primary py-0.5 px-2" title="Download">
-                      <i class="bi bi-download"></i>
-                    </a>
-                    <form action="{{ route('admin.file-manager.destroy') }}" method="POST" class="d-inline" onsubmit="return confirm('Delete file {{ $file['name'] }}?');">
-                      @csrf
-                      @method('DELETE')
-                      <input type="hidden" name="path" value="{{ $file['path'] }}">
-                      <button type="submit" class="btn btn-sm btn-outline-danger py-0.5 px-2" title="Delete">
-                        <i class="bi bi-trash"></i>
+                    @if ($currentFolder === 'uploads/trash')
+                      <form action="{{ route('admin.file-manager.restore') }}" method="POST" class="d-inline">
+                        @csrf
+                        <input type="hidden" name="path" value="{{ $file['path'] }}">
+                        <button type="submit" class="btn btn-sm btn-outline-success py-0.5 px-2" title="Restore File to Original Location">
+                          <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
+                        </button>
+                      </form>
+                      <form action="{{ route('admin.file-manager.force-delete') }}" method="POST" class="d-inline" onsubmit="return confirm('PERMANENT: Permanently delete file {{ $file['name'] }}?');">
+                        @csrf
+                        @method('DELETE')
+                        <input type="hidden" name="path" value="{{ $file['path'] }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger py-0.5 px-2" title="Delete Permanently">
+                          <i class="bi bi-x-octagon"></i>
+                        </button>
+                      </form>
+                    @else
+                      <button type="button" class="btn btn-sm btn-outline-secondary py-0.5 px-2" onclick="copyAssetLink('{{ asset($file['path']) }}')" title="Copy Link">
+                        <i class="bi bi-link-45deg"></i>
                       </button>
-                    </form>
+                      <a href="{{ asset($file['path']) }}" download class="btn btn-sm btn-outline-primary py-0.5 px-2" title="Download">
+                        <i class="bi bi-download"></i>
+                      </a>
+                      <form action="{{ route('admin.file-manager.duplicate') }}" method="POST" class="d-inline">
+                        @csrf
+                        <input type="hidden" name="path" value="{{ $file['path'] }}">
+                        <button type="submit" class="btn btn-sm btn-outline-success py-0.5 px-2" title="Duplicate File">
+                          <i class="bi bi-copy"></i>
+                        </button>
+                      </form>
+                      <form action="{{ route('admin.file-manager.destroy') }}" method="POST" class="d-inline" onsubmit="return confirm('Move file {{ $file['name'] }} to Recycle Bin?');">
+                        @csrf
+                        @method('DELETE')
+                        <input type="hidden" name="path" value="{{ $file['path'] }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger py-0.5 px-2" title="Move to Trash">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </form>
+                    @endif
                   </div>
                 </div>
               </div>
             @empty
               <div class="col-12 py-5 text-center text-muted">
                 <i class="bi bi-folder-x fs-1 d-block mb-2"></i>
-                No files found in this directory. Click "Upload File" to add assets.
+                @if ($currentFolder === 'uploads/trash')
+                  The Recycle Bin is currently empty.
+                @else
+                  No files found in this directory. Click "Upload File" to add assets.
+                @endif
               </div>
             @endforelse
           </div>

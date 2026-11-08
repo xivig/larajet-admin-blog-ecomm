@@ -52,13 +52,36 @@ class TagController extends Controller
     }
 
     /**
-     * Remove the specified tag from storage.
+     * Remove the specified tag from storage (Soft Delete).
      */
     public function destroy(Tag $tag): RedirectResponse
     {
         $name = $tag->name;
         $tag->delete();
 
-        return redirect()->route('admin.tags.index')->with('success', 'Tag "#' . $name . '" deleted successfully!');
+        return redirect()->route('admin.tags.index')->with('success', 'Tag "#' . $name . '" moved to trash.');
+    }
+
+    /**
+     * Restore a soft-deleted tag from trash.
+     */
+    public function restore(int|string $id): RedirectResponse
+    {
+        $tag = Tag::onlyTrashed()->findOrFail($id);
+        $tag->restore();
+
+        return redirect()->route('admin.tags.index')->with('success', 'Tag "#' . $tag->name . '" restored successfully.');
+    }
+
+    /**
+     * Permanently remove a tag from storage.
+     */
+    public function forceDelete(int|string $id): RedirectResponse
+    {
+        $tag = Tag::withTrashed()->findOrFail($id);
+        $name = $tag->name;
+        $tag->forceDelete();
+
+        return redirect()->route('admin.tags.index')->with('success', 'Tag "#' . $name . '" permanently deleted.');
     }
 }

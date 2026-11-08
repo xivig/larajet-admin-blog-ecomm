@@ -16,10 +16,16 @@ class CommentController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Comment::with(['post', 'user', 'replies.user'])->latest();
+        $status = $request->input('status');
 
-        if ($request->filled('status') && $request->status !== 'all') {
-            $query->where('status', $request->status);
+        if ($status === 'trash') {
+            $query = Comment::onlyTrashed()->with(['post', 'user', 'replies.user'])->latest();
+        } else {
+            $query = Comment::with(['post', 'user', 'replies.user'])->latest();
+
+            if ($request->filled('status') && $request->status !== 'all') {
+                $query->where('status', $request->status);
+            }
         }
 
         if ($request->filled('search')) {
@@ -43,6 +49,7 @@ class CommentController extends Controller
             'approved' => Comment::where('status', 'approved')->count(),
             'pending' => Comment::where('status', 'pending')->count(),
             'spam' => Comment::where('status', 'spam')->count(),
+            'trash' => Comment::onlyTrashed()->count(),
         ];
 
         return view('admin.comments.index', compact('comments', 'counts'));
@@ -106,14 +113,36 @@ class CommentController extends Controller
     }
 
     /**
-     * Remove the specified comment from storage.
+     * Move the specified comment to trash (Soft Delete).
      */
     public function destroy(Comment $comment): RedirectResponse
     {
-        $comment->replies()->delete();
         $comment->delete();
 
-        return back()->with('success', 'Comment and its thread removed successfully.');
+        return back()->with('success', 'Comment moved to trash.');
+    }
+
+    /**
+     * Restore a soft-deleted comment from trash.
+     */
+    public function restore(int|string $id): RedirectResponse
+    {
+        $comment = Comment::onlyTrashed()->findOrFail($id);
+        $comment->restore();
+
+        return back()->with('success', 'Comment restored successfully.');
+    }
+
+    /**
+     * Permanently remove a comment from storage.
+     */
+    public function forceDelete(int|string $id): RedirectResponse
+    {
+        $comment = Comment::withTrashed()->findOrFail($id);
+        $comment->replies()->forceDelete();
+        $comment->forceDelete();
+
+        return back()->with('success', 'Comment permanently deleted.');
     }
 
     /**
@@ -122,18 +151,24 @@ class CommentController extends Controller
     public function bulkAction(Request $request): RedirectResponse
     {
         $request->validate([
-            'action' => 'required|in:approve,pending,spam,delete',
+            'action' => 'required|in:approve,pending,spam,delete,restore,force_delete',
             'ids' => 'required|array',
-            'ids.*' => 'exists:comments,id',
+            'ids.*' => 'integer',
         ]);
 
         $ids = $request->ids;
         $action = $request->action;
 
         if ($action === 'delete') {
-            CommentReply::whereIn('comment_id', $ids)->delete();
             Comment::whereIn('id', $ids)->delete();
-            $msg = count($ids) . ' comments removed.';
+            $msg = count($ids) . ' comments moved to trash.';
+        } elseif ($action === 'restore') {
+            Comment::onlyTrashed()->whereIn('id', $ids)->restore();
+            $msg = count($ids) . ' comments restored from trash.';
+        } elseif ($action === 'force_delete') {
+            CommentReply::whereIn('comment_id', $ids)->forceDelete();
+            Comment::onlyTrashed()->whereIn('id', $ids)->forceDelete();
+            $msg = count($ids) . ' comments permanently deleted.';
         } else {
             $statusMap = ['approve' => 'approved', 'pending' => 'pending', 'spam' => 'spam'];
             Comment::whereIn('id', $ids)->update(['status' => $statusMap[$action]]);

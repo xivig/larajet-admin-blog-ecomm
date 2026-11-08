@@ -16,6 +16,12 @@
       </nav>
     </div>
     <div class="d-flex align-items-center gap-2">
+      <form action="{{ route('admin.posts.duplicate', $post->id) }}" method="POST" class="d-inline">
+        @csrf
+        <button type="submit" class="btn btn-outline-success">
+          <i class="bi bi-copy me-1"></i> Duplicate
+        </button>
+      </form>
       <a href="{{ route('single-post', $post->slug) }}" target="_blank" class="btn btn-outline-secondary">
         <i class="bi bi-box-arrow-up-right me-1"></i> View Live
       </a>

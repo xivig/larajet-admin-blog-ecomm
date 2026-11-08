@@ -88,12 +88,20 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
     // Posts Management
     Route::post('posts/quick-draft', [AdminPostController::class, 'quickDraft'])->name('admin.posts.quick-draft');
+    Route::post('posts/{post}/duplicate', [AdminPostController::class, 'duplicate'])->name('admin.posts.duplicate');
+    Route::post('posts/{id}/restore', [AdminPostController::class, 'restore'])->name('admin.posts.restore');
+    Route::delete('posts/{id}/force-delete', [AdminPostController::class, 'forceDelete'])->name('admin.posts.force-delete');
     Route::resource('posts', AdminPostController::class)->names('admin.posts');
 
     // Categories Management
+    Route::post('categories/{category}/duplicate', [AdminCategoryController::class, 'duplicate'])->name('admin.categories.duplicate');
+    Route::post('categories/{id}/restore', [AdminCategoryController::class, 'restore'])->name('admin.categories.restore');
+    Route::delete('categories/{id}/force-delete', [AdminCategoryController::class, 'forceDelete'])->name('admin.categories.force-delete');
     Route::resource('categories', AdminCategoryController::class)->names('admin.categories');
 
     // Tags Management
+    Route::post('tags/{id}/restore', [AdminTagController::class, 'restore'])->name('admin.tags.restore');
+    Route::delete('tags/{id}/force-delete', [AdminTagController::class, 'forceDelete'])->name('admin.tags.force-delete');
     Route::resource('tags', AdminTagController::class)->names('admin.tags');
 
     // Comments Moderation & Actions
@@ -102,6 +110,8 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('comments/{comment}/reply', [AdminCommentController::class, 'reply'])->name('admin.comments.reply');
     Route::put('comments/{comment}', [AdminCommentController::class, 'update'])->name('admin.comments.update');
     Route::post('comments/bulk', [AdminCommentController::class, 'bulkAction'])->name('admin.comments.bulk');
+    Route::post('comments/{id}/restore', [AdminCommentController::class, 'restore'])->name('admin.comments.restore');
+    Route::delete('comments/{id}/force-delete', [AdminCommentController::class, 'forceDelete'])->name('admin.comments.force-delete');
     Route::delete('comments/{comment}', [AdminCommentController::class, 'destroy'])->name('admin.comments.destroy');
 
     // Notifications Center
@@ -119,6 +129,10 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     // File Manager App
     Route::get('file-manager', [AdminFileManagerController::class, 'index'])->name('admin.file-manager.index');
     Route::post('file-manager/upload', [AdminFileManagerController::class, 'upload'])->name('admin.file-manager.upload');
+    Route::post('file-manager/duplicate', [AdminFileManagerController::class, 'duplicate'])->name('admin.file-manager.duplicate');
+    Route::post('file-manager/restore', [AdminFileManagerController::class, 'restore'])->name('admin.file-manager.restore');
+    Route::delete('file-manager/force-delete', [AdminFileManagerController::class, 'forceDelete'])->name('admin.file-manager.force-delete');
+    Route::post('file-manager/empty-trash', [AdminFileManagerController::class, 'emptyTrash'])->name('admin.file-manager.empty-trash');
     Route::delete('file-manager', [AdminFileManagerController::class, 'destroy'])->name('admin.file-manager.destroy');
 
     // Email / Communications App
@@ -141,6 +155,9 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::get('media', [AdminMediaController::class, 'index'])->name('admin.media.index');
     Route::post('media', [AdminMediaController::class, 'store'])->name('admin.media.store');
     Route::get('media/picker-api', [AdminMediaController::class, 'pickerApi'])->name('admin.media.picker');
+    Route::post('media/{picture}/duplicate', [AdminMediaController::class, 'duplicate'])->name('admin.media.duplicate');
+    Route::post('media/{id}/restore', [AdminMediaController::class, 'restore'])->name('admin.media.restore');
+    Route::delete('media/{id}/force-delete', [AdminMediaController::class, 'forceDelete'])->name('admin.media.force-delete');
     Route::get('media/{picture}', [AdminMediaController::class, 'show'])->name('admin.media.show');
     Route::put('media/{picture}', [AdminMediaController::class, 'update'])->name('admin.media.update');
     Route::post('media/bulk', [AdminMediaController::class, 'bulkAction'])->name('admin.media.bulk');
