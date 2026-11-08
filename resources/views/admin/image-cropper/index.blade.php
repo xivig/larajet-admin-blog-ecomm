@@ -2,11 +2,13 @@
 
 @section('title', 'Image Cropper Studio - Xivig Admin')
 
-@section('content')
+@push('styles')
 <!-- Cropper.js CSS (Local + CDN Fallback) -->
 <link rel="stylesheet" href="{{ asset('admin-dist/vendor/cropperjs/cropper.min.css') }}?v={{ file_exists(public_path('admin-dist/vendor/cropperjs/cropper.min.css')) ? filemtime(public_path('admin-dist/vendor/cropperjs/cropper.min.css')) : time() }}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+@endpush
 
+@section('content')
 <div class="page-image-cropper">
     <!-- Header Hero Section -->
     <div class="page-header d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
@@ -53,21 +55,31 @@
         <div class="col-xl-8 col-lg-7">
             <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4">
                 <!-- Image Viewport Canvas -->
-                <div class="img-container rounded-3 overflow-hidden border bg-light-subtle mb-3 position-relative d-flex align-items-center justify-content-center" 
-                     style="min-height: 420px; max-height: 520px; background-image: radial-gradient(rgba(0,0,0,0.12) 1px, transparent 1px); background-size: 20px 20px;">
-                    <img id="image" src="{{ $defaultImageUrl ?? asset('admin-dist/img/cropper-sample.jpg') }}" alt="Crop Target" style="max-width: 100%; display: block;">
+                <div class="img-container rounded-3 overflow-hidden border bg-light-subtle mb-3 position-relative" 
+                     style="height: 480px; max-height: 520px; background-image: radial-gradient(rgba(0,0,0,0.12) 1px, transparent 1px); background-size: 20px 20px;">
+                    <img id="image" src="{{ $defaultImageUrl ?? asset('admin-dist/img/cropper-sample.jpg') }}" alt="Crop Target" style="max-width: 100%;">
                 </div>
 
                 <!-- Cropper Toolbar Controls -->
                 <div class="d-flex flex-column flex-md-row gap-3 align-items-md-center justify-content-between pt-3 border-top" id="actions">
                     <div class="d-flex flex-wrap gap-2 align-items-center">
                         <!-- Mode Group -->
-                        <div class="cropper-toolbar-group shadow-sm">
-                            <button type="button" class="btn" data-method="setDragMode" data-option="move" title="Move Canvas">
-                                <i class="bi bi-arrows-move"></i>
+                        <div class="cropper-toolbar-group shadow-sm" id="dragModeGroup">
+                            <button type="button" class="btn active" data-method="setDragMode" data-option="crop" title="Crop Mode: Draw or Resize Crop Selection Box">
+                                <i class="bi bi-crop me-1"></i> Crop
                             </button>
-                            <button type="button" class="btn active" data-method="setDragMode" data-option="crop" title="Crop Selection Box">
-                                <i class="bi bi-crop"></i>
+                            <button type="button" class="btn" data-method="setDragMode" data-option="move" title="Pan Mode: Move Canvas">
+                                <i class="bi bi-arrows-move me-1"></i> Move
+                            </button>
+                        </div>
+
+                        <!-- Selection Quick Controls -->
+                        <div class="cropper-toolbar-group shadow-sm">
+                            <button type="button" class="btn" data-method="crop" title="Show / Restore Selection Box">
+                                <i class="bi bi-check2-square"></i>
+                            </button>
+                            <button type="button" class="btn" data-method="clear" title="Clear Selection Box">
+                                <i class="bi bi-x-square"></i>
                             </button>
                         </div>
 
@@ -312,16 +324,23 @@
     const cropperOptions = {
         aspectRatio: 16 / 9,
         preview: '.img-preview',
-        viewMode: 2,
-        dragMode: 'crop',
+        viewMode: 1, // Restrict crop box to stay within canvas boundaries
+        dragMode: 'crop', // Default to crop selection mode
+        autoCrop: true, // Auto-create crop selection box on load
         autoCropArea: 0.85,
         restore: false,
+        checkCrossOrigin: true,
+        checkOrientation: true,
+        modal: true,
         guides: true,
         center: true,
-        highlight: false,
-        cropBoxMovable: true,
-        cropBoxResizable: true,
+        highlight: true,
+        background: true,
+        cropBoxMovable: true, // Allow moving crop selection box
+        cropBoxResizable: true, // Allow resizing crop selection box
         toggleDragModeOnDblclick: true,
+        minCropBoxWidth: 20,
+        minCropBoxHeight: 20,
         crop(event) {
             if (dataX) dataX.value = Math.round(event.detail.x);
             if (dataY) dataY.value = Math.round(event.detail.y);
@@ -334,31 +353,62 @@
     ensureCropper(function (CropperClass) {
         function startCropper() {
             if (cropper) {
-                cropper.destroy();
+                try { cropper.destroy(); } catch (e) {}
             }
             cropper = new CropperClass(image, cropperOptions);
             image.__cropper = cropper;
+            window.__cropperInstance = cropper;
             image.setAttribute('data-cropper-initialized', 'true');
         }
 
-        if (image.complete && image.naturalWidth > 0) {
-            startCropper();
-        } else {
-            image.addEventListener('load', startCropper, { once: true });
+        function initCropperWhenReady() {
+            if (image.complete) {
+                if (typeof image.decode === 'function') {
+                    image.decode().then(startCropper).catch(function () {
+                        startCropper();
+                    });
+                } else {
+                    startCropper();
+                }
+            } else {
+                image.addEventListener('load', startCropper, { once: true });
+                image.addEventListener('error', function () {
+                    console.warn('Image failed to load in cropper, attempting fallback sample');
+                }, { once: true });
+            }
         }
+
+        initCropperWhenReady();
+
+        // Safety timeout to ensure cropper is created even if events desynced
+        setTimeout(function () {
+            if (!cropper && !image.getAttribute('data-cropper-initialized')) {
+                startCropper();
+            }
+        }, 300);
 
         // Switch image helper
         window.switchCropperImage = function(url, title = 'Selected Image') {
-            if (!url || !cropper) return;
-            cropper.replace(url);
+            if (!url) return;
+            if (cropper) {
+                cropper.replace(url);
+            } else {
+                image.src = url;
+                startCropper();
+            }
+            const alertBox = document.querySelector('.page-image-cropper .alert-info');
+            if (alertBox) {
+                const titleSpan = alertBox.querySelector('span');
+                if (titleSpan) titleSpan.innerHTML = 'Editing Media Asset: <strong>' + title + '</strong>';
+            }
         };
 
         // Override picker modal selection to load image directly into cropper
         window.selectPickerAsset = function(id, url, name) {
             switchCropperImage(url, name);
             const modalEl = document.getElementById('mediaPickerModal');
-            if (modalEl) {
-                const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modalEl && window.bootstrap && window.bootstrap.Modal) {
+                const modal = window.bootstrap.Modal.getInstance(modalEl);
                 if (modal) modal.hide();
             }
         };
@@ -425,6 +475,29 @@
                             modal.show();
                         }
                     }
+                    break;
+
+                case 'setDragMode':
+                    cropper.setDragMode(option);
+                    const modeGroup = btn.closest('#dragModeGroup, .cropper-toolbar-group');
+                    if (modeGroup) {
+                        modeGroup.querySelectorAll('[data-method="setDragMode"]').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                    }
+                    break;
+
+                case 'crop':
+                    cropper.crop();
+                    const cropModeBtn = document.querySelector('#dragModeGroup [data-option="crop"]');
+                    if (cropModeBtn) {
+                        const grp = cropModeBtn.closest('.cropper-toolbar-group');
+                        if (grp) grp.querySelectorAll('[data-method="setDragMode"]').forEach(b => b.classList.remove('active'));
+                        cropModeBtn.classList.add('active');
+                    }
+                    break;
+
+                case 'clear':
+                    cropper.clear();
                     break;
 
                 case 'scaleX':
@@ -561,6 +634,153 @@
 </script>
 
 <style>
+/* Cropper Container & Viewport Fixes */
+.img-container {
+    width: 100%;
+    height: 480px;
+    max-height: 520px;
+    text-align: center;
+    position: relative;
+    background-color: #f8fafc;
+    background-image: radial-gradient(rgba(0,0,0,0.12) 1px, transparent 1px);
+    background-size: 20px 20px;
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+[data-bs-theme="dark"] .img-container {
+    background-color: #0f172a;
+    background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
+}
+
+.img-container > img {
+    max-width: 100%;
+    display: block;
+}
+
+/* Ensure cropper-hidden hides the original target completely */
+img.cropper-hidden, .cropper-hidden {
+    display: none !important;
+}
+
+/* High-Visibility Crop Selection Box & Handles */
+.cropper-view-box {
+    outline: 2px solid #4059E8 !important;
+    outline-color: #4059E8 !important;
+    border-radius: 2px;
+}
+
+.cropper-modal {
+    background-color: rgba(15, 23, 42, 0.6) !important;
+}
+
+.cropper-dashed {
+    border-color: rgba(255, 255, 255, 0.8) !important;
+    opacity: 0.85 !important;
+}
+
+.cropper-center:before, .cropper-center:after {
+    background-color: #ffffff !important;
+}
+
+.cropper-face {
+    background-color: rgba(64, 89, 232, 0.05) !important;
+    cursor: move !important;
+}
+
+.cropper-line {
+    background-color: #4059E8 !important;
+    opacity: 0.3 !important;
+}
+
+.cropper-line:hover {
+    opacity: 0.8 !important;
+}
+
+.cropper-line.line-e, .cropper-line.line-w {
+    width: 8px !important;
+    cursor: ew-resize !important;
+}
+
+.cropper-line.line-n, .cropper-line.line-s {
+    height: 8px !important;
+    cursor: ns-resize !important;
+}
+
+/* Modern Pill Selection Handles (Easy to click and drag) */
+.cropper-point {
+    background-color: #4059E8 !important;
+    border: 2px solid #ffffff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35) !important;
+    width: 12px !important;
+    height: 12px !important;
+    border-radius: 50% !important;
+    opacity: 1 !important;
+    z-index: 200 !important;
+}
+
+.cropper-point.point-e {
+    margin-top: -6px !important;
+    right: -6px !important;
+    cursor: ew-resize !important;
+}
+.cropper-point.point-n {
+    margin-left: -6px !important;
+    top: -6px !important;
+    cursor: ns-resize !important;
+}
+.cropper-point.point-w {
+    margin-top: -6px !important;
+    left: -6px !important;
+    cursor: ew-resize !important;
+}
+.cropper-point.point-s {
+    margin-left: -6px !important;
+    bottom: -6px !important;
+    cursor: s-resize !important;
+}
+.cropper-point.point-ne {
+    top: -6px !important;
+    right: -6px !important;
+    cursor: nesw-resize !important;
+}
+.cropper-point.point-nw {
+    top: -6px !important;
+    left: -6px !important;
+    cursor: nwse-resize !important;
+}
+.cropper-point.point-sw {
+    bottom: -6px !important;
+    left: -6px !important;
+    cursor: nesw-resize !important;
+}
+.cropper-point.point-se {
+    bottom: -6px !important;
+    right: -6px !important;
+    cursor: nwse-resize !important;
+    width: 14px !important;
+    height: 14px !important;
+}
+
+@media (min-width: 768px) {
+    .cropper-point.point-se {
+        width: 14px !important;
+        height: 14px !important;
+        opacity: 1 !important;
+    }
+}
+@media (min-width: 1200px) {
+    .cropper-point.point-se {
+        width: 14px !important;
+        height: 14px !important;
+        opacity: 1 !important;
+    }
+}
+
+.cropper-drag-box.cropper-crop {
+    cursor: crosshair !important;
+}
+
 /* Cropper Toolbar styling from xivig.github.io */
 .cropper-toolbar-group {
     border: 1px solid rgba(0, 0, 0, 0.12);
@@ -616,14 +836,6 @@
 [data-bs-theme="dark"] .cropper-toolbar-group .btn.active {
     background: var(--bs-primary) !important;
     color: #ffffff !important;
-}
-
-.img-container {
-    width: 100%;
-}
-.img-container img {
-    max-width: 100% !important;
-    display: block !important;
 }
 
 .img-preview {
