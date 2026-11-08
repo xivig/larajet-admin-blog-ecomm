@@ -255,6 +255,9 @@
   @endif
 
   <style>
+    .swal2-container {
+      z-index: 99999 !important;
+    }
     .swal2-popup {
       border-radius: 1rem !important;
       font-family: 'Plus Jakarta Sans', sans-serif !important;

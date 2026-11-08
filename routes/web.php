@@ -164,7 +164,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('media/{id}/restore', [AdminMediaController::class, 'restore'])->name('admin.media.restore');
     Route::delete('media/{id}/force-delete', [AdminMediaController::class, 'forceDelete'])->name('admin.media.force-delete');
     Route::get('media/{picture}', [AdminMediaController::class, 'show'])->name('admin.media.show');
-    Route::put('media/{picture}', [AdminMediaController::class, 'update'])->name('admin.media.update');
+    Route::match(['put', 'post'], 'media/{picture}', [AdminMediaController::class, 'update'])->name('admin.media.update');
     Route::post('media/bulk', [AdminMediaController::class, 'bulkAction'])->name('admin.media.bulk');
     Route::delete('media/{picture}', [AdminMediaController::class, 'destroy'])->name('admin.media.destroy');
 

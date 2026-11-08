@@ -28,6 +28,16 @@
 <footer class="footer section bg-transparent border-0 shadow-none">
     <div class="container bg-transparent border-0 shadow-none">
         <div class="row bg-transparent border-0 shadow-none">
+			<div class="col-lg-3 col-sm-6 bg-transparent border-0 shadow-none">
+                <div class="footer-widget bg-transparent border-0 shadow-none p-0">
+                    <div class="logo mb-3">
+                        <span class="text-gradient font-weight-bold h3">Xivig</span>
+                    </div>
+                    <p class="text-muted small">Modern Elite Enterprise Framework built with Laravel 13 compatibility, Fortify, and Jetstream.</p>
+                    <h6 class="mt-3"><a href="mailto:support@xivig.com"><i class="bi bi-envelope me-1 mr-1 text-primary"></i> support@xivig.com</a></h6>
+                    <a href="tel:+23-345-67890"><span class="text-gradient font-weight-bold h5">+91 98367 26662</span></a>
+                </div>
+            </div>
             <div class="col-lg-3 col-md-6 col-sm-6 mb-4 mb-lg-0 bg-transparent border-0 shadow-none">
                 <div class="footer-widget bg-transparent border-0 shadow-none p-0">
                     <h4 class="footer-title mb-4">Platform</h4>
@@ -66,18 +76,7 @@
                         </div>
                     </form>
                 </div>
-            </div>
-
-            <div class="col-lg-3 col-sm-6 bg-transparent border-0 shadow-none">
-                <div class="footer-widget bg-transparent border-0 shadow-none p-0">
-                    <div class="logo mb-3">
-                        <span class="text-gradient font-weight-bold h3">Xivig</span>
-                    </div>
-                    <p class="text-muted small">Modern Elite Enterprise Framework built with Laravel 13 compatibility, Fortify, and Jetstream.</p>
-                    <h6 class="mt-3"><a href="mailto:support@xivig.com"><i class="bi bi-envelope me-1 mr-1 text-primary"></i> support@xivig.com</a></h6>
-                    <a href="tel:+23-345-67890"><span class="text-gradient font-weight-bold h5">+91 98367 26662</span></a>
-                </div>
-            </div>
+            </div>           
         </div>
 
         <div class="footer-btm pt-5 mt-5">

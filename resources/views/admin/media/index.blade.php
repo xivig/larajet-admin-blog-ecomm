@@ -281,7 +281,7 @@
                         <!-- Asset Image Thumbnail / File Representation -->
                         <div class="media-thumb-wrap position-relative cursor-pointer" onclick="openInspectorModal({{ $pic->id }})" style="height: 195px; background: rgba(0,0,0,0.04); overflow: hidden; display: flex; align-items: center; justify-content: center;">
                             @if($pic->is_image)
-                                <img src="{{ $pic->url }}" alt="{{ $pic->alt_text }}" class="w-100 h-100 object-fit-cover transition-transform" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                                <img src="{{ $pic->url }}" alt="{{ $pic->alt_text }}" id="asset-card-img-{{ $pic->id }}" class="w-100 h-100 object-fit-cover transition-transform" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                             @else
                                 <div class="text-center p-3 text-secondary">
                                     <i class="bi bi-file-earmark-pdf display-4 text-danger d-block mb-1"></i>
@@ -298,7 +298,7 @@
                                 </h6>
                                 <div class="d-flex justify-content-between align-items-center text-muted" style="font-size: 0.75rem;">
                                     <span>{{ $pic->dimensions ?: $pic->formatted_size }}</span>
-                                    <span>{{ $pic->formatted_size }}</span>
+                                    <span class="badge bg-light text-secondary border px-1.5 py-0.5" id="asset-card-folder-{{ $pic->id }}">{{ ucfirst($pic->folder ?: 'general') }}</span>
                                 </div>
                             </div>
 
@@ -385,7 +385,7 @@
                                     <td>
                                         <div class="rounded overflow-hidden cursor-pointer" onclick="openInspectorModal({{ $pic->id }})" style="width: 54px; height: 54px; background: rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center;">
                                             @if($pic->is_image)
-                                                <img src="{{ $pic->url }}" alt="{{ $pic->alt_text }}" class="w-100 h-100 object-fit-cover" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                                                <img src="{{ $pic->url }}" alt="{{ $pic->alt_text }}" id="asset-list-img-{{ $pic->id }}" class="w-100 h-100 object-fit-cover" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                                             @else
                                                 <i class="bi bi-file-earmark-pdf fs-3 text-danger"></i>
                                             @endif
@@ -574,21 +574,33 @@
                                 </div>
                             </div>
 
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-outline-success btn-sm" id="btnInspectorDuplicate">
-                                        <i class="bi bi-copy me-1"></i> Duplicate
-                                    </button>
-                                    <button type="button" class="btn btn-outline-danger btn-sm" id="btnInspectorDelete">
-                                        <i class="bi bi-trash me-1"></i> Trash
-                                    </button>
-                                    <a href="#" id="inspectorCropBtn" class="btn btn-outline-warning btn-sm">
-                                        <i class="bi bi-crop me-1"></i> Crop in Studio
-                                    </a>
+                            <!-- Action Toolbar (Quick Tools + Save) -->
+                            <div class="pt-3 border-top mt-3">
+                                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                                    <span class="small text-muted fw-semibold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+                                        <i class="bi bi-tools me-1"></i> Quick Actions
+                                    </span>
+                                    <div class="btn-group btn-group-sm">
+                                        <button type="button" class="btn btn-outline-success" id="btnInspectorDuplicate" title="Duplicate this asset">
+                                            <i class="bi bi-copy me-1"></i> Duplicate
+                                        </button>
+                                        <a href="#" id="inspectorCropBtn" class="btn btn-outline-warning" title="Crop & Resize in Studio">
+                                            <i class="bi bi-crop me-1"></i> Crop
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger" id="btnInspectorDelete" title="Move to Trash">
+                                            <i class="bi bi-trash me-1"></i> Trash
+                                        </button>
+                                    </div>
                                 </div>
-                                <button type="submit" class="btn btn-primary btn-sm px-4" id="btnInspectorSave">
-                                    <i class="bi bi-check-lg me-1"></i> Save Changes
-                                </button>
+
+                                <div class="d-flex align-items-center justify-content-end gap-2 pt-2 border-top">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm px-3 rounded-pill" data-bs-dismiss="modal">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-primary btn-sm px-4 rounded-pill fw-semibold shadow-sm text-nowrap" id="btnInspectorSave">
+                                        <i class="bi bi-check-lg me-1"></i> Save Changes
+                                    </button>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -626,13 +638,40 @@
 <form id="singleDuplicateForm" action="" method="POST" class="d-none">
     @csrf
 </form>
+@endsection
 
+@push('styles')
+<style>
+.media-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.media-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1) !important;
+}
+.media-card:hover .object-fit-cover {
+    transform: scale(1.04);
+}
+.transition-transform {
+    transition: transform 0.3s ease;
+}
+.cursor-pointer {
+    cursor: pointer;
+}
+</style>
+@endpush
+
+@push('scripts')
 <script>
 // Copy URL Helper
 function copyAssetUrl(url) {
     if (!url) return;
     navigator.clipboard.writeText(url).then(() => {
-        showToast('Public asset URL copied to clipboard!', 'success');
+        if (window.showToast) {
+            window.showToast('Public asset URL copied to clipboard!', 'success');
+        } else {
+            alert('Public asset URL copied to clipboard!');
+        }
     }).catch(err => {
         prompt('Copy the asset link:', url);
     });
@@ -820,7 +859,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('inspectorAltText').value = a.alt_text || '';
                 document.getElementById('inspectorCaption').value = a.caption || '';
                 document.getElementById('inspectorDescription').value = a.description || '';
-                document.getElementById('inspectorFolder').value = a.folder || 'general';
+                
+                // Case-insensitive folder selector matching
+                const folderSelect = document.getElementById('inspectorFolder');
+                const rawFolder = a.folder || 'general';
+                let matchedFolder = false;
+                for (let i = 0; i < folderSelect.options.length; i++) {
+                    if (folderSelect.options[i].value.toLowerCase() === rawFolder.toLowerCase()) {
+                        folderSelect.selectedIndex = i;
+                        matchedFolder = true;
+                        break;
+                    }
+                }
+                if (!matchedFolder && a.folder) {
+                    const customOpt = new Option(a.folder, a.folder, true, true);
+                    folderSelect.add(customOpt);
+                }
 
                 document.getElementById('inspectorAssetUrl').value = a.url;
                 document.getElementById('inspectorOpenTab').href = a.url;
@@ -915,50 +969,93 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.disabled = true;
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saving...';
 
+            const newName = document.getElementById('inspectorName').value;
+            const newAlt = document.getElementById('inspectorAltText').value;
+            const newCaption = document.getElementById('inspectorCaption').value;
+            const newDescription = document.getElementById('inspectorDescription').value;
+            const newFolder = document.getElementById('inspectorFolder').value;
+
             const payload = {
                 _token: '{{ csrf_token() }}',
                 _method: 'PUT',
-                name: document.getElementById('inspectorName').value,
-                alt_text: document.getElementById('inspectorAltText').value,
-                caption: document.getElementById('inspectorCaption').value,
-                description: document.getElementById('inspectorDescription').value,
-                folder: document.getElementById('inspectorFolder').value,
+                name: newName,
+                alt_text: newAlt,
+                caption: newCaption,
+                description: newDescription,
+                folder: newFolder,
             };
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
 
             fetch('{{ url("admin/media") }}/' + id, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-HTTP-Method-Override': 'PUT'
                 },
                 body: JSON.stringify(payload)
             })
-            .then(res => {
-                if (!res.ok) {
-                    return res.json().then(errData => { throw errData; });
+            .then(async res => {
+                let data = null;
+                try {
+                    data = await res.json();
+                } catch (e) {
+                    // non-json response
                 }
-                return res.json();
+                if (!res.ok) {
+                    const error = new Error((data && data.message) ? data.message : `Server returned status ${res.status}`);
+                    error.data = data;
+                    throw error;
+                }
+                return data || {};
             })
             .then(data => {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Saved!';
+                btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Save Changes';
 
-                // Update DOM immediately in Media Library
-                const newName = data.asset?.name || payload.name;
-                const newAlt = data.asset?.alt_text || payload.alt_text;
-                const newFolder = data.asset?.folder || payload.folder;
+                // Immediately dismiss modal so user directly sees the updated Media Library
+                const modalEl = document.getElementById('mediaInspectorModal');
+                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                if (modalInstance) {
+                    modalInstance.hide();
+                }
+
+                // 1. Immediately update all titles in Grid view & List view
+                const finalName = (data.asset && data.asset.name) ? data.asset.name : newName;
+                const finalAlt = (data.asset && data.asset.alt_text !== undefined) ? data.asset.alt_text : newAlt;
+                const finalFolder = (data.asset && data.asset.folder) ? data.asset.folder : newFolder;
 
                 document.querySelectorAll('[data-asset-title-id="' + id + '"]').forEach(el => {
-                    el.textContent = newName;
-                    el.setAttribute('title', newName);
+                    el.textContent = finalName;
+                    el.setAttribute('title', finalName);
                 });
-                const listAltEl = document.getElementById('asset-list-alt-' + id);
-                if (listAltEl) listAltEl.textContent = newAlt || 'No alt text set';
-                const listFolderEl = document.getElementById('asset-list-folder-' + id);
-                if (listFolderEl) listFolderEl.textContent = newFolder || 'general';
 
-                // Show success toast notification
+                // 2. Immediately update alt text in List view
+                const listAltEl = document.getElementById('asset-list-alt-' + id);
+                if (listAltEl) {
+                    listAltEl.textContent = finalAlt || 'No alt text set';
+                }
+
+                // 3. Immediately update thumbnail alt attributes in Grid and List views
+                const cardImg = document.getElementById('asset-card-img-' + id);
+                if (cardImg) cardImg.setAttribute('alt', finalAlt || '');
+                const listImg = document.getElementById('asset-list-img-' + id);
+                if (listImg) listImg.setAttribute('alt', finalAlt || '');
+
+                // 4. Immediately update Folder badges in List and Grid views
+                const listFolderEl = document.getElementById('asset-list-folder-' + id);
+                if (listFolderEl) {
+                    listFolderEl.textContent = finalFolder || 'general';
+                }
+                const cardFolderEl = document.getElementById('asset-card-folder-' + id);
+                if (cardFolderEl) {
+                    cardFolderEl.textContent = (finalFolder ? (finalFolder.charAt(0).toUpperCase() + finalFolder.slice(1)) : 'General');
+                }
+
+                // 5. Display clear success toast notification
                 const msg = data.message || 'Media metadata updated successfully!';
                 if (window.showToast) {
                     window.showToast(msg, 'success');
@@ -967,25 +1064,21 @@ document.addEventListener('DOMContentLoaded', function() {
                         icon: 'success',
                         title: 'Saved!',
                         text: msg,
-                        timer: 2000,
+                        timer: 2500,
                         showConfirmButton: false
                     });
+                } else {
+                    alert(msg);
                 }
-
-                // Smoothly dismiss modal so user immediately sees updated library
-                setTimeout(() => {
-                    btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Save Changes';
-                    const modalEl = document.getElementById('mediaInspectorModal');
-                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                    if (modalInstance) modalInstance.hide();
-                }, 400);
             })
             .catch(err => {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Save Changes';
                 let errMsg = 'Failed to save metadata updates.';
-                if (err && err.errors) {
-                    errMsg = Object.values(err.errors).flat().join('<br>');
+                if (err && err.data && err.data.errors) {
+                    errMsg = Object.values(err.data.errors).flat().join('<br>');
+                } else if (err && err.data && err.data.message) {
+                    errMsg = err.data.message;
                 } else if (err && err.message) {
                     errMsg = err.message;
                 }
@@ -1012,23 +1105,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-
-<style>
-.media-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.media-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1) !important;
-}
-.media-card:hover .object-fit-cover {
-    transform: scale(1.04);
-}
-.transition-transform {
-    transition: transform 0.3s ease;
-}
-.cursor-pointer {
-    cursor: pointer;
-}
-</style>
-@endsection
+@endpush
