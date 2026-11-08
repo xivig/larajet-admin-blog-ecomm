@@ -1,8 +1,14 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\CommentController as AdminCommentController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\LoginController;
+use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\RegisterController;
+use App\Http\Controllers\Admin\TagController as AdminTagController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CommentReplyController;
@@ -61,13 +67,32 @@ Route::prefix('admin')->middleware('guest:admin')->group(function () {
 
 // Admin Authenticated Routes
 Route::prefix('admin')->middleware('auth:admin')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('admin');
-    })->name('admin.dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
     Route::post('logout', [LoginController::class, 'destroy'])->name('admin.logout');
 
+    // Posts Management
+    Route::post('posts/quick-draft', [AdminPostController::class, 'quickDraft'])->name('admin.posts.quick-draft');
     Route::resource('posts', AdminPostController::class)->names('admin.posts');
+
+    // Categories Management
+    Route::resource('categories', AdminCategoryController::class)->names('admin.categories');
+
+    // Tags Management
+    Route::resource('tags', AdminTagController::class)->names('admin.tags');
+
+    // Comments Moderation
+    Route::resource('comments', AdminCommentController::class)->only(['index', 'destroy'])->names('admin.comments');
+
+    // Media Library
+    Route::get('media', [AdminMediaController::class, 'index'])->name('admin.media.index');
+    Route::post('media', [AdminMediaController::class, 'store'])->name('admin.media.store');
+    Route::delete('media/{picture}', [AdminMediaController::class, 'destroy'])->name('admin.media.destroy');
+
+    // Admin Profile
+    Route::get('profile', [AdminProfileController::class, 'edit'])->name('admin.profile');
+    Route::put('profile', [AdminProfileController::class, 'update'])->name('admin.profile.update');
+    Route::put('profile/password', [AdminProfileController::class, 'updatePassword'])->name('admin.profile.password');
 });
 
 // Auth logout & user dashboard subpages

@@ -1,553 +1,278 @@
-                <!-- ============================================================== -->
-                <!-- Sales chart -->
-                <!-- ============================================================== -->
-                <div class="card-group">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="d-flex no-block align-items-center">
-                                        <div>
-                                            <i class="mdi mdi-emoticon font-20 text-muted"></i>
-                                            <p class="font-16 m-b-5">New Clients</p>
-                                        </div>
-                                        <div class="ml-auto">
-                                            <h1 class="font-light text-right">23</h1>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="progress">
-                                        <div class="progress-bar bg-info" role="progressbar" style="width: 75%; height: 6px;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Column -->
-                    <!-- Column -->
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="d-flex no-block align-items-center">
-                                        <div>
-                                            <i class="mdi mdi-image font-20  text-muted"></i>
-                                            <p class="font-16 m-b-5">New Projects</p>
-                                        </div>
-                                        <div class="ml-auto">
-                                            <h1 class="font-light text-right">169</h1>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="progress">
-                                        <div class="progress-bar bg-success" role="progressbar" style="width: 60%; height: 6px;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Column -->
-                    <!-- Column -->
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="d-flex no-block align-items-center">
-                                        <div>
-                                            <i class="mdi mdi-currency-eur font-20 text-muted"></i>
-                                            <p class="font-16 m-b-5">New Invoices</p>
-                                        </div>
-                                        <div class="ml-auto">
-                                            <h1 class="font-light text-right">157</h1>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="progress">
-                                        <div class="progress-bar bg-purple" role="progressbar" style="width: 65%; height: 6px;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Column -->
-                    <!-- Column -->
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="d-flex no-block align-items-center">
-                                        <div>
-                                            <i class="mdi mdi-poll font-20 text-muted"></i>
-                                            <p class="font-16 m-b-5">New Sales</p>
-                                        </div>
-                                        <div class="ml-auto">
-                                            <h1 class="font-light text-right">236</h1>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <div class="progress">
-                                        <div class="progress-bar bg-danger" role="progressbar" style="width: 70%; height: 6px;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+@extends('layouts.admin')
+
+@section('title', 'Dashboard - XivigAdmin PRO')
+
+@section('content')
+<div class="page-dashboard nd-dashboard">
+
+  <!-- Executive Topbar -->
+  <section class="nd-topbar d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+    <div>
+      <h1 class="nd-title mb-1">Executive Blog Command Center</h1>
+      <p class="nd-subtitle text-muted mb-0">Unified editorial workflows, readership performance, and publishing operations.</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <a href="{{ route('admin.posts.create') }}" class="btn btn-primary d-inline-flex align-items-center gap-2 px-3 py-2">
+        <i class="bi bi-pencil-square"></i>
+        <span>Compose Article</span>
+      </a>
+      <a href="{{ url('/blog') }}" target="_blank" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2 px-3 py-2">
+        <i class="bi bi-box-arrow-up-right"></i>
+        <span>Live Blog</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- KPI Metric Cards (Using XivigAdmin PRO Grid) -->
+  <section class="row g-3 mb-4 nd-kpi-rail">
+    <!-- Total Articles -->
+    <div class="col-xxl-3 col-md-6">
+      <article class="nd-kpi-card nd-kpi-revenue">
+        <span class="nd-kpi-icon"><i class="bi bi-journal-richtext"></i></span>
+        <span class="nd-kpi-label">Total Articles</span>
+        <strong class="nd-kpi-value">{{ $totalPosts }}</strong>
+        <span class="nd-kpi-trend up"><i class="bi bi-arrow-up-right"></i> Full Catalog</span>
+      </article>
+    </div>
+
+    <!-- Published Posts -->
+    <div class="col-xxl-3 col-md-6">
+      <article class="nd-kpi-card nd-kpi-leads">
+        <span class="nd-kpi-icon"><i class="bi bi-check-circle"></i></span>
+        <span class="nd-kpi-label">Published Live</span>
+        <strong class="nd-kpi-value">{{ $publishedPosts }}</strong>
+        <span class="nd-kpi-trend up"><i class="bi bi-broadcast"></i> {{ $totalPosts > 0 ? round(($publishedPosts / $totalPosts) * 100) : 0 }}% active</span>
+      </article>
+    </div>
+
+    <!-- Drafts / In Review -->
+    <div class="col-xxl-3 col-md-6">
+      <article class="nd-kpi-card nd-kpi-conversion">
+        <span class="nd-kpi-icon"><i class="bi bi-file-earmark-diff"></i></span>
+        <span class="nd-kpi-label">Draft Articles</span>
+        <strong class="nd-kpi-value">{{ $draftPosts }}</strong>
+        <span class="nd-kpi-trend"><i class="bi bi-hourglass-split"></i> In Pipeline</span>
+      </article>
+    </div>
+
+    <!-- Comments & Discussions -->
+    <div class="col-xxl-3 col-md-6">
+      <article class="nd-kpi-card nd-kpi-active">
+        <span class="nd-kpi-icon"><i class="bi bi-chat-square-quote"></i></span>
+        <span class="nd-kpi-label">Total Discussions</span>
+        <strong class="nd-kpi-value">{{ $totalComments }}</strong>
+        <span class="nd-kpi-trend up"><i class="bi bi-people"></i> Moderated</span>
+      </article>
+    </div>
+  </section>
+
+  <!-- Editorial Main Grid -->
+  <div class="row g-4">
+    <!-- Left Column: Recent Articles & Quick Draft -->
+    <div class="col-xl-8">
+
+      <!-- Recent Articles Card -->
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center py-3">
+          <div>
+            <h5 class="card-title mb-0">Recent Editorial Articles</h5>
+            <small class="text-muted">Latest posts created across categories</small>
+          </div>
+          <a href="{{ route('admin.posts.index') }}" class="btn btn-sm btn-outline-primary">
+            View All Posts <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 50px;">Img</th>
+                  <th>Title &amp; Category</th>
+                  <th>Author</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @forelse ($recentPosts as $post)
+                  <tr>
+                    <td>
+                      @if ($post->image && $post->image->link)
+                        <img src="{{ Str::startsWith($post->image->link, ['http', 'https', 'uploads/']) ? asset($post->image->link) : asset('xivig-blog/images/blog/' . $post->image->link) }}" alt="" class="post-thumb-sm" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                      @else
+                        <img src="{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}" alt="" class="post-thumb-sm">
+                      @endif
+                    </td>
+                    <td>
+                      <div class="fw-semibold text-truncate" style="max-width: 280px;">
+                        <a href="{{ route('admin.posts.edit', $post->id) }}" class="text-decoration-none text-reset">
+                          {{ $post->title }}
+                        </a>
+                      </div>
+                      <span class="badge bg-secondary-subtle text-secondary px-2 py-0.5 mt-1 small">
+                        {{ $post->category->name ?? 'General' }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="small">{{ $post->author->nickname ?? ($post->author->user->name ?? 'Admin') }}</span>
+                    </td>
+                    <td>
+                      @if ($post->status)
+                        <span class="badge badge-published px-2.5 py-1">Published</span>
+                      @else
+                        <span class="badge badge-draft px-2.5 py-1">Draft</span>
+                      @endif
+                    </td>
+                    <td>
+                      <span class="text-muted small">{{ $post->created_at ? $post->created_at->format('M d, Y') : 'N/A' }}</span>
+                    </td>
+                    <td class="text-end">
+                      <div class="btn-group btn-group-sm">
+                        <a href="{{ route('single-post', $post->slug) }}" target="_blank" class="btn btn-outline-secondary" title="View on site">
+                          <i class="bi bi-box-arrow-up-right"></i>
+                        </a>
+                        <a href="{{ route('admin.posts.edit', $post->id) }}" class="btn btn-outline-primary" title="Edit Post">
+                          <i class="bi bi-pencil"></i>
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                @empty
+                  <tr>
+                    <td colspan="6" class="text-center py-4 text-muted">
+                      No blog posts recorded yet. Click "Compose Article" to get started!
+                    </td>
+                  </tr>
+                @endforelse
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Draft Card -->
+      <div class="card mb-4">
+        <div class="card-header py-3">
+          <h5 class="card-title mb-0">Quick Idea &amp; Draft Note</h5>
+          <small class="text-muted">Jot down article concepts directly into your editorial pipeline</small>
+        </div>
+        <div class="card-body">
+          <form action="{{ route('admin.posts.quick-draft') }}" method="POST">
+            @csrf
+            <div class="mb-3">
+              <label for="draftTitle" class="form-label fw-semibold">Draft Headline</label>
+              <input type="text" name="title" id="draftTitle" class="form-control" placeholder="E.g., Microservices patterns with Laravel and Kafka..." required>
+            </div>
+            <div class="mb-3">
+              <label for="draftContent" class="form-label fw-semibold">Outline &amp; Notes</label>
+              <textarea name="content" id="draftContent" class="form-control" rows="4" placeholder="Brief outline, references, key bullet points..." required></textarea>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-muted small"><i class="bi bi-info-circle me-1"></i> Saves directly as an unpublished draft article.</span>
+              <button type="submit" class="btn btn-primary btn-sm px-3">
+                <i class="bi bi-save me-1"></i> Save Draft
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Top Categories & Comments -->
+    <div class="col-xl-4">
+
+      <!-- Category Distribution -->
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center py-3">
+          <div>
+            <h5 class="card-title mb-0">Categories</h5>
+            <small class="text-muted">Post volume by topic</small>
+          </div>
+          <a href="{{ route('admin.categories.index') }}" class="btn btn-sm btn-link p-0 text-decoration-none">Manage</a>
+        </div>
+        <div class="card-body">
+          <ul class="list-group list-group-flush">
+            @forelse ($topCategories as $cat)
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2.5">
+                <div class="d-flex align-items-center">
+                  <span class="me-2 text-primary"><i class="bi bi-folder-fill"></i></span>
+                  <span class="fw-semibold">{{ $cat->name }}</span>
                 </div>
-                <!-- ============================================================== -->
-                <!-- Sales chart -->
-                <!-- ============================================================== -->
+                <span class="badge bg-primary-subtle text-primary rounded-pill px-2.5">
+                  {{ $cat->posts_count }} {{ Str::plural('post', $cat->posts_count) }}
+                </span>
+              </li>
+            @empty
+              <li class="list-group-item text-center text-muted px-0">No categories found.</li>
+            @endforelse
+          </ul>
+        </div>
+      </div>
 
-                <!-- ============================================================== -->
-                <!-- Email campaign chart -->
-                <!-- ============================================================== -->
-                <div class="row">
-                    <div class="col-lg-3 col-md-6">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="card-title">Campaign</h4>
-                                <div id="campaign" style="height: 168px; width: 100%;" class="m-t-10"></div>
-                                <!-- row -->
-                                <div class="row text-center text-lg-left">
-                                    <!-- column -->
-                                    <div class="col-4">
-                                        <h4 class="m-b-0 font-medium">60%</h4>
-                                        <span class="text-muted">Open</span>
-                                    </div>
-                                    <!-- column -->
-                                    <div class="col-4">
-                                        <h4 class="m-b-0 font-medium">26%</h4>
-                                        <span class="text-muted">Click</span>
-                                    </div>
-                                    <!-- column -->
-                                    <div class="col-4">
-                                        <h4 class="m-b-0 font-medium">18%</h4>
-                                        <span class="text-muted">Bounce</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title m-b-5">Referral Earnings</h5>
-                                <h3 class="font-light">$769.08</h3>
-                                <div class="m-t-20 text-center">
-                                    <div id="earnings"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-12 order-lg-2 order-md-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center">
-                                    <div>
-                                        <h4 class="card-title">Sales Ratio</h4>
-                                    </div>
-                                    <div class="ml-auto">
-                                        <div class="dl m-b-10">
-                                            <select class="custom-select border-0 text-muted">
-                                                <option value="0" selected="">August 2018</option>
-                                                <option value="1">May 2018</option>
-                                                <option value="2">March 2018</option>
-                                                <option value="3">June 2018</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center no-block">
-                                    <div>
-                                        <span class="text-muted">This Week</span>
-                                        <h3 class="mb-0 text-info font-light">$23.5K <span class="text-muted font-12"><i class="mdi mdi-arrow-up text-success"></i>18.6</span></h3>
-                                    </div>
-                                    <div class="ml-4">
-                                        <span class="text-muted">Last Week</span>
-                                        <h3 class="mb-0 text-muted font-light">$945 <span class="text-muted font-12"><i class="mdi mdi-arrow-down text-danger"></i>46.3</span></h3>
-                                    </div>
-                                </div>
-                                <div class="sales ct-charts mt-5"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6 order-lg-3 order-md-2">
-                        <div class="card">
-                            <div class="card-body m-b-0">
-                                <h4 class="card-title">Thursday <span class="font-14 font-normal text-muted">12th April, 2018</span></h4>
-                                    <div class="d-flex align-items-center flex-row m-t-30">
-                                    <h1 class="font-light"><i class="wi wi-day-sleet"></i> <span>35<sup>°</sup></span></h1>
-                                </div>
-                            </div>
-                            <div class="weather-report" style="height:120px; width:100%;"></div>
-                        </div>
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="card-title m-b-0">Users</h4>
-                                <h2 class="font-light">35,658 <span class="font-16 text-success font-medium">+23%</span></h2>
-                                <div class="m-t-30">
-                                    <div class="row text-center">
-                                        <div class="col-6 border-right">
-                                            <h4 class="m-b-0">58%</h4>
-                                            <span class="font-14 text-muted">New Users</span>
-                                        </div>
-                                        <div class="col-6">
-                                            <h4 class="m-b-0">42%</h4>
-                                            <span class="font-14 text-muted">Repeat Users</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+      <!-- Recent Discussions -->
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center py-3">
+          <div>
+            <h5 class="card-title mb-0">Recent Comments</h5>
+            <small class="text-muted">Latest community reader interactions</small>
+          </div>
+          <a href="{{ route('admin.comments.index') }}" class="btn btn-sm btn-link p-0 text-decoration-none">Moderate</a>
+        </div>
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            @forelse ($recentComments as $comment)
+              <div class="list-group-item p-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <strong class="small text-truncate" style="max-width: 180px;">
+                    {{ $comment->user->name ?? 'Anonymous Reader' }}
+                  </strong>
+                  <span class="text-muted small">{{ $comment->created_at ? $comment->created_at->diffForHumans() : '' }}</span>
                 </div>
-                <!-- ============================================================== -->
-                <!-- Email campaign chart -->
-                <!-- ============================================================== -->
-
-                <!-- ============================================================== -->
-                <!-- Ravenue - page-view-bounce rate -->
-                <!-- ============================================================== -->
-                <div class="row">
-                    <!-- column -->
-                    <div class="col-lg-6 col-md-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center">
-                                    <div>
-                                        <h4 class="card-title mb-0">Latest Sales</h4>
-                                    </div>
-                                    <div class="ml-auto">
-                                        <select class="custom-select border-0 text-muted">
-                                            <option value="0" selected="">August 2018</option>
-                                            <option value="1">May 2018</option>
-                                            <option value="2">March 2018</option>
-                                            <option value="3">June 2018</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body bg-light">
-                                <div class="row align-items-center">
-                                    <div class="col-xs-12 col-md-6">
-                                        <h3 class="m-b-0 font-light">August 2018</h3>
-                                        <span class="font-14 text-muted">Sales Report</span>
-                                    </div>
-                                    <div class="col-xs-12 col-md-6 align-self-center display-6 text-info text-right">$3,690</div>
-                                </div>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th class="border-top-0">NAME</th>
-                                            <th class="border-top-0">STATUS</th>
-                                            <th class="border-top-0">DATE</th>
-                                            <th class="border-top-0">PRICE</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-
-                                            <td class="txt-oflo">Elite admin</td>
-                                            <td><span class="label label-success label-rounded">SALE</span> </td>
-                                            <td class="txt-oflo">April 18, 2017</td>
-                                            <td><span class="font-medium">$24</span></td>
-                                        </tr>
-                                        <tr>
-
-                                            <td class="txt-oflo">Real Homes WP Theme</td>
-                                            <td><span class="label label-info label-rounded">EXTENDED</span></td>
-                                            <td class="txt-oflo">April 19, 2017</td>
-                                            <td><span class="font-medium">$1250</span></td>
-                                        </tr>
-                                        <tr>
-
-                                            <td class="txt-oflo">Ample Admin</td>
-                                            <td><span class="label label-purple label-rounded">Tax</span></td>
-                                            <td class="txt-oflo">April 19, 2017</td>
-                                            <td><span class="font-medium">$1250</span></td>
-                                        </tr>
-                                        <tr>
-
-                                            <td class="txt-oflo">Medical Pro WP Theme</td>
-                                            <td><span class="label label-success label-rounded">Sale</span></td>
-                                            <td class="txt-oflo">April 20, 2017</td>
-                                            <td><span class="font-medium">-$24</span></td>
-                                        </tr>
-                                        <tr>
-
-                                            <td class="txt-oflo">Hosting press html</td>
-                                            <td><span class="label label-success label-rounded">SALE</span></td>
-                                            <td class="txt-oflo">April 21, 2017</td>
-                                            <td><span class="font-medium">$24</span></td>
-                                        </tr>
-                                        <tr>
-
-                                            <td class="txt-oflo">Digital Agency PSD</td>
-                                            <td><span class="label label-danger label-rounded">Tax</span> </td>
-                                            <td class="txt-oflo">April 23, 2017</td>
-                                            <td><span class="font-medium">-$14</span></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center">
-                                    <div>
-                                        <h4 class="card-title m-b-0">Top Region Sales</h4>
-                                    </div>
-                                    <div class="ml-auto">
-                                        <div class="dl">
-                                            <select class="custom-select border-0 text-muted">
-                                                <option value="0" selected="">August 2018</option>
-                                                <option value="1">May 2018</option>
-                                                <option value="2">March 2018</option>
-                                                <option value="3">June 2018</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div id="visitfromworld" style="height: 365px"></div>
-                                <!-- row -->
-                                <div class="row m-t-40 text-center text-lg-left">
-                                     <!-- column -->
-                                    <div class="col-xs-12 col-md-4">
-                                        <div class="mb-2 mt-2">
-                                            <span class="label label-success label-rounded">+23%</span>
-                                            <h5 class="font-normal text-muted m-t-10 m-b-5">United States</h5>
-                                            <span class="font-20 font-medium">3234 <span class="font-14 font-normal text-muted">($3549.54)</span></span>
-                                        </div>
-                                    </div>
-                                    <!-- column -->
-                                    <div class="col-xs-12 col-md-4">
-                                        <div class="mb-2 mt-2">
-                                            <span class="label label-info label-rounded">+0.5%</span>
-                                            <h5 class="font-normal text-muted m-t-10 m-b-5">Europe</h5>
-                                            <span class="font-20 font-medium">2548 <span class="font-14 font-normal text-muted">($3549.54)</span></span>
-                                        </div>
-                                    </div>
-                                    <!-- column -->
-                                    <div class="col-xs-12 col-md-4">
-                                        <div class="mb-2 mt-2">
-                                            <span class="label label-danger label-rounded">-18%</span>
-                                            <h5 class="font-normal text-muted m-t-10 m-b-5">Australia</h5>
-                                            <span class="font-20 font-medium">1476 <span class="font-14 font-normal text-muted">($3549.54)</span></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <p class="text-muted small mb-1 text-truncate">{{ $comment->comment }}</p>
+                <div class="small">
+                  <span class="text-secondary">On: </span>
+                  <a href="{{ route('single-post', $comment->post->slug ?? '#') }}" target="_blank" class="text-decoration-none fw-semibold">
+                    {{ Str::limit($comment->post->title ?? 'Post', 30) }}
+                  </a>
                 </div>
-                <!-- ============================================================== -->
-                <!-- Ravenue - page-view-bounce rate -->
-                <!-- ============================================================== -->
+              </div>
+            @empty
+              <div class="p-4 text-center text-muted small">No comments recorded yet.</div>
+            @endforelse
+          </div>
+        </div>
+      </div>
 
-                <!-- ============================================================== -->
-                <!-- Recent comment and chats -->
-                <!-- ============================================================== -->
-                <div class="row">
-                    <!-- column -->
-                    <div class="col-lg-6">
-                        <div class="card">
-                            <div class="card-body">
-                                <h4 class="card-title">Recent Comments</h4>
-                            </div>
-                            <div class="comment-widgets scrollable" style="height:430px;">
-                                <!-- Comment Row -->
-                                <div class="d-flex flex-row comment-row m-t-0">
-                                    <div class="p-2">
-                                        <img src="../../assets/images/users/1.jpg" alt="user" width="50" class="rounded-circle">
-                                    </div>
-                                    <div class="comment-text w-100">
-                                        <h6 class="font-medium">James Anderson</h6>
-                                        <span class="m-b-15 d-block">Lorem Ipsum is simply dummy text of the printing and type setting industry. </span>
-                                        <div class="comment-footer">
-                                            <span class="text-muted float-right">April 14, 2016</span>
-                                            <span class="label label-rounded label-primary">Pending</span>
-                                            <span class="action-icons">
-                                                <a href="javascript:void(0)">
-                                                    <i class="ti-pencil-alt"></i>
-                                                </a>
-                                                <a href="javascript:void(0)">
-                                                    <i class="ti-check"></i>
-                                                </a>
-                                                <a href="javascript:void(0)">
-                                                    <i class="ti-heart"></i>
-                                                </a>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Comment Row -->
-                                <div class="d-flex flex-row comment-row">
-                                    <div class="p-2">
-                                        <img src="../../assets/images/users/4.jpg" alt="user" width="50" class="rounded-circle">
-                                    </div>
-                                    <div class="comment-text active w-100">
-                                        <h6 class="font-medium">Michael Jorden</h6>
-                                        <span class="m-b-15 d-block">Lorem Ipsum is simply dummy text of the printing and type setting industry. </span>
-                                        <div class="comment-footer ">
-                                            <span class="text-muted float-right">April 14, 2016</span>
-                                            <span class="label label-success label-rounded">Approved</span>
-                                            <span class="action-icons active">
-                                                <a href="javascript:void(0)">
-                                                    <i class="ti-pencil-alt"></i>
-                                                </a>
-                                                <a href="javascript:void(0)">
-                                                    <i class="icon-close"></i>
-                                                </a>
-                                                <a href="javascript:void(0)">
-                                                    <i class="ti-heart text-danger"></i>
-                                                </a>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Comment Row -->
-                                <div class="d-flex flex-row comment-row">
-                                    <div class="p-2">
-                                        <img src="../../assets/images/users/5.jpg" alt="user" width="50" class="rounded-circle">
-                                    </div>
-                                    <div class="comment-text w-100">
-                                        <h6 class="font-medium">Johnathan Doeting</h6>
-                                        <span class="m-b-15 d-block">Lorem Ipsum is simply dummy text of the printing and type setting industry. </span>
-                                        <div class="comment-footer">
-                                            <span class="text-muted float-right">April 14, 2016</span>
-                                            <span class="label label-rounded label-danger">Rejected</span>
-                                            <span class="action-icons">
-                                                <a href="javascript:void(0)">
-                                                    <i class="ti-pencil-alt"></i>
-                                                </a>
-                                                <a href="javascript:void(0)">
-                                                    <i class="ti-check"></i>
-                                                </a>
-                                                <a href="javascript:void(0)">
-                                                    <i class="ti-heart"></i>
-                                                </a>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Comment Row -->
-                                <div class="d-flex flex-row comment-row m-t-0">
-                                    <div class="p-2">
-                                        <img src="../../assets/images/users/2.jpg" alt="user" width="50" class="rounded-circle">
-                                    </div>
-                                    <div class="comment-text w-100">
-                                        <h6 class="font-medium">Steve Jobs</h6>
-                                        <span class="m-b-15 d-block">Lorem Ipsum is simply dummy text of the printing and type setting industry. </span>
-                                        <div class="comment-footer">
-                                            <span class="text-muted float-right">April 14, 2016</span>
-                                            <span class="label label-rounded label-primary">Pending</span>
-                                            <span class="action-icons">
-                                                <a href="javascript:void(0)">
-                                                    <i class="ti-pencil-alt"></i>
-                                                </a>
-                                                <a href="javascript:void(0)">
-                                                    <i class="ti-check"></i>
-                                                </a>
-                                                <a href="javascript:void(0)">
-                                                    <i class="ti-heart"></i>
-                                                </a>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- column -->
-                    <div class="col-lg-6">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center p-b-15">
-                                    <div>
-                                        <h4 class="card-title m-b-0">To Do List</h4>
-                                    </div>
-                                    <div class="ml-auto">
-                                        <div class="dl">
-                                            <select class="custom-select border-0 text-muted">
-                                                <option value="0" selected="">August 2018</option>
-                                                <option value="1">May 2018</option>
-                                                <option value="2">March 2018</option>
-                                                <option value="3">June 2018</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="todo-widget scrollable" style="height:422px;">
-                                    <ul class="list-task todo-list list-group m-b-0" data-role="tasklist">
-                                        <li class="list-group-item todo-item" data-role="task">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="customCheck">
-                                                <label class="custom-control-label todo-label" for="customCheck">
-                                                    <span class="todo-desc">Simply dummy text of the printing and typesetting</span> <span class="badge badge-pill badge-success float-right">Project</span>
-                                                </label>
-                                            </div>
-                                        </li>
-                                        <li class="list-group-item todo-item" data-role="task">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="customCheck1">
-                                                <label class="custom-control-label todo-label" for="customCheck1">
-                                                    <span class="todo-desc">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been.</span><span class="badge badge-pill badge-danger float-right">Project</span>
-                                                </label>
-                                            </div>
+      <!-- Quick Platform Status -->
+      <div class="card">
+        <div class="card-header py-3">
+          <h5 class="card-title mb-0">System &amp; Engine</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between py-1.5 border-bottom">
+            <span class="text-muted small">Framework</span>
+            <span class="fw-semibold small">Laravel 13 Compatible</span>
+          </div>
+          <div class="d-flex justify-content-between py-1.5 border-bottom">
+            <span class="text-muted small">Admin Guard</span>
+            <span class="badge bg-success-subtle text-success small">Auth::guard('admin')</span>
+          </div>
+          <div class="d-flex justify-content-between py-1.5 border-bottom">
+            <span class="text-muted small">WYSIWYG Engine</span>
+            <span class="fw-semibold small">Quill v2 Snow</span>
+          </div>
+          <div class="d-flex justify-content-between py-1.5">
+            <span class="text-muted small">Datatables</span>
+            <span class="fw-semibold small">simple-datatables</span>
+          </div>
+        </div>
+      </div>
 
-                                        </li>
-                                        <li class="list-group-item todo-item" data-role="task">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="customCheck2">
-                                                <label class="custom-control-label todo-label" for="customCheck2">
-                                                    <span class="todo-desc">Ipsum is simply dummy text of the printing</span> <span class="badge badge-pill badge-info float-right">Project</span>
-                                                </label>
-                                            </div>
+    </div>
+  </div>
 
-                                        </li>
-                                        <li class="list-group-item todo-item" data-role="task">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="customCheck3">
-                                                <label class="custom-control-label todo-label" for="customCheck3">
-                                                    <span class="todo-desc">Simply dummy text of the printing and typesetting</span> <span class="badge badge-pill badge-info float-right">Project</span>
-                                                </label>
-                                            </div>
-                                        </li>
-                                        <li class="list-group-item todo-item" data-role="task">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="customCheck4">
-                                                <label class="custom-control-label todo-label" for="customCheck4">
-                                                    <span class="todo-desc">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been.</span> <span class="badge badge-pill badge-purple float-right">Project</span>
-                                                </label>
-                                            </div>
-                                        </li>
-                                        <li class="list-group-item todo-item" data-role="task">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="customCheck5">
-                                                <label class="custom-control-label todo-label" for="customCheck5">
-                                                    <span class="todo-desc">Ipsum is simply dummy text of the printing</span> <span class="badge badge-pill badge-success float-right">Project</span>
-                                                </label>
-                                            </div>
-                                        </li>
-                                        <li class="list-group-item todo-item" data-role="task">
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="customCheck6">
-                                                <label class="custom-control-label todo-label" for="customCheck6">
-                                                    <span class="todo-desc">Simply dummy text of the printing and typesetting</span> <span class="badge badge-pill badge-primary float-right">Project</span>
-                                                </label>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- ============================================================== -->
-                <!-- Recent comment and chats -->
-                <!-- ============================================================== -->
+</div>
+@endsection

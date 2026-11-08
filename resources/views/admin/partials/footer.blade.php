@@ -1,34 +1,20 @@
-    <!-- ============================================================== -->
-    <!-- All Jquery -->
-    <!-- ============================================================== -->
-    <script src="{{ asset('admin/assets/libs/jquery/dist/jquery.min.js')}}"></script>
-    <!-- Bootstrap tether Core JavaScript -->
-    <script src="{{ asset('admin/assets/libs/popper.js/dist/umd/popper.min.js')}}"></script>
-    <script src="{{ asset('admin/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js')}}"></script>
-    <!-- apps -->
-    <script src="{{ asset('admin/dist/js/app.min.js')}}"></script>
-    <script src="{{ asset('admin/dist/js/app.init.js')}}"></script>
-    <script src="{{ asset('admin/dist/js/app-style-switcher.js')}}"></script>
-    <!-- slimscrollbar scrollbar JavaScript -->
-    <script src="{{ asset('admin/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js')}}"></script>
-    <script src="{{ asset('admin/assets/extra-libs/sparkline/sparkline.js')}}"></script>
-    <!--Wave Effects -->
-    <script src="{{ asset('admin/dist/js/waves.js')}}"></script>
-    <!--Menu sidebar -->
-    <script src="{{ asset('admin/dist/js/sidebarmenu.js')}}"></script>
-    <!--Custom JavaScript -->
-    <script src="{{ asset('admin/dist/js/custom.min.js')}}"></script>
-    <!--This page JavaScript -->
-    <!--chartis chart-->
-    <script src="{{ asset('admin/assets/libs/chartist/dist/chartist.min.js')}}"></script>
-    <script src="{{ asset('admin/assets/libs/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.min.js')}}"></script>
-    <!--c3 charts -->
-    <script src="{{ asset('admin/assets/extra-libs/c3/d3.min.js')}}"></script>
-    <script src="{{ asset('admin/assets/extra-libs/c3/c3.min.js')}}"></script>
-    <script src="{{ asset('admin/assets/extra-libs/jvector/jquery-jvectormap-2.0.2.min.js')}}"></script>
-    <script src="{{ asset('admin/assets/extra-libs/jvector/jquery-jvectormap-world-mill-en.js')}}"></script>
-    <script src="{{ asset('admin/dist/js/pages/dashboards/dashboard1.js')}}"></script>
-    <script src="{{ asset('xivig-blog/js/theme-switcher.js') }}'"></script>
-</body>
+<footer class="footer">
+  <div class="footer-content">
+    <div class="footer-credits">
+      <div class="footer-copyright">
+        &copy; {{ date('Y') }} <a href="{{ route('admin.dashboard') }}" class="fw-semibold">XivigAdmin</a>. Crafted for elite digital enterprises.
+      </div>
+      <div class="footer-version">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5">v2.0.0 Pro</span>
+      </div>
+    </div>
 
-</html>
+    <div class="footer-links">
+      <a href="{{ url('/') }}" target="_blank">Public Site</a>
+      <a href="{{ url('/blog') }}" target="_blank">Blog Magazine</a>
+      <a href="{{ route('admin.posts.create') }}">Compose Post</a>
+      <a href="{{ route('admin.comments.index') }}">Discussions</a>
+      <a href="{{ route('admin.profile') }}">Security</a>
+    </div>
+  </div>
+</footer>

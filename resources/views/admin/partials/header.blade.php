@@ -1,297 +1,171 @@
-<!-- ============================================================== -->
-        <!-- Topbar header - style you can find in pages.scss -->
-        <!-- ============================================================== -->
-        <header class="topbar">
-            <nav class="navbar top-navbar navbar-expand-md navbar-dark">
-                <div class="navbar-header">
-                    <!-- This is for the sidebar toggle which is visible on mobile only -->
-                    <a class="nav-toggler waves-effect waves-light d-block d-md-none" href="javascript:void(0)">
-                        <i class="ti-menu ti-close"></i>
-                    </a>
-                    <!-- ============================================================== -->
-                    <!-- Logo -->
-                    <!-- ============================================================== -->
-                    <div class="navbar-brand">
-                        <a href="index.html" class="logo">
-                            <!-- Logo icon -->
-                            <b class="logo-icon">
-                                <!--You can put here icon as well // <i class="wi wi-sunset"></i> //-->
-                                <!-- Dark Logo icon -->
-                                <img src="../../assets/images/logo-icon.png" alt="homepage" class="dark-logo" />
-                                <!-- Light Logo icon -->
-                                <img src="../../assets/images/logo-light-icon.png" alt="homepage" class="light-logo" />
-                            </b>
-                            <!--End Logo icon -->
-                            <!-- Logo text -->
-                            <span class="logo-text">
-                                <!-- dark Logo text -->
-                                <img src="../../assets/images/logo-text.png" alt="homepage" class="dark-logo" />
-                                <!-- Light Logo text -->
-                                <img src="../../assets/images/logo-light-text.png" class="light-logo" alt="homepage" />
-                            </span>
-                        </a>
-                        <a class="sidebartoggler d-none d-md-block" href="javascript:void(0)" data-sidebartype="mini-sidebar">
-                            <i class="mdi mdi-toggle-switch mdi-toggle-switch-off font-20"></i>
-                        </a>
-                    </div>
-                    <!-- ============================================================== -->
-                    <!-- End Logo -->
-                    <!-- ============================================================== -->
-                    <!-- ============================================================== -->
-                    <!-- Toggle which is visible on mobile only -->
-                    <!-- ============================================================== -->
-                    <a class="topbartoggler d-block d-md-none waves-effect waves-light" href="javascript:void(0)" data-toggle="collapse" data-target="#navbarSupportedContent"
-                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                        <i class="ti-more"></i>
-                    </a>
-                </div>
-                <!-- ============================================================== -->
-                <!-- End Logo -->
-                <!-- ============================================================== -->
-                <div class="navbar-collapse collapse" id="navbarSupportedContent">
-                    <!-- ============================================================== -->
-                    <!-- toggle and nav items -->
-                    <!-- ============================================================== -->
-                    <ul class="navbar-nav float-left mr-auto">
-                        <!-- <li class="nav-item d-none d-md-block">
-                            <a class="nav-link sidebartoggler waves-effect waves-light" href="javascript:void(0)" data-sidebartype="mini-sidebar">
-                                <i class="mdi mdi-menu font-24"></i>
-                            </a>
-                        </li> -->
-                        <!-- ============================================================== -->
-                        <!-- Search -->
-                        <!-- ============================================================== -->
-                        <li class="nav-item search-box">
-                            <a class="nav-link waves-effect waves-dark" href="javascript:void(0)">
-                                <div class="d-flex align-items-center">
-                                    <i class="mdi mdi-magnify font-20 mr-1"></i>
-                                    <div class="ml-1 d-none d-sm-block">
-                                        <span>Search</span>
-                                    </div>
-                                </div>
-                            </a>
-                            <form class="app-search position-absolute">
-                                <input type="text" class="form-control" placeholder="Search &amp; enter">
-                                <a class="srh-btn">
-                                    <i class="ti-close"></i>
-                                </a>
-                            </form>
-                        </li>
-                    </ul>
-                    <!-- ============================================================== -->
-                    <!-- Right side toggle and nav items -->
-                    <!-- ============================================================== -->
-                    <ul class="navbar-nav float-right">
-                        <!-- ============================================================== -->
-                        <!-- Messages -->
-                        <!-- ============================================================== -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle waves-effect waves-dark" href="" id="2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="font-22 mdi mdi-email-outline"></i>
+<header class="header">
+  <div class="header-left">
+    <a href="{{ route('admin.dashboard') }}" class="header-brand" aria-label="XivigAdmin home">
+      <span class="header-logo">
+        <img src="{{ asset('admin-dist/img/xivig-logo-CDpcaf-E.png') }}" alt="XivigAdmin" class="brand-logo-img">
+      </span>
+      <span class="header-context">
+        <strong class="header-context-title">Xivig<span class="brand-gradient">Admin</span></strong>
+        <span class="badge-elite">PRO</span>
+      </span>
+    </a>
 
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right mailbox animated bounceInDown" aria-labelledby="2">
-                                <span class="with-arrow">
-                                    <span class="bg-danger"></span>
-                                </span>
-                                <ul class="list-style-none">
-                                    <li>
-                                        <div class="drop-title text-white bg-danger">
-                                            <h4 class="m-b-0 m-t-5">5 New</h4>
-                                            <span class="font-light">Messages</span>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <div class="message-center message-body">
-                                            <!-- Message -->
-                                            <a href="javascript:void(0)" class="message-item">
-                                                <span class="user-img">
-                                                    <img src="../../assets/images/users/1.jpg" alt="user" class="rounded-circle">
-                                                    <span class="profile-status online pull-right"></span>
-                                                </span>
-                                                <div class="mail-contnet">
-                                                    <h5 class="message-title">Pavan kumar</h5>
-                                                    <span class="mail-desc">Just see the my admin!</span>
-                                                    <span class="time">9:30 AM</span>
-                                                </div>
-                                            </a>
-                                            <!-- Message -->
-                                            <a href="javascript:void(0)" class="message-item">
-                                                <span class="user-img">
-                                                    <img src="../../assets/images/users/2.jpg" alt="user" class="rounded-circle">
-                                                    <span class="profile-status busy pull-right"></span>
-                                                </span>
-                                                <div class="mail-contnet">
-                                                    <h5 class="message-title">Sonu Nigam</h5>
-                                                    <span class="mail-desc">I've sung a song! See you at</span>
-                                                    <span class="time">9:10 AM</span>
-                                                </div>
-                                            </a>
-                                            <!-- Message -->
-                                            <a href="javascript:void(0)" class="message-item">
-                                                <span class="user-img">
-                                                    <img src="../../assets/images/users/3.jpg" alt="user" class="rounded-circle">
-                                                    <span class="profile-status away pull-right"></span>
-                                                </span>
-                                                <div class="mail-contnet">
-                                                    <h5 class="message-title">Arijit Sinh</h5>
-                                                    <span class="mail-desc">I am a singer!</span>
-                                                    <span class="time">9:08 AM</span>
-                                                </div>
-                                            </a>
-                                            <!-- Message -->
-                                            <a href="javascript:void(0)" class="message-item">
-                                                <span class="user-img">
-                                                    <img src="../../assets/images/users/4.jpg" alt="user" class="rounded-circle">
-                                                    <span class="profile-status offline pull-right"></span>
-                                                </span>
-                                                <div class="mail-contnet">
-                                                    <h5 class="message-title">Pavan kumar</h5>
-                                                    <span class="mail-desc">Just see the my admin!</span>
-                                                    <span class="time">9:02 AM</span>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <a class="nav-link text-center link text-dark" href="javascript:void(0);">
-                                            <b>See all e-Mails</b>
-                                            <i class="fa fa-angle-right"></i>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </li>
-                        <!-- ============================================================== -->
-                        <!-- End Messages -->
-                        <!-- ============================================================== -->
-                        <!-- ============================================================== -->
-                        <!-- Comment -->
-                        <!-- ============================================================== -->
-                        <li class="nav-item dropdown border-right">
-                            <a class="nav-link dropdown-toggle waves-effect waves-dark" href="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="mdi mdi-bell-outline font-22"></i>
-                                <span class="badge badge-pill badge-info noti">3</span>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right mailbox animated bounceInDown">
-                                <span class="with-arrow">
-                                    <span class="bg-primary"></span>
-                                </span>
-                                <ul class="list-style-none">
-                                    <li>
-                                        <div class="drop-title bg-primary text-white">
-                                            <h4 class="m-b-0 m-t-5">4 New</h4>
-                                            <span class="font-light">Notifications</span>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <div class="message-center notifications">
-                                            <!-- Message -->
-                                            <a href="javascript:void(0)" class="message-item">
-                                                <span class="btn btn-danger btn-circle">
-                                                    <i class="fa fa-link"></i>
-                                                </span>
-                                                <div class="mail-contnet">
-                                                    <h5 class="message-title">Luanch Admin</h5>
-                                                    <span class="mail-desc">Just see the my new admin!</span>
-                                                    <span class="time">9:30 AM</span>
-                                                </div>
-                                            </a>
-                                            <!-- Message -->
-                                            <a href="javascript:void(0)" class="message-item">
-                                                <span class="btn btn-success btn-circle">
-                                                    <i class="ti-calendar"></i>
-                                                </span>
-                                                <div class="mail-contnet">
-                                                    <h5 class="message-title">Event today</h5>
-                                                    <span class="mail-desc">Just a reminder that you have event</span>
-                                                    <span class="time">9:10 AM</span>
-                                                </div>
-                                            </a>
-                                            <!-- Message -->
-                                            <a href="javascript:void(0)" class="message-item">
-                                                <span class="btn btn-info btn-circle">
-                                                    <i class="ti-settings"></i>
-                                                </span>
-                                                <div class="mail-contnet">
-                                                    <h5 class="message-title">Settings</h5>
-                                                    <span class="mail-desc">You can customize this template as you want</span>
-                                                    <span class="time">9:08 AM</span>
-                                                </div>
-                                            </a>
-                                            <!-- Message -->
-                                            <a href="javascript:void(0)" class="message-item">
-                                                <span class="btn btn-primary btn-circle">
-                                                    <i class="ti-user"></i>
-                                                </span>
-                                                <div class="mail-contnet">
-                                                    <h5 class="message-title">Pavan kumar</h5>
-                                                    <span class="mail-desc">Just see the my admin!</span>
-                                                    <span class="time">9:02 AM</span>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <a class="nav-link text-center m-b-5 text-dark" href="javascript:void(0);">
-                                            <strong>Check all notifications</strong>
-                                            <i class="fa fa-angle-right"></i>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </li>
-                        <!-- ============================================================== -->
-                        <!-- End Comment -->
-                        <!-- ============================================================== -->
-                        <!-- ============================================================== -->
-                        <!-- User profile and search -->
-                        <!-- ============================================================== -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle waves-effect waves-dark pro-pic" href="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <img src="../../assets/images/users/2.jpg" alt="user" class="rounded-circle" width="40">
-                                <span class="m-l-5 font-medium d-none d-sm-inline-block">Jonathan Doe <i class="mdi mdi-chevron-down"></i></span>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right user-dd animated flipInY">
-                                <span class="with-arrow">
-                                    <span class="bg-primary"></span>
-                                </span>
-                                <div class="d-flex no-block align-items-center p-15 bg-primary text-white m-b-10">
-                                    <div class="">
-                                        <img src="../../assets/images/users/2.jpg" alt="user" class="rounded-circle" width="60">
-                                    </div>
-                                    <div class="m-l-10">
-                                        <h4 class="m-b-0">Jonathan Doe</h4>
-                                        <p class=" m-b-0">jon@gmail.com</p>
-                                    </div>
-                                </div>
-                                <div class="profile-dis scrollable">
-                                    <a class="dropdown-item" href="javascript:void(0)">
-                                        <i class="ti-user m-r-5 m-l-5"></i> My Profile</a>
-                                    <a class="dropdown-item" href="javascript:void(0)">
-                                        <i class="ti-wallet m-r-5 m-l-5"></i> My Balance</a>
-                                    <a class="dropdown-item" href="javascript:void(0)">
-                                        <i class="ti-email m-r-5 m-l-5"></i> Inbox</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="javascript:void(0)">
-                                        <i class="ti-settings m-r-5 m-l-5"></i> Account Setting</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="javascript:void(0)">
-                                        <i class="fa fa-power-off m-r-5 m-l-5"></i> Logout</a>
-                                    <div class="dropdown-divider"></div>
-                                </div>
-                                <div class="p-l-30 p-10">
-                                    <a href="javascript:void(0)" class="btn btn-sm btn-success btn-rounded">View Profile</a>
-                                </div>
-                            </div>
-                        </li>
-                        <!-- ============================================================== -->
-                        <!-- User profile and search -->
-                        <!-- ============================================================== -->
-                    </ul>
-                </div>
-            </nav>
-        </header>
-        <!-- ============================================================== -->
-        <!-- End Topbar header -->
-        <!-- ============================================================== -->
+    <button class="sidebar-toggle" type="button" title="Toggle Sidebar" aria-label="Toggle sidebar">
+      <span class="menu-lines" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+  </div>
+
+  <div class="header-search-wrap">
+    <form class="search-form" action="{{ route('admin.posts.index') }}" method="GET">
+      <i class="bi bi-search search-icon"></i>
+      <input type="search" name="q" placeholder="Search blog posts, categories, or keywords..." autocomplete="off" value="{{ request('q') }}">
+      <kbd class="search-shortcut">⌘K</kbd>
+    </form>
+  </div>
+
+  <div class="header-right">
+    <div class="header-actions-desktop">
+
+      <!-- Front Quick Links -->
+      <div class="header-action-wrap dropdown quickaccess-dropdown">
+        <button class="header-action dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Quick Links">
+          <i class="ph-light ph-squares-four"></i>
+        </button>
+        <div class="dropdown-menu dropdown-menu-end quickaccess-menu">
+          <div class="menu-title">Shortcuts</div>
+          <a href="{{ route('admin.posts.create') }}" class="quickaccess-featured">
+            <span class="quickaccess-featured-icon"><i class="bi bi-pencil-square"></i></span>
+            <span class="quickaccess-featured-copy">
+              <strong>Compose Article</strong>
+              <small>Open rich Quill editor &amp; publish</small>
+            </span>
+          </a>
+          <div class="quickaccess-grid">
+            <a href="{{ url('/blog') }}" target="_blank" class="quickaccess-tile">
+              <i class="bi bi-globe"></i>
+              <span>Live Blog</span>
+            </a>
+            <a href="{{ url('/') }}" target="_blank" class="quickaccess-tile">
+              <i class="bi bi-box-arrow-up-right"></i>
+              <span>Home Site</span>
+            </a>
+            <a href="{{ route('admin.categories.index') }}" class="quickaccess-tile">
+              <i class="bi bi-folder2"></i>
+              <span>Categories</span>
+            </a>
+            <a href="{{ route('admin.media.index') }}" class="quickaccess-tile">
+              <i class="bi bi-images"></i>
+              <span>Media</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications -->
+      <div class="header-action-wrap dropdown notifications-dropdown">
+        <button class="header-action dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
+          <i class="bi bi-bell"></i>
+          <span class="header-badge">3</span>
+        </button>
+        <div class="dropdown-menu dropdown-menu-end notifications-menu">
+          <div class="notification-header">
+            <div>
+              <h6>Blog Alerts</h6>
+              <span>3 updates</span>
+            </div>
+            <a href="{{ route('admin.comments.index') }}">Moderate</a>
+          </div>
+          <div class="notification-list">
+            <div class="notification-item unread">
+              <span class="notification-dot"></span>
+              <div class="notification-icon success"><i class="bi bi-chat-quote"></i></div>
+              <div class="notification-content">
+                <div class="notification-title">New discussion comment</div>
+                <div class="notification-text">A reader posted a response to latest article.</div>
+                <span class="notification-time">10m ago</span>
+              </div>
+            </div>
+            <div class="notification-item unread">
+              <span class="notification-dot"></span>
+              <div class="notification-icon info"><i class="bi bi-speedometer2"></i></div>
+              <div class="notification-content">
+                <div class="notification-title">Traffic milestone reached</div>
+                <div class="notification-text">Blog readership exceeded daily threshold.</div>
+                <span class="notification-time">1h ago</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Theme Mode Toggle -->
+      <button class="header-action theme-toggle" type="button" title="Toggle Theme (Dark / Light)">
+        <i class="ph-light ph-moon-stars theme-icon-dark"></i>
+        <i class="ph-light ph-sun theme-icon-light"></i>
+      </button>
+
+      <!-- Authenticated Admin Profile Dropdown -->
+      <div class="header-action-wrap dropdown user-dropdown">
+        <button class="dropdown-toggle user-trigger" data-bs-toggle="dropdown" aria-expanded="false">
+          <img src="{{ asset('admin-dist/img/1-DZLDOIIi.jpg') }}" alt="User" class="user-avatar">
+          <div class="user-brief">
+            <span class="user-name">{{ Auth::guard('admin')->user()->name ?? 'Executive Admin' }}</span>
+            <span class="user-role">ENTERPRISE ADMIN</span>
+          </div>
+        </button>
+
+        <div class="dropdown-menu dropdown-menu-end user-menu">
+          <div class="user-menu-header">
+            <img src="{{ asset('admin-dist/img/1-DZLDOIIi.jpg') }}" alt="User" class="user-menu-avatar">
+            <div class="user-menu-info">
+              <div class="user-menu-name">{{ Auth::guard('admin')->user()->name ?? 'Executive Admin' }}</div>
+              <div class="user-menu-email">
+                <a href="mailto:{{ Auth::guard('admin')->user()->email ?? 'admin@xivig.com' }}">
+                  {{ Auth::guard('admin')->user()->email ?? 'admin@xivig.com' }}
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="user-menu-body">
+            <a class="user-menu-item" href="{{ route('admin.profile') }}">
+              <i class="bi bi-person"></i>
+              <span>Admin Profile</span>
+            </a>
+            <a class="user-menu-item" href="{{ route('admin.posts.index') }}">
+              <i class="bi bi-journal-richtext"></i>
+              <span>All Articles</span>
+            </a>
+            <a class="user-menu-item" href="{{ url('/blog') }}" target="_blank">
+              <i class="bi bi-box-arrow-up-right"></i>
+              <span>View Frontend</span>
+            </a>
+          </div>
+          <div class="user-menu-footer">
+            <form action="{{ route('admin.logout') }}" method="POST" id="adminHeaderLogoutForm" class="d-inline w-100">
+              @csrf
+              <button type="submit" class="user-menu-logout btn border-0 text-start w-100 bg-transparent">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Sign Out</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="header-actions-mobile">
+      <button class="header-action theme-toggle" type="button" title="Toggle Theme">
+        <i class="ph-light ph-moon-stars theme-icon-dark"></i>
+        <i class="ph-light ph-sun theme-icon-light"></i>
+      </button>
+      <button class="header-action sidebar-toggle" type="button" title="Toggle Navigation">
+        <i class="bi bi-list fs-4"></i>
+      </button>
+    </div>
+  </div>
+</header>

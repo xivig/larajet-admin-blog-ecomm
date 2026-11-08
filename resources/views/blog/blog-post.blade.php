@@ -35,16 +35,28 @@
             <div class="col-lg-8 mb-5 mb-lg-0">
                 <article class="single-blog-item">
                     @if($post->image)
-                        <img loading="lazy" src="{{ $post->image->link }}" alt="{{ $post->title }}" class="single-post-hero-img">
+                        @php
+                            $coverLink = $post->image->link;
+                            if (!Str::startsWith($coverLink, ['http://', 'https://', 'uploads/'])) {
+                                $coverLink = asset('xivig-blog/images/blog/' . $coverLink);
+                            } else {
+                                $coverLink = asset($coverLink);
+                            }
+                        @endphp
+                        <img loading="lazy" src="{{ $coverLink }}" alt="{{ $post->title }}" class="single-post-hero-img" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                     @endif
 
                     <div class="single-blog-content">
                         @if($post->excerpt)
-                            <p class="lead mb-4 font-weight-normal text-dark">{{ $post->excerpt }}</p>
+                            <p class="lead mb-4 font-weight-normal">{{ $post->excerpt }}</p>
                         @endif
 
                         <div class="post-body-text mb-5">
-                            {!! nl2br(e($post->content)) !!}
+                            @if(strip_tags($post->content) !== $post->content)
+                                {!! $post->content !!}
+                            @else
+                                {!! nl2br(e($post->content)) !!}
+                            @endif
                         </div>
 
                         <blockquote class="quote">

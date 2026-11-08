@@ -18,10 +18,22 @@ class PostController extends Controller
     /**
      * Display a listing of posts for admin.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $posts = Post::with(['category', 'author', 'image', 'tag'])->latest()->paginate(15);
-        return view('admin.index', compact('posts'));
+        $query = Post::with(['category', 'author.user', 'image', 'tag', 'comments'])->latest();
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status === 'published');
+        }
+
+        $posts = $query->get();
+        $categories = Category::all();
+
+        return view('admin.posts.index', compact('posts', 'categories'));
     }
 
     /**
@@ -31,9 +43,10 @@ class PostController extends Controller
     {
         $categories = Category::all();
         $tags = Tag::all();
-        $authors = Author::all();
-        $pictures = Picture::all();
-        return view('admin.create', compact('categories', 'tags', 'authors', 'pictures'));
+        $authors = Author::with('user')->get();
+        $pictures = Picture::latest()->take(24)->get();
+
+        return view('admin.posts.create', compact('categories', 'tags', 'authors', 'pictures'));
     }
 
     /**
@@ -41,25 +54,80 @@ class PostController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
+        $request->validate([
             'title' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'tag_id' => 'required|exists:tags,id',
-            'image_id' => 'required|exists:pictures,id',
-            'author_id' => 'required|exists:authors,id',
+            'tag_id' => 'nullable|exists:tags,id',
+            'image_id' => 'nullable|exists:pictures,id',
+            'author_id' => 'nullable|exists:authors,id',
             'content' => 'required|string',
-            'excerpt' => 'nullable|string|max:255',
-            'status' => 'boolean',
+            'excerpt' => 'nullable|string|max:500',
+            'status' => 'nullable',
+            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:5120',
         ]);
 
-        $validated['user_id'] = auth()->id() ?? 1;
-        $validated['slug'] = Str::slug($validated['title']) . '-' . Str::random(5);
-        $validated['excerpt'] = $validated['excerpt'] ?? Str::limit(strip_tags($validated['content']), 120);
-        $validated['status'] = $request->boolean('status', true);
+        // Handle image upload if provided
+        $imageId = $request->input('image_id');
+        if ($request->hasFile('featured_image')) {
+            $file = $request->file('featured_image');
+            $fileName = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/posts'), $fileName);
+            $picture = Picture::create([
+                'name' => $request->title,
+                'link' => 'uploads/posts/' . $fileName,
+            ]);
+            $imageId = $picture->id;
+        }
 
-        Post::create($validated);
+        // Fallback image if none selected
+        if (!$imageId) {
+            $defaultPic = Picture::first();
+            $imageId = $defaultPic ? $defaultPic->id : 1;
+        }
 
-        return redirect()->route('admin.posts.index')->with('success', 'Post created successfully!');
+        // Author assignment
+        $authorId = $request->input('author_id');
+        if (!$authorId) {
+            $firstAuthor = Author::first();
+            $authorId = $firstAuthor ? $firstAuthor->id : 1;
+        }
+
+        // Tag fallback
+        $tagId = $request->input('tag_id');
+        if (!$tagId) {
+            $firstTag = Tag::first();
+            $tagId = $firstTag ? $firstTag->id : 1;
+        }
+
+        // Unique slug
+        $baseSlug = Str::slug($request->title);
+        $slug = $baseSlug;
+        $counter = 1;
+        while (Post::where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
+        $excerpt = $request->filled('excerpt')
+            ? $request->excerpt
+            : Str::limit(strip_tags($request->content), 150);
+
+        $status = $request->has('status') && ($request->status == '1' || $request->status == 'published' || $request->status == 'on');
+
+        Post::create([
+            'user_id' => auth()->id() ?? 1,
+            'category_id' => $request->category_id,
+            'tag_id' => $tagId,
+            'image_id' => $imageId,
+            'author_id' => $authorId,
+            'title' => $request->title,
+            'slug' => $slug,
+            'content' => $request->content,
+            'excerpt' => $excerpt,
+            'status' => $status,
+        ]);
+
+        return redirect()->route('admin.posts.index')->with('success', 'Article "' . $request->title . '" published successfully!');
     }
 
     /**
@@ -67,7 +135,8 @@ class PostController extends Controller
      */
     public function show(Post $post): View
     {
-        return view('admin.show', compact('post'));
+        $post->load(['category', 'author.user', 'image', 'tag', 'comments.user']);
+        return view('admin.posts.show', compact('post'));
     }
 
     /**
@@ -77,9 +146,10 @@ class PostController extends Controller
     {
         $categories = Category::all();
         $tags = Tag::all();
-        $authors = Author::all();
-        $pictures = Picture::all();
-        return view('admin.edit', compact('post', 'categories', 'tags', 'authors', 'pictures'));
+        $authors = Author::with('user')->get();
+        $pictures = Picture::latest()->take(24)->get();
+
+        return view('admin.posts.edit', compact('post', 'categories', 'tags', 'authors', 'pictures'));
     }
 
     /**
@@ -87,25 +157,61 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post): RedirectResponse
     {
-        $validated = $request->validate([
+        $request->validate([
             'title' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'tag_id' => 'required|exists:tags,id',
-            'image_id' => 'required|exists:pictures,id',
-            'author_id' => 'required|exists:authors,id',
+            'tag_id' => 'nullable|exists:tags,id',
+            'image_id' => 'nullable|exists:pictures,id',
+            'author_id' => 'nullable|exists:authors,id',
             'content' => 'required|string',
-            'excerpt' => 'nullable|string|max:255',
-            'status' => 'boolean',
+            'excerpt' => 'nullable|string|max:500',
+            'status' => 'nullable',
+            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:5120',
         ]);
 
-        $validated['status'] = $request->boolean('status', true);
-        if ($post->title !== $validated['title']) {
-            $validated['slug'] = Str::slug($validated['title']) . '-' . Str::random(5);
+        $imageId = $request->input('image_id', $post->image_id);
+        if ($request->hasFile('featured_image')) {
+            $file = $request->file('featured_image');
+            $fileName = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/posts'), $fileName);
+            $picture = Picture::create([
+                'name' => $request->title,
+                'link' => 'uploads/posts/' . $fileName,
+            ]);
+            $imageId = $picture->id;
         }
 
-        $post->update($validated);
+        // Slug update if title changed
+        $slug = $post->slug;
+        if ($post->title !== $request->title) {
+            $baseSlug = Str::slug($request->title);
+            $slug = $baseSlug;
+            $counter = 1;
+            while (Post::where('slug', $slug)->where('id', '!=', $post->id)->exists()) {
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+        }
 
-        return redirect()->route('admin.posts.index')->with('success', 'Post updated successfully!');
+        $excerpt = $request->filled('excerpt')
+            ? $request->excerpt
+            : Str::limit(strip_tags($request->content), 150);
+
+        $status = $request->has('status') && ($request->status == '1' || $request->status == 'published' || $request->status == 'on');
+
+        $post->update([
+            'category_id' => $request->category_id,
+            'tag_id' => $request->tag_id ?? $post->tag_id,
+            'image_id' => $imageId,
+            'author_id' => $request->author_id ?? $post->author_id,
+            'title' => $request->title,
+            'slug' => $slug,
+            'content' => $request->content,
+            'excerpt' => $excerpt,
+            'status' => $status,
+        ]);
+
+        return redirect()->route('admin.posts.index')->with('success', 'Article updated successfully!');
     }
 
     /**
@@ -113,7 +219,44 @@ class PostController extends Controller
      */
     public function destroy(Post $post): RedirectResponse
     {
+        $title = $post->title;
+        $post->comments()->delete();
         $post->delete();
-        return redirect()->route('admin.posts.index')->with('success', 'Post deleted successfully!');
+
+        return redirect()->route('admin.posts.index')->with('success', 'Article "' . $title . '" deleted successfully!');
+    }
+
+    /**
+     * Quick Draft submission from Dashboard.
+     */
+    public function quickDraft(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+        ]);
+
+        $baseSlug = Str::slug($request->title);
+        $slug = $baseSlug . '-draft-' . Str::random(4);
+
+        $firstCat = Category::first();
+        $firstTag = Tag::first();
+        $firstPic = Picture::first();
+        $firstAuthor = Author::first();
+
+        Post::create([
+            'user_id' => auth()->id() ?? 1,
+            'category_id' => $firstCat ? $firstCat->id : 1,
+            'tag_id' => $firstTag ? $firstTag->id : 1,
+            'image_id' => $firstPic ? $firstPic->id : 1,
+            'author_id' => $firstAuthor ? $firstAuthor->id : 1,
+            'title' => $request->title,
+            'slug' => $slug,
+            'content' => $request->content,
+            'excerpt' => Str::limit(strip_tags($request->content), 120),
+            'status' => false, // draft
+        ]);
+
+        return redirect()->route('admin.dashboard')->with('success', 'Quick draft saved successfully!');
     }
 }
