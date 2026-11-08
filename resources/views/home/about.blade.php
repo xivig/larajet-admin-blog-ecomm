@@ -1,343 +1,58 @@
 @extends('home')
-@section('title', 'About Us')
+@section('title', 'About Us - Xivig Platform')
 @section('page-title', 'About Us')
-@section('page-heading', 'Our Company')
+@section('page-heading', 'Our Mission & Architecture')
 @section('content')
 
 <!-- Section About Start -->
-<section class="section about-2 position-relative">
+<section class="section py-5 position-relative" style="background: #ffffff;">
 	<div class="container">
-		<div class="row">
-			<div class="col-lg-6">
-				<div class="about-item pr-3 mb-5 mb-lg-0">
-					<span class="h6 text-color">What we are</span>
-					<h2 class="mt-3 mb-4 position-relative content-title">We are dynamic team of creative people</h2>
-					<p class="mb-5">We provide consulting services in the area of IFRS and management reporting, helping companies to reach their highest level. We optimize business processes, making them easier.</p>
-
-					<a href="{{url('/contact')}}" class="btn btn-main btn-round-full">Get started</a>
+		<div class="row align-items-center mb-5">
+			<div class="col-lg-6 mb-5 mb-lg-0">
+				<div class="about-item pr-lg-4">
+					<span class="badge-elite mb-2">Our Origins</span>
+					<h2 class="mt-2 mb-4 font-weight-bold text-dark display-4" style="letter-spacing: -0.02em;">We are a dynamic engineering collective</h2>
+					<p class="text-muted lead mb-4">
+						Founded on principles of simplicity and modularity, Xivig crafts software ecosystems that empower developers and enterprises to scale without technical debt.
+					</p>
+					<p class="text-muted mb-4">
+						We continuously evaluate cutting-edge framework architectures, containerization patterns, and developer ergonomics to deliver solutions that stand the test of time.
+					</p>
+					<a href="{{ url('/services') }}" class="btn-elite btn-elite-primary">
+						Explore Our Services <i class="fas fa-arrow-right ml-2" style="font-size: 11px;"></i>
+					</a>
 				</div>
 			</div>
 			<div class="col-lg-6">
-				<div class="about-item-img">
-					<img loading="lazy" src="{{asset('xivig-blog/images/about/home-7.jpg')}}" alt="about-image" class="img-fluid">
+				<img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop&q=60" alt="Team" class="img-fluid rounded-lg shadow-lg" style="border-radius: 20px;">
+			</div>
+		</div>
+
+		<!-- Core Values -->
+		<div class="row mt-5 pt-4">
+			<div class="col-lg-4 col-md-6 mb-4">
+				<div class="intro-item">
+					<div class="icon-box-elite"><i class="ti-light-bulb"></i></div>
+					<h4 class="font-weight-bold text-dark mb-3">Relentless Innovation</h4>
+					<p class="text-muted mb-0">Adopting early modern standards to ensure your platform remains forward-compatible and future-proof.</p>
+				</div>
+			</div>
+			<div class="col-lg-4 col-md-6 mb-4">
+				<div class="intro-item">
+					<div class="icon-box-elite"><i class="ti-shield"></i></div>
+					<h4 class="font-weight-bold text-dark mb-3">Enterprise Security</h4>
+					<p class="text-muted mb-0">Multi-layer authentication, token isolation, and automated validation guarding every endpoint.</p>
+				</div>
+			</div>
+			<div class="col-lg-4 col-md-6 mb-4">
+				<div class="intro-item">
+					<div class="icon-box-elite"><i class="ti-pulse"></i></div>
+					<h4 class="font-weight-bold text-dark mb-3">High Throughput</h4>
+					<p class="text-muted mb-0">Optimized database query flows, deterministic caching, and lightning-fast page response times.</p>
 				</div>
 			</div>
 		</div>
 	</div>
 </section>
-
 <!-- Section About End -->
-
-<section class="about-info section pt-0">
-	<div class="container">
-		<div class="row justify-content-center">
-			<div class="col-lg-4 col-md-6 col-sm-6">
-				<div class="about-info-item mb-4 mb-lg-0">
-					<h3 class="mb-3"><span class="text-color mr-2 text-md ">01.</span>Our Mission</h3>
-					<p>llum similique ducimus accusamus laudantium praesentium, impedit quaerat, itaque maxime sunt deleniti voluptas distinctio .</p>
-				</div>
-			</div>
-			<div class="col-lg-4 col-md-6 col-sm-6">
-				<div class="about-info-item mb-4 mb-lg-0">
-					<h3 class="mb-3"><span class="text-color mr-2 text-md">02.</span>Vission</h3>
-					<p>llum similique ducimus accusamus laudantium praesentium, impedit quaerat, itaque maxime sunt deleniti voluptas distinctio .</p>
-				</div>
-			</div>
-			<div class="col-lg-4 col-md-6 col-sm-6">
-				<div class="about-info-item mb-4 mb-lg-0">
-					<h3 class="mb-3"><span class="text-color mr-2 text-md">03.</span>Our Approach</h3>
-					<p>llum similique ducimus accusamus laudantium praesentium, impedit quaerat, itaque maxime sunt deleniti voluptas distinctio .</p>
-				</div>
-			</div>
-		</div>
-	</div>
-</section>
-
-<!-- section Counter Start -->
-<section class="section counter bg-counter">
-	<div class="container">
-		<div class="row">
-			<div class="col-lg-3 col-md-6 col-sm-6">
-				<div class="counter-item text-center mb-5 mb-lg-0">
-					<i class="ti-check color-one text-md"></i>
-					<h3 class="mt-2 mb-0 text-white"><span class="counter-stat font-weight-bold">1730</span> +</h3>
-					<p class="text-white-50">Project Done</p>
-				</div>
-			</div>
-			<div class="col-lg-3 col-md-6 col-sm-6">
-				<div class="counter-item text-center mb-5 mb-lg-0">
-					<i class="ti-flag color-one text-md"></i>
-					<h3 class="mt-2 mb-0 text-white"><span class="counter-stat font-weight-bold">125 </span>M </h3>
-					<p class="text-white-50">User Worldwide</p>
-				</div>
-			</div>
-			<div class="col-lg-3 col-md-6 col-sm-6">
-				<div class="counter-item text-center mb-5 mb-lg-0">
-					<i class="ti-layers color-one text-md"></i>
-					<h3 class="mt-2 mb-0 text-white"><span class="counter-stat font-weight-bold">39</span></h3>
-					<p class="text-white-50">Availble Country</p>
-				</div>
-			</div>
-			<div class="col-lg-3 col-md-6 col-sm-6">
-				<div class="counter-item text-center">
-					<i class="ti-medall color-one  text-md"></i>
-					<h3 class="mt-2 mb-0 text-white"><span class="counter-stat font-weight-bold">14</span></h3>
-					<p class="text-white-50">Award Winner </p>
-				</div>
-			</div>
-		</div>
-	</div>
-</section>
-<!-- section Counter End  -->
-
-<!--  Section Services Start -->
-<section class="section team">
-	<div class="container">
-		<div class="row justify-content-center">
-			<div class="col-lg-7 text-center">
-				<div class="section-title">
-					<span class="h6 text-color">Our Team</span>
-					<h2 class="mt-3 content-title">Expert Team member to get best service</h2>
-				</div>
-			</div>
-		</div>
-
-		<div class="row justify-content-center">
-			<div class="col-lg-4 col-md-6 col-sm-6">
-				<div class="team-item-wrap mb-5">
-					<div class="team-item position-relative">
-						<img loading="lazy" src="{{asset('xivig-blog/images/team/team-1.jpg')}}" alt="team" class="img-fluid w-100">
-						<div class="team-img-hover">
-							<ul class="team-social list-inline">
-								<li class="list-inline-item">
-									<a href="https://www.facebook.com/xivig" class="facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
-								</li>
-								<li class="list-inline-item">
-									<a href="https://twitter.com/xivig" class="twitter"><i class="fab fa-twitter" aria-hidden="true"></i></a>
-								</li>
-								<li class="list-inline-item">
-									<a href="https://www.instagram.com/xivig/" class="instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
-								</li>
-								<li class="list-inline-item">
-									<a href="https://xivig.com/" class="linkedin"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
-								</li>
-							</ul>
-						</div>
-					</div>
-					<div class="team-item-content">
-						<h4 class="mt-3 mb-0 text-capitalize">Justin hammer</h4>
-						<p>Digital Marketer</p>
-					</div>
-				</div>
-			</div>
-
-			<div class="col-lg-4 col-md-6 col-sm-6">
-				<div class="team-item-wrap mb-5">
-					<div class="team-item position-relative">
-						<img loading="lazy" src="{{asset('xivig-blog/images/team/team-2.jpg')}}" alt="team" class="img-fluid w-100">
-						<div class="team-img-hover">
-							<ul class="team-social list-inline">
-								<li class="list-inline-item">
-									<a href="https://www.facebook.com/xivig" class="facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
-								</li>
-								<li class="list-inline-item">
-									<a href="https://twitter.com/xivig" class="twitter"><i class="fab fa-twitter" aria-hidden="true"></i></a>
-								</li>
-								<li class="list-inline-item">
-									<a href="https://www.instagram.com/xivig/" class="instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
-								</li>
-								<li class="list-inline-item">
-									<a href="https://xivig.com/" class="linkedin"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
-								</li>
-							</ul>
-						</div>
-					</div>
-					<div class="team-item-content">
-						<h4 class="mt-3 mb-0 text-capitalize">Jason roy</h4>
-						<p>UI/UX Designer</p>
-					</div>
-				</div>
-			</div>
-
-			<div class="col-lg-4 col-md-6 col-sm-6">
-				<div class="team-item-wrap mb-5 ">
-					<div class="team-item position-relative">
-						<img loading="lazy" src="{{asset('xivig-blog/images/team/team-3.jpg')}}" alt="team" class="img-fluid w-100">
-						<div class="team-img-hover">
-							<ul class="team-social list-inline">
-								<li class="list-inline-item">
-									<a href="https://www.facebook.com/xivig" class="facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
-								</li>
-								<li class="list-inline-item">
-									<a href="https://twitter.com/xivig" class="twitter"><i class="fab fa-twitter" aria-hidden="true"></i></a>
-								</li>
-								<li class="list-inline-item">
-									<a href="https://www.instagram.com/xivig/" class="instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
-								</li>
-								<li class="list-inline-item">
-									<a href="https://xivig.com/" class="linkedin"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
-								</li>
-							</ul>
-						</div>
-					</div>
-					<div class="team-item-content">
-						<h4 class="mt-3 mb-0 text-capitalize">Henry oswald</h4>
-						<p>Developer</p>
-					</div>
-				</div>
-			</div>
-			<div class="col-lg-4 col-md-6 col-sm-6">
-				<div class="team-item-wrap mb-5 mb-lg-0">
-					<div class="team-item position-relative">
-						<img loading="lazy" src="{{asset('xivig-blog/images/team/team-4.jpg')}}" alt="team" class="img-fluid w-100">
-						<div class="team-img-hover">
-							<ul class="team-social list-inline">
-								<li class="list-inline-item">
-									<a href="https://www.facebook.com/xivig" class="facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
-								</li>
-								<li class="list-inline-item">
-									<a href="https://twitter.com/xivig" class="twitter"><i class="fab fa-twitter" aria-hidden="true"></i></a>
-								</li>
-								<li class="list-inline-item">
-									<a href="https://www.instagram.com/xivig/" class="instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
-								</li>
-								<li class="list-inline-item">
-									<a href="https://xivig.com/" class="linkedin"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
-								</li>
-							</ul>
-						</div>
-					</div>
-					<div class="team-item-content">
-						<h4 class="mt-3 mb-0 text-capitalize">David Williams</h4>
-						<p>Senior Marketer</p>
-					</div>
-				</div>
-			</div>
-
-			<div class="col-lg-4 col-md-6 col-sm-6">
-				<div class="team-item-wrap mb-5 mb-lg-0">
-					<div class="team-item position-relative">
-						<img loading="lazy" src="{{asset('xivig-blog/images/team/team-6.jpg')}}" alt="team" class="img-fluid w-100">
-						<div class="team-img-hover">
-							<ul class="team-social list-inline">
-								<li class="list-inline-item">
-									<a href="https://www.facebook.com/xivig" class="facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
-								</li>
-								<li class="list-inline-item">
-									<a href="https://twitter.com/xivig" class="twitter"><i class="fab fa-twitter" aria-hidden="true"></i></a>
-								</li>
-								<li class="list-inline-item">
-									<a href="https://www.instagram.com/xivig/" class="instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
-								</li>
-								<li class="list-inline-item">
-									<a href="https://xivig.com/" class="linkedin"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
-								</li>
-							</ul>
-						</div>
-					</div>
-					<div class="team-item-content">
-						<h4 class="mt-3 mb-0 text-capitalize">Peter Odin</h4>
-						<p>App Developer</p>
-					</div>
-				</div>
-			</div>
-
-			<div class="col-lg-4 col-md-6 col-sm-6">
-				<div class="team-item-wrap mb-5 mb-lg-0 ">
-					<div class="team-item position-relative">
-						<img loading="lazy" src="{{asset('xivig-blog/images/team/team-5.jpg')}}" alt="team" class="img-fluid w-100">
-						<div class="team-img-hover">
-							<ul class="team-social list-inline">
-								<li class="list-inline-item">
-									<a href="https://www.facebook.com/xivig" class="facebook"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
-								</li>
-								<li class="list-inline-item">
-									<a href="https://twitter.com/xivig" class="twitter"><i class="fab fa-twitter" aria-hidden="true"></i></a>
-								</li>
-								<li class="list-inline-item">
-									<a href="https://www.instagram.com/xivig/" class="instagram"><i class="fab fa-instagram" aria-hidden="true"></i></a>
-								</li>
-								<li class="list-inline-item">
-									<a href="https://xivig.com/" class="linkedin"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
-								</li>
-							</ul>
-						</div>
-					</div>
-					<div class="team-item-content">
-						<h4 class="mt-3 mb-0 text-capitalize">David Spensor</h4>
-						<p>Project Manager</p>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</section>
-<!--  Section Services End -->
-<!-- Section Testimonial Start -->
-<section class="section testimonial bg-gray">
-	<div class="container">
-		<div class="row justify-content-center">
-			<div class="col-lg-7 text-center">
-				<div class="section-title">
-					<span class="h6 text-color">Clients testimonial</span>
-					<h2 class="mt-3 content-title">Check what's our clients say about us</h2>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div class="container">
-		<div class="testimonial-wrap">
-			<div class="testimonial-item position-relative">
-				<i class="ti-quote-left text-color"></i>
-
-				<div class="testimonial-item-content">
-					<p class="testimonial-text">Quam maiores perspiciatis temporibus odio reiciendis error alias debitis atque consequuntur natus iusto recusandae numquam corrupti facilis blanditiis.</p>
-
-					<div class="testimonial-author">
-						<h5 class="mb-0 text-capitalize">Thomas Johnson</h5>
-						<p>Excutive Director,xivig</p>
-					</div>
-				</div>
-			</div>
-			<div class="testimonial-item position-relative">
-				<i class="ti-quote-left text-color"></i>
-
-				<div class="testimonial-item-content">
-					<p class="testimonial-text">Consectetur adipisicing elit. Quam maiores perspiciatis temporibus odio reiciendis error alias debitis atque consequuntur natus iusto recusandae .</p>
-
-					<div class="testimonial-author">
-						<h5 class="mb-0 text-capitalize">Mickel hussy</h5>
-						<p>Excutive Director,xivig</p>
-					</div>
-				</div>
-			</div>
-			<div class="testimonial-item position-relative">
-				<i class="ti-quote-left text-color"></i>
-
-				<div class="testimonial-item-content">
-					<p class="testimonial-text">Quam maiores perspiciatis temporibus odio reiciendis error alias debitis atque consequuntur natus iusto recusandae numquam corrupti.</p>
-
-					<div class="testimonial-author">
-						<h5 class="mb-0 text-capitalize">James Watson</h5>
-						<p>Excutive Director,xivig</p>
-					</div>
-				</div>
-			</div>
-			<div class="testimonial-item position-relative">
-				<i class="ti-quote-left text-color"></i>
-
-				<div class="testimonial-item-content">
-					<p class="testimonial-text">Consectetur adipisicing elit. Quam maiores perspiciatis temporibus odio reiciendis error alias debitis atque consequuntur natus iusto recusandae .</p>
-
-					<div class="testimonial-author">
-						<h5 class="mb-0 text-capitalize">Mickel hussy</h5>
-						<p>Excutive Director,xivig</p>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</section>
-<!-- Section Testimonial End -->
 @endsection

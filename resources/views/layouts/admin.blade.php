@@ -2,7 +2,7 @@
 
 <body>
 <!-- ============================================================== -->
-<!-- Preloader - style you can find in spinners.css -->
+<!-- Preloader -->
 <!-- ============================================================== -->
 <div class="preloader">
     <div class="lds-ripple">
@@ -10,14 +10,13 @@
         <div class="lds-pos"></div>
     </div>
 </div>
+
 <!-- ============================================================== -->
-<!-- Main wrapper - style you can find in pages.scss -->
+<!-- Main wrapper -->
 <!-- ============================================================== -->
 <div id="main-wrapper">
 
     @include('partials.admin.header')
-    @include('partials.admin.header')
-
     @include('partials.admin.sidebar')
 
     <!-- ============================================================== -->
@@ -25,69 +24,36 @@
     <!-- ============================================================== -->
     <div class="page-wrapper">
 
-        <!-- ============================================================== -->
-        <!-- Bread crumb and right sidebar toggle -->
-        <!-- ============================================================== -->
+        <!-- Breadcrumb -->
         <div class="page-breadcrumb">
-            <div class="row">
-                <div class="col-5 align-self-center">
-                    <h4 class="page-title">Dashboard</h4>
+            <div class="row align-items-center">
+                <div class="col-6 align-self-center">
+                    <h4 class="page-title mb-0">Control Center</h4>
                 </div>
-                <div class="col-7 align-self-center">
+                <div class="col-6 align-self-center">
                     <div class="d-flex align-items-center justify-content-end">
                         <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item">
-                                    <a href="#">Home</a>
-                                </li>
-                                <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                            <ol class="breadcrumb mb-0 bg-transparent">
+                                <li class="breadcrumb-item"><a href="{{ url('/') }}" class="text-muted">Home</a></li>
+                                <li class="breadcrumb-item active text-primary" aria-current="page">Admin Dashboard</li>
                             </ol>
                         </nav>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- ============================================================== -->
-        <!-- End Bread crumb and right sidebar toggle -->
-        <!-- ============================================================== -->
 
-        <!-- ============================================================== -->
         <!-- Container fluid  -->
-        <!-- ============================================================== -->
-        <div class="container-fluid">
-
+        <div class="container-fluid pt-3">
             @yield('content')
-
-            {{-- @include('main') --}}
-            {{-- @include('main1') --}}
-            {{-- @include('show') --}}
-            {{--                @include('edit')--}}
-
         </div>
-        <!-- ============================================================== -->
-        <!-- End Container fluid  -->
-        <!-- ============================================================== -->
 
-        <!-- ============================================================== -->
-        <!-- footer -->
-        <!-- ============================================================== -->
-        <footer class="footer text-center">
-            All Rights Reserved by Nice  Designed and Developed by
-            <a href="https://wrappixel.com">WrapPixel</a>.
+        <!-- Footer -->
+        <footer class="footer text-center py-4 text-muted small" style="border-top: 1px solid #e2e8f0; background: #ffffff;">
+            &copy; {{ date('Y') }} <a href="{{ url('/') }}" class="font-weight-bold text-dark">Xivig</a>. All rights reserved. Crafted for enterprise performance.
         </footer>
-        <!-- ============================================================== -->
-        <!-- End footer -->
-        <!-- ============================================================== -->
-
     </div>
-    <!-- ============================================================== -->
-    <!-- End Page wrapper  -->
-    <!-- ============================================================== -->
-
 </div>
-<!-- ============================================================== -->
-<!-- End Wrapper -->
-<!-- ============================================================== -->
 
 @include('partials.admin.customizer')
 @include('partials.admin.footer')

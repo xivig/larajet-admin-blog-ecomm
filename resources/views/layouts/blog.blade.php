@@ -1,3 +1,6 @@
-<div>
-    <!-- Let all your things have their places; let each part of your business have its time. - Benjamin Franklin -->
-</div>
+@include('blog.partials.head')
+@include('blog.partials.header')
+
+@yield('content')
+
+@include('blog.partials.footer')

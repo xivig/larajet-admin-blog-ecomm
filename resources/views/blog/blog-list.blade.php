@@ -1,68 +1,98 @@
 @use('Illuminate\Support\Str')
 @extends('blog')
-@section('title', 'Blog page')
-{{--@section('title', 'Contact Us')--}}
-{{--@section('page-title', 'Contact Us')--}}
-{{--@section('page-heading', 'Get in Touch')--}}
+@section('title', 'Xivig - Editorial & Engineering Blog')
 @section('content')
-    <section class="section blog-wrap bg-gray">
-        <div class="container">
-            @if(count($posts)> 0)
-                <div class="row">
-                    @foreach($posts as $post)
 
-                        <div class="col-lg-6 col-md-6 mb-5">
-                            <div class="blog-item">
+<!-- Blog Hero Banner -->
+<section class="page-title bg-1" style="background: #090d16; padding: 100px 0 60px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge-elite badge-elite-dark mb-3">
+                    <span class="badge-dot pulse"></span> Engineering & Architecture Magazine
+                </span>
+                <h1 class="text-white font-weight-bold mb-3 display-4" style="letter-spacing: -0.03em;">Insights & Knowledge</h1>
+                <p class="text-muted lead mb-0">Explore deep-dive technical articles, architectural blueprints, and full-stack best practices.</p>
+            </div>
+            <div class="col-lg-4 mt-4 mt-lg-0 text-lg-right">
+                <form action="{{ url('/blog-list') }}" method="GET" class="d-flex">
+                    <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-elite mr-2" placeholder="Search insights...">
+                    <button type="submit" class="btn-elite btn-elite-primary btn-sm"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
 
-                                <img loading="lazy" src="{{$post->image->link}}" alt="blog"
-                                     class="img-fluid rounded">
+<!-- Main Blog Section -->
+<section class="section py-5" style="background: #f8fafc;">
+    <div class="container">
+        @if(count($posts) > 0)
+            <div class="row">
+                @foreach($posts as $post)
+                    <div class="col-lg-6 col-md-6 mb-4">
+                        <article class="blog-item">
+                            <div class="blog-img-wrap">
+                                <a href="{{ route('single-post', $post->slug) }}">
+                                    <img loading="lazy" src="{{ $post->image->link ?? 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=60' }}" 
+                                         alt="{{ $post->title }}">
+                                </a>
+                                <span class="blog-category-tag">
+                                    {{ $post->category->name ?? 'General' }}
+                                </span>
+                            </div>
 
-                                <div class="blog-item-content bg-white p-4">
-                                    <div class="blog-item-meta  py-1 px-2">
-                                        <span class="text-primary text-capitalize mr-3"><i class="ti-pencil-alt mr-2"></i>{{$post->category->name}}</span>
-                                        <span class="text-danger text-capitalize mr-3"><i class="ti-user mr-2"></i>{{$post->user ? $post->user->name : ''}}</span>
-                                        <span class="text-warning text-capitalize mr-3"><i class="ti-bookmark mr-2"></i>{{$post->tag->name}}</span>
-                                        <span class="text-success text-capitalize mr-3"><i class="ti-crown mr-2"></i>{{$post->author->nickname ?? ''}}</span>
-                                    </div>
+                            <div class="blog-item-content">
+                                <div class="blog-meta-pills">
+                                    <span><i class="far fa-user"></i> {{ $post->author->nickname ?? ($post->user->name ?? 'Admin') }}</span>
+                                    <span><i class="far fa-calendar-alt"></i> {{ $post->created_at ? $post->created_at->format('M d, Y') : 'Recent' }}</span>
+                                    @if($post->tag)
+                                        <span><i class="fas fa-tag"></i> {{ $post->tag->name }}</span>
+                                    @endif
+                                </div>
 
-                                    <h3 class="mt-3 mb-3"><a
-                                            href="{{route('single-post', $post->slug)}}">{{Str::limit($post->title, 20, '...')}}</a>
-                                    </h3>
-                                    <p class="mb-4">{{Str::limit($post->excerpt, 50, '...')}}</p>
+                                <h3>
+                                    <a href="{{ route('single-post', $post->slug) }}" class="blog-title-link">
+                                        {{ $post->title }}
+                                    </a>
+                                </h3>
 
-                                    <a href="{{route('single-post', $post->slug)}}"
-                                       class="btn btn-small btn-main btn-round-full">Learn
-                                        More</a>
+                                <p class="blog-excerpt">
+                                    {{ $post->excerpt ?: Str::limit(strip_tags($post->content), 130) }}
+                                </p>
+
+                                <div class="mt-auto pt-3 d-flex align-items-center justify-content-between" style="border-top: 1px solid #f1f5f9;">
+                                    <a href="{{ route('single-post', $post->slug) }}" class="btn-elite btn-elite-primary btn-sm">
+                                        Read Article <i class="fas fa-arrow-right ml-2" style="font-size: 11px;"></i>
+                                    </a>
+                                    <span class="text-muted small">
+                                        <i class="far fa-clock mr-1"></i> {{ max(2, round(str_word_count(strip_tags($post->content ?? $post->excerpt)) / 180)) }} min read
+                                    </span>
                                 </div>
                             </div>
-                        </div>
+                        </article>
+                    </div>
+                @endforeach
+            </div>
 
-                    @endforeach
-
-
-                </div>
-                <div class="row justify-content-center mt-5">
-                    <div class="col-lg-6 text-center">
-
-                        <nav class="navigation pagination d-inline-block">
-                            <div class="nav-links">
-
-                                {{--                            <a class="prev page-numbers" href="#">Prev</a>--}}
-                                {{--                            <span aria-current="page" class="page-numbers current">1</span>--}}
-                                {{--                            <a class="page-numbers" href="#">2</a>--}}
-                                {{ $posts->links() }}
-                                {{--                            <a class="next page-numbers" href="#">Next</a>--}}
-                            </div>
-                        </nav>
+            <!-- Modern Pagination -->
+            <div class="row justify-content-center mt-5">
+                <div class="col-lg-8 text-center">
+                    <div class="d-flex justify-content-center">
+                        {{ $posts->links() }}
                     </div>
                 </div>
-            @else
-                <div class="text-center text-warning">
-                    <h3>No post Found</h3>
+            </div>
+        @else
+            <div class="text-center py-5">
+                <div class="p-5 bg-white rounded shadow-sm d-inline-block" style="max-width: 500px;">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h4 class="font-weight-bold">No Articles Found</h4>
+                    <p class="text-muted">We couldn't find any articles matching your query. Try resetting your search or filter.</p>
+                    <a href="{{ url('/blog-list') }}" class="btn-elite btn-elite-primary btn-sm mt-2">View All Articles</a>
                 </div>
-
-            @endif
-
-        </div>
-    </section>
+            </div>
+        @endif
+    </div>
+</section>
 @endsection

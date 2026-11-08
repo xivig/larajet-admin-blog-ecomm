@@ -1,91 +1,129 @@
 @extends('home')
-@section('title', 'Pricing')
+@section('title', 'Pricing - Xivig Platform')
 @section('page-title', 'Pricing')
-@section('page-heading', 'Package Pricing')
+@section('page-heading', 'Transparent Plans')
 @section('content')
+
 <!-- Section Pricing Start -->
-<section class="section pricing bg-gray position-relative">
-	<div class="hero-img bg-overlay h70"></div>
+<section class="section py-5 position-relative" style="background: #f8fafc;">
 	<div class="container">
-		<div class="row justify-content-center">
+		<div class="row justify-content-center mb-5">
 			<div class="col-lg-7 text-center">
-				<div class="section-title">
-					<span class="h6 text-white">Our Pricing</span>
-					<h2 class="mt-3 content-title text-white">No hidden Charges.Choose Your Perfect Plan</h2>
+				<span class="badge-elite mb-2">Predictable Investment</span>
+				<h2 class="font-weight-bold text-dark display-4" style="letter-spacing: -0.02em;">Simple, Transparent Pricing</h2>
+				<p class="text-muted lead">Choose the ideal capability tier for your team. Scale up or down at any time.</p>
+			</div>
+		</div>
+
+		<div class="row justify-content-center align-items-stretch">
+			<!-- Starter Tier -->
+			<div class="col-lg-4 col-md-6 mb-4">
+				<div class="pricing-card">
+					<div class="mb-4">
+						<span class="badge badge-light text-primary font-weight-bold px-3 py-1 rounded-pill small">Starter</span>
+						<div class="mt-3">
+							<span class="price"><span class="price-currency">$</span>0</span>
+							<span class="price-period">/ month</span>
+						</div>
+						<p class="text-muted small mt-2">Essential features for individuals & hobbyists.</p>
+					</div>
+
+					<div class="py-3 border-top flex-grow-1">
+						<h6 class="font-weight-bold text-dark mb-3">Includes:</h6>
+						<ul class="list-unstyled text-muted small" style="line-height: 2.2;">
+							<li><i class="fas fa-check text-success mr-2"></i> Single Developer Seat</li>
+							<li><i class="fas fa-check text-success mr-2"></i> Up to 100 System Items</li>
+							<li><i class="fas fa-check text-success mr-2"></i> 5,000 API Queries / mo</li>
+							<li><i class="fas fa-check text-success mr-2"></i> Basic Community Support</li>
+						</ul>
+					</div>
+
+					<div class="mt-4 pt-3 border-top">
+						<a href="{{ route('register') }}" class="btn-elite btn-elite-outline w-100 text-center">
+							Get Started Free
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- Professional Tier (Featured) -->
+			<div class="col-lg-4 col-md-6 mb-4">
+				<div class="pricing-card featured" style="background: #ffffff;">
+					<span class="badge-popular"><i class="fas fa-bolt mr-1"></i> Most Popular</span>
+					<div class="mb-4 mt-2">
+						<span class="badge badge-primary font-weight-bold px-3 py-1 rounded-pill small">Professional</span>
+						<div class="mt-3">
+							<span class="price text-primary"><span class="price-currency">$</span>49</span>
+							<span class="price-period">/ month</span>
+						</div>
+						<p class="text-muted small mt-2">High velocity for growing teams & startups.</p>
+					</div>
+
+					<div class="py-3 border-top flex-grow-1">
+						<h6 class="font-weight-bold text-dark mb-3">Everything in Starter, plus:</h6>
+						<ul class="list-unstyled text-dark small" style="line-height: 2.2;">
+							<li><i class="fas fa-check-circle text-primary mr-2"></i> Up to 10 Team Members</li>
+							<li><i class="fas fa-check-circle text-primary mr-2"></i> 50,000 System Items</li>
+							<li><i class="fas fa-check-circle text-primary mr-2"></i> 250,000 API Queries / mo</li>
+							<li><i class="fas fa-check-circle text-primary mr-2"></i> Advanced Real-time Metrics</li>
+							<li><i class="fas fa-check-circle text-primary mr-2"></i> Fortify Multi-Tenant 2FA</li>
+							<li><i class="fas fa-check-circle text-primary mr-2"></i> Priority SLA Support</li>
+						</ul>
+					</div>
+
+					<div class="mt-4 pt-3 border-top">
+						<a href="{{ route('register') }}" class="btn-elite btn-elite-primary w-100 text-center">
+							Start 14-Day Free Trial
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- Enterprise Tier -->
+			<div class="col-lg-4 col-md-6 mb-4">
+				<div class="pricing-card">
+					<div class="mb-4">
+						<span class="badge badge-light text-dark font-weight-bold px-3 py-1 rounded-pill small">Enterprise</span>
+						<div class="mt-3">
+							<span class="price"><span class="price-currency">$</span>199</span>
+							<span class="price-period">/ month</span>
+						</div>
+						<p class="text-muted small mt-2">Dedicated infrastructure for global organizations.</p>
+					</div>
+
+					<div class="py-3 border-top flex-grow-1">
+						<h6 class="font-weight-bold text-dark mb-3">Full Enterprise Capability:</h6>
+						<ul class="list-unstyled text-muted small" style="line-height: 2.2;">
+							<li><i class="fas fa-check text-success mr-2"></i> Unlimited Team Seats</li>
+							<li><i class="fas fa-check text-success mr-2"></i> Unlimited Database Items</li>
+							<li><i class="fas fa-check text-success mr-2"></i> Unlimited Dedicated API Limits</li>
+							<li><i class="fas fa-check text-success mr-2"></i> Custom Single Sign-On (SAML/SSO)</li>
+							<li><i class="fas fa-check text-success mr-2"></i> 99.99% Uptime Guarantee</li>
+							<li><i class="fas fa-check text-success mr-2"></i> Dedicated Solutions Architect</li>
+						</ul>
+					</div>
+
+					<div class="mt-4 pt-3 border-top">
+						<a href="{{ url('/contact') }}" class="btn-elite btn-elite-outline w-100 text-center">
+							Contact Enterprise Sales
+						</a>
+					</div>
 				</div>
 			</div>
 		</div>
 
-		<div class="row justify-content-center">
-			<div class="col-md-4">
-				<div class="card text-center mb-md-0 mb-3">
-					<div class="card-body py-5">
-						<div class="pricing-header mb-5">
-							<h5 class="font-weight-normal mb-3">Free</h5>
-							<h1>$0</h1>
-							<p class="text-muted">Per User / Month</p>
-						</div>
-						<strong>Includes:</strong>
-						<ul class="list-unstyled lh-45 mt-3 text-black">
-							<li>- Up to 1 User</li>
-							<li>- Max 100 Item</li>
-							<li>- 500 Queries</li>
-							<li>- Basic Statistics</li>
-						</ul>
-						<a href="#" class="btn btn-small btn-solid-border mt-3 btn-round-full">Download Now</a>
-					</div>
+		<!-- Bottom CTA Box -->
+		<div class="mt-5 p-5 rounded-lg text-center" style="background: #090d16; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px;">
+			<div class="row align-items-center">
+				<div class="col-lg-8 text-center text-lg-left mb-4 mb-lg-0">
+					<span class="badge-elite badge-elite-dark mb-2">Need a custom contract?</span>
+					<h3 class="text-white font-weight-bold mb-2">Tailored Deployments for Global Scale</h3>
+					<p class="text-muted mb-0">We work directly with engineering leads and procurement departments.</p>
 				</div>
-			</div>
-			<div class="col-md-4">
-				<div class="card text-center mb-md-0 mb-3">
-					<div class="card-body py-5">
-						<div class="pricing-header mb-5">
-							<h5 class="font-weight-normal mb-3">Basic</h5>
-							<h1>$12</h1>
-							<p class="text-muted">Per User / Month</p>
-						</div>
-						<strong>Includes:</strong>
-						<ul class="list-unstyled lh-45 mt-3 text-black">
-							<li>- Up to 5 User</li>
-							<li>- Max 1000 Item</li>
-							<li>- 5000 Queries</li>
-							<li>- Standard Statistics</li>
-						</ul>
-						<a href="#" class="btn btn-small btn-main mt-3 btn-round-full">Signup Now</a>
-					</div>
-				</div>
-			</div>
-			<div class="col-md-4">
-				<div class="card text-center mb-md-0 mb-3">
-					<div class="card-body py-5">
-						<div class="pricing-header mb-5">
-							<h5 class="font-weight-normal mb-3">Premium</h5>
-							<h1>$39</h1>
-							<p class="text-muted">Per User / Month</p>
-						</div>
-						<strong>Includes:</strong>
-						<ul class="list-unstyled lh-45 mt-3 text-black">
-							<li>- Unlimited User</li>
-							<li>- Unlimited Item</li>
-							<li>- Unlimited Queries</li>
-							<li>- Full Statistics</li>
-						</ul>
-						<a href="#" class="btn btn-small btn-solid-border mt-3 btn-round-full">Download Now</a>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div class="container">
-		<div class="cta-block mt-5 p-5 rounded">
-			<div class="row justify-content-center align-items-center ">
-				<div class="col-lg-7 text-center text-lg-left">
-					<span class="text-color">For Every type business</span>
-					<h2 class="mt-2 text-white">Entrust Your Project to Our Best Team of Professionals</h2>
-				</div>
-				<div class="col-lg-4 text-center text-lg-right mt-4 mt-lg-0">
-					<a href="contact.html" class="btn btn-main btn-round-full">Contact Us</a>
+				<div class="col-lg-4 text-center text-lg-right">
+					<a href="{{ url('/contact') }}" class="btn-elite btn-elite-primary">
+						Talk to an Architect <i class="fas fa-arrow-right ml-2" style="font-size: 11px;"></i>
+					</a>
 				</div>
 			</div>
 		</div>

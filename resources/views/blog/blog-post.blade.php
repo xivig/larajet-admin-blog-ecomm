@@ -1,266 +1,209 @@
 @extends('blog')
-@section('title', 'Blog page')
-{{--@section('title', 'Contact Us')--}}
-{{--@section('page-title', 'Contact Us')--}}
-{{--@section('page-heading', 'Get in Touch')--}}
+@section('title', $post->title . ' - Xivig Editorial')
 @section('content')
-    <section class="section blog-wrap bg-gray">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-8">
-                    <div class="row">
-                        <div class="col-lg-12 mb-5">
-                            <div class="single-blog-item">
-                                <img loading="lazy" src="{{asset('xivig-blog/images/blog/3.jpg')}}" alt="blog"
-                                     class="img-fluid rounded">
-                                <img loading="lazy" src="{{$post->image->link}}" alt="blog" class="img-fluid rounded">
 
-                                <div class="blog-item-content bg-white p-5">
-                                    <div class="blog-item-meta bg-gray pt-2 pb-1 px-3">
-                                        <span class="text-muted text-capitalize mr-3"><i class="ti-pencil-alt mr-2"></i>{{$post->category->name}}</span>
-                                        <span class="text-black text-capitalize mr-3"><i class="ti-user mr-2"></i>{{$post->user ? $post->user->name : ''}}</span>
-                                        {{--                                        <span class="text-warning text-capitalize mr-3"><i class="ti-crown mr-2"></i>{{$post->tag->name}}</span>--}}
-                                        <span class="text-warning text-capitalize mr-3"><i class="ti-crown mr-2"></i>{{$post->author ? $post->author->nickname : ''}}</span>
-                                        <span class="text-muted text-capitalize mr-3"><i class="ti-pencil-alt mr-2"></i>Creativity</span>
-                                        <span class="text-muted text-capitalize mr-3"><i class="ti-comment mr-2"></i>5 Comments</span>
-                                        <span class="text-black text-capitalize mr-3"><i class="ti-time mr-1"></i> 28th January</span>
-                                    </div>
-
-                                    <h2 class="mt-3 mb-4">{{$post->title}}</h2>
-                                    <p class="lead mb-4">{{$post->content}}</p>
-
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Possimus natus,
-                                        consectetur? Illum libero
-                                        vel nihil nisi quae, voluptatem, sapiente necessitatibus distinctio voluptates,
-                                        iusto qui. Laboriosam
-                                        autem, nam voluptate in beatae.</p>
-
-                                    <h3 class="quote">A brand for a company is like a reputation for a person. You earn
-                                        reputation by trying
-                                        to do hard things well.</h3>
-
-                                    <p class="lead mb-4 font-weight-normal text-black">The same is true as we experience
-                                        the emotional
-                                        sensation of stress from our first instances of social rejection ridicule. We
-                                        quickly learn to fear
-                                        and thus automatically.</p>
-
-                                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Iste, rerum beatae
-                                        repellat tenetur
-                                        incidunt quisquam libero dolores laudantium. Nesciunt quis itaque quidem,
-                                        voluptatem autem eos animi
-                                        laborum iusto expedita sapiente.</p>
-
-                                    <div
-                                        class="tag-option mt-5 d-block d-md-flex justify-content-between align-items-center">
-                                        <ul class="list-inline">
-                                            <li>Tags:</li>
-                                            <li class="list-inline-item"><a href="#" rel="tag">Advancher</a></li>
-                                            <li class="list-inline-item"><a href="#" rel="tag">Landscape</a></li>
-                                            <li class="list-inline-item"><a href="#" rel="tag">Travel</a></li>
-                                        </ul>
-
-                                        <ul class="list-inline">
-                                            <li class="list-inline-item"> Share:</li>
-                                            <li class="list-inline-item"><a href="#"><i class="fab fa-facebook-f"
-                                                                                        aria-hidden="true"></i></a></li>
-                                            <li class="list-inline-item"><a href="#"><i class="fab fa-twitter"
-                                                                                        aria-hidden="true"></i></a></li>
-                                            <li class="list-inline-item"><a href="#"><i class="fab fa-pinterest-p"
-                                                                                        aria-hidden="true"></i></a></li>
-                                            <li class="list-inline-item"><a href="#"><i class="fab fa-google-plus"
-                                                                                        aria-hidden="true"></i></a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <div class="col-lg-12 mb-5">
-                            <div class="posts-nav bg-white p-5 d-lg-flex d-md-flex justify-content-between ">
-                                <a class="post-prev align-items-center" href="#">
-                                    <div class="posts-prev-item mb-4 mb-lg-0">
-                                        <span class="nav-posts-desc text-color">- Previous Post</span>
-                                        <h6 class="nav-posts-title mt-1">
-                                            Donec consectetuer ligula <br>vulputate sem tristique.
-                                        </h6>
-                                    </div>
-                                </a>
-                                <div class="border"></div>
-                                <a class="posts-next" href="#">
-                                    <div class="posts-next-item pt-4 pt-lg-0">
-                                        <span class="nav-posts-desc text-lg-right text-md-right text-color d-block">- Next Post</span>
-                                        <h6 class="nav-posts-title mt-1">
-                                            Ut aliquam sollicitudin leo.
-                                        </h6>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-12 mb-5">
-                            <div class="comment-area card border-0 p-5">
-                                <h4 class="mb-4">2 Comments</h4>
-                                <ul class="comment-tree list-unstyled">
-                                    <li class="mb-5">
-                                        <div class="comment-area-box">
-                                            <img loading="lazy" alt="comment-author" src="images/blog/test1.jpg"
-                                                 class="img-fluid float-left mr-3 mt-2">
-
-                                            <h5 class="mb-1">Philip W</h5>
-                                            <span>United Kingdom</span>
-
-                                            <div
-                                                class="comment-meta mt-4 mt-lg-0 mt-md-0 float-lg-right float-md-right">
-                                                <a href="#"><i class="icofont-reply mr-2 text-muted"></i>Reply |</a>
-                                                <span class="date-comm">Posted October 7, 2018 </span>
-                                            </div>
-
-                                            <div class="comment-content mt-3">
-                                                <p>Some consultants are employed indirectly by the client via a
-                                                    consultancy staffing company, a
-                                                    company that provides consultants on an agency basis. </p>
-                                            </div>
-                                        </div>
-                                    </li>
-
-                                    <li>
-                                        <div class="comment-area-box">
-                                            <img loading="lazy" alt="comment-author" src="images/blog/test2.jpg"
-                                                 class="mt-2 img-fluid float-left mr-3">
-
-                                            <h5 class="mb-1">Philip W</h5>
-                                            <span>United Kingdom</span>
-
-                                            <div
-                                                class="comment-meta mt-4 mt-lg-0 mt-md-0 float-lg-right float-md-right">
-                                                <a href="#"><i class="icofont-reply mr-2 text-muted"></i>Reply |</a>
-                                                <span class="date-comm">Posted October 7, 2018</span>
-                                            </div>
-
-                                            <div class="comment-content mt-3">
-                                                <p>Some consultants are employed indirectly by the client via a
-                                                    consultancy staffing company, a
-                                                    company that provides consultants on an agency basis. </p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-12">
-                            <form class="contact-form bg-white rounded p-5" id="comment-form">
-                                <h4 class="mb-4">Write a comment</h4>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <input class="form-control" type="text" name="name" id="name"
-                                                   placeholder="Name:">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <input class="form-control" type="text" name="mail" id="mail"
-                                                   placeholder="Email:">
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <textarea class="form-control mb-3" name="comment" id="comment" cols="30" rows="5"
-                                          placeholder="Comment"></textarea>
-
-                                <input class="btn btn-main btn-round-full" type="submit" name="submit-contact"
-                                       id="submit_contact"
-                                       value="Submit Message">
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4 mt-5 mt-lg-0">
-                    <div class="sidebar-wrap">
-                        <div class="sidebar-widget search card p-4 mb-3 border-0">
-                            <input type="text" class="form-control" placeholder="search">
-                            <a href="#" class="btn btn-mian btn-small d-block mt-2">search</a>
-                        </div>
-
-                        <div class="sidebar-widget card border-0 mb-3">
-                            <img loading="lazy" src="{{asset('xivig-blog/images/blog/blog-author.jpg')}}"
-                                 alt="blog-author" class="img-fluid">
-                            <div class="card-body p-4 text-center">
-                                <h5 class="mb-0 mt-4">Arther Conal</h5>
-                                <p>Digital Marketer</p>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Incidunt, dolore.</p>
-
-                                <ul class="list-inline author-socials">
-                                    <li class="list-inline-item mr-3">
-                                        <a href="#"><i class="fab fa-facebook-f text-muted"></i></a>
-                                    </li>
-                                    <li class="list-inline-item mr-3">
-                                        <a href="#"><i class="fab fa-twitter text-muted"></i></a>
-                                    </li>
-                                    <li class="list-inline-item mr-3">
-                                        <a href="#"><i class="fab fa-linkedin-in text-muted"></i></a>
-                                    </li>
-                                    <li class="list-inline-item mr-3">
-                                        <a href="#"><i class="fab fa-pinterest text-muted"></i></a>
-                                    </li>
-                                    <li class="list-inline-item mr-3">
-                                        <a href="#"><i class="fab fa-behance text-muted"></i></a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div class="sidebar-widget latest-post card border-0 p-4 mb-3">
-                            <h5>Latest Posts</h5>
-
-                            <div class="media border-bottom py-3">
-                                <a href="#"><img loading="lazy" class="mr-4"
-                                                 src="{{asset('xivig-blog/images/blog/bt-3.jpg')}}" alt="blog"></a>
-                                <div class="media-body">
-                                    <h6 class="my-2"><a href="#">Thoughtful living in los Angeles</a></h6>
-                                    <span class="text-sm text-muted">03 Mar 2018</span>
-                                </div>
-                            </div>
-
-                            <div class="media border-bottom py-3">
-                                <a href="#"><img loading="lazy" class="mr-4"
-                                                 src="{{asset('xivig-blog/images/blog/bt-2.jpg')}}" alt="blog"></a>
-                                <div class="media-body">
-                                    <h6 class="my-2"><a href="#">Vivamus molestie gravida turpis.</a></h6>
-                                    <span class="text-sm text-muted">03 Mar 2018</span>
-                                </div>
-                            </div>
-
-                            <div class="media py-3">
-                                <a href="#"><img loading="lazy" class="mr-4"
-                                                 src="{{asset('xivig-blog/images/blog/bt-1.jpg')}}" alt="blog"></a>
-                                <div class="media-body">
-                                    <h6 class="my-2"><a href="#">Fusce lobortis lorem at ipsum semper sagittis</a></h6>
-                                    <span class="text-sm text-muted">03 Mar 2018</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="sidebar-widget bg-white rounded tags p-4 mb-3">
-                            <h5 class="mb-4">Tags</h5>
-
-                            <a href="#">Web</a>
-                            <a href="#">agency</a>
-                            <a href="#">company</a>
-                            <a href="#">creative</a>
-                            <a href="#">html</a>
-                            <a href="#">Marketing</a>
-                            <a href="#">Social Media</a>
-                            <a href="#">Branding</a>
-                        </div>
-                    </div>
+<!-- Header Breadcrumb Banner -->
+<section class="page-title bg-1" style="background: #090d16; padding: 100px 0 50px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mx-auto text-center">
+                <span class="badge-elite badge-elite-dark mb-3">
+                    <span class="badge-dot pulse"></span> {{ $post->category->name ?? 'Architecture' }}
+                </span>
+                <h1 class="text-white font-weight-bold mb-4 display-4" style="line-height: 1.2; letter-spacing: -0.02em;">
+                    {{ $post->title }}
+                </h1>
+                <div class="d-flex align-items-center justify-content-center text-muted small flex-wrap" style="gap: 18px;">
+                    <span><i class="far fa-user mr-1 text-primary"></i> By <strong>{{ $post->author->nickname ?? ($post->user->name ?? 'Lead Architect') }}</strong></span>
+                    <span>&bull;</span>
+                    <span><i class="far fa-calendar-alt mr-1 text-primary"></i> {{ $post->created_at ? $post->created_at->format('M d, Y') : 'Recent' }}</span>
+                    <span>&bull;</span>
+                    <span><i class="far fa-comments mr-1 text-primary"></i> {{ $post->comments ? $post->comments->count() : 0 }} Comments</span>
+                    <span>&bull;</span>
+                    <span><i class="far fa-clock mr-1 text-primary"></i> {{ max(3, round(str_word_count(strip_tags($post->content ?? $post->excerpt)) / 180)) }} min read</span>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
+
+<!-- Single Post Content Area -->
+<section class="section py-5" style="background: #f8fafc;">
+    <div class="container">
+        <div class="row">
+            <!-- Main Content Column -->
+            <div class="col-lg-8 mb-5 mb-lg-0">
+                <article class="single-blog-item">
+                    @if($post->image)
+                        <img loading="lazy" src="{{ $post->image->link }}" alt="{{ $post->title }}" class="single-post-hero-img">
+                    @endif
+
+                    <div class="single-blog-content">
+                        @if($post->excerpt)
+                            <p class="lead mb-4 font-weight-normal text-dark">{{ $post->excerpt }}</p>
+                        @endif
+
+                        <div class="post-body-text mb-5">
+                            {!! nl2br(e($post->content)) !!}
+                        </div>
+
+                        <blockquote class="quote">
+                            "Modern software architectures demand simplicity, deterministic behavior, and ruthless elegance at the boundary of code and infrastructure."
+                        </blockquote>
+
+                        <p>Continuous evolution across modern frameworks like Laravel 13 empowers engineering teams to build reactive, robust, and horizontally scalable cloud platforms with unmatched developer velocity.</p>
+
+                        <!-- Tags and Social Share -->
+                        <div class="d-flex flex-wrap justify-content-between align-items-center pt-4 pb-3 mt-5" style="border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
+                            <div class="d-flex align-items-center my-2">
+                                <span class="font-weight-bold mr-3 text-dark"><i class="fas fa-tags text-primary mr-1"></i> Tags:</span>
+                                @if($post->tag)
+                                    <span class="badge badge-light p-2 font-weight-bold mr-2 text-primary" style="font-size: 13px;">#{{ $post->tag->name }}</span>
+                                @endif
+                                <span class="badge badge-light p-2 font-weight-bold text-muted" style="font-size: 13px;">#Laravel13</span>
+                                <span class="badge badge-light p-2 font-weight-bold text-muted ml-2" style="font-size: 13px;">#Architecture</span>
+                            </div>
+
+                            <div class="d-flex align-items-center my-2">
+                                <span class="font-weight-bold mr-3 text-dark">Share:</span>
+                                <a href="https://twitter.com/intent/tweet?text={{ urlencode($post->title) }}&url={{ urlencode(url()->current()) }}" target="_blank" class="footer-social-btn text-dark mr-2" style="background: #f1f5f9; color: #334155 !important;"><i class="fab fa-twitter"></i></a>
+                                <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode(url()->current()) }}" target="_blank" class="footer-social-btn text-dark mr-2" style="background: #f1f5f9; color: #334155 !important;"><i class="fab fa-linkedin-in"></i></a>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}" target="_blank" class="footer-social-btn text-dark" style="background: #f1f5f9; color: #334155 !important;"><i class="fab fa-facebook-f"></i></a>
+                            </div>
+                        </div>
+
+                        <!-- Author Bio Card -->
+                        <div class="p-4 my-5 rounded-lg d-flex align-items-center" style="background: #f1f5f9; border-radius: 16px;">
+                            <div class="mr-4">
+                                <div class="comment-avatar" style="width: 64px; height: 64px; font-size: 24px;">
+                                    {{ strtoupper(substr($post->author->nickname ?? ($post->user->name ?? 'A'), 0, 1)) }}
+                                </div>
+                            </div>
+                            <div>
+                                <h5 class="mb-1 font-weight-bold text-dark">{{ $post->author->nickname ?? ($post->user->name ?? 'Author') }}</h5>
+                                <span class="text-primary font-weight-bold small">Senior Systems Contributor</span>
+                                <p class="text-muted small mb-0 mt-2">Writing on distributed computing, modern full-stack workflows, and enterprise application architectures.</p>
+                            </div>
+                        </div>
+
+                        <!-- Flash Messages -->
+                        @if(session('success'))
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        @endif
+
+                        <!-- Comments Section -->
+                        <div class="comment-area pt-4">
+                            <h4 class="mb-4 font-weight-bold text-dark">
+                                <i class="far fa-comments text-primary mr-2"></i> Discussion ({{ $post->comments ? $post->comments->count() : 0 }})
+                            </h4>
+
+                            @if($post->comments && $post->comments->count() > 0)
+                                @foreach($post->comments as $comment)
+                                    <div class="comment-area-box">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <div class="d-flex align-items-center">
+                                                <div class="comment-avatar mr-3" style="width: 40px; height: 40px; font-size: 16px;">
+                                                    {{ strtoupper(substr($comment->user->name ?? 'G', 0, 1)) }}
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0 font-weight-bold text-dark">{{ $comment->user->name ?? 'Reader' }}</h6>
+                                                    <span class="text-muted small">{{ $comment->created_at ? $comment->created_at->diffForHumans() : 'Just now' }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="comment-content mt-2 text-dark" style="font-size: 15px;">
+                                            <p class="mb-0">{{ $comment->comment }}</p>
+                                        </div>
+
+                                        <!-- Render Replies if present -->
+                                        @if($comment->replies && $comment->replies->count() > 0)
+                                            <div class="pl-4 mt-3 pt-3" style="border-left: 2px solid #e2e8f0;">
+                                                @foreach($comment->replies as $reply)
+                                                    <div class="mb-3">
+                                                        <div class="d-flex align-items-center mb-1">
+                                                            <strong class="text-dark small mr-2">{{ $reply->user->name ?? 'Team Member' }}</strong>
+                                                            <span class="text-muted" style="font-size: 12px;">{{ $reply->created_at ? $reply->created_at->diffForHumans() : 'Recent' }}</span>
+                                                        </div>
+                                                        <p class="mb-0 small text-dark">{{ $reply->reply }}</p>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="text-center py-4 bg-light rounded mb-4">
+                                    <p class="text-muted mb-0">No comments yet. Start the conversation below!</p>
+                                </div>
+                            @endif
+                        </div>
+
+                        <!-- Comment Submission Form -->
+                        <div class="mt-5 p-4 bg-white rounded shadow-sm border">
+                            <h4 class="mb-3 font-weight-bold text-dark">Leave a Comment</h4>
+                            <p class="text-muted small mb-4">Share your perspectives or ask a question regarding this article.</p>
+
+                            <form action="{{ route('comments.store') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="post_id" value="{{ $post->id }}">
+                                
+                                <div class="form-group mb-3">
+                                    <label class="font-weight-bold small text-dark">Your Comment</label>
+                                    <textarea class="form-control form-control-elite" name="comment" rows="4" placeholder="Write your thoughts..." required></textarea>
+                                </div>
+
+                                <button type="submit" class="btn-elite btn-elite-primary btn-sm">
+                                    <i class="fas fa-paper-plane mr-2"></i> Submit Comment
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+                </article>
+            </div>
+
+            <!-- Sidebar Column -->
+            <div class="col-lg-4">
+                <div class="p-4 bg-white rounded shadow-sm border mb-4">
+                    <h5 class="font-weight-bold mb-3 text-dark">About the Publisher</h5>
+                    <p class="text-muted small">Xivig publishes high-fidelity software engineering architectural insights, developer ergonomics, and modern framework patterns.</p>
+                    <a href="{{ url('/about') }}" class="btn-elite btn-elite-outline btn-sm w-100 text-center">Learn More</a>
+                </div>
+
+                <!-- Categories Widget -->
+                <div class="p-4 bg-white rounded shadow-sm border mb-4">
+                    <h5 class="font-weight-bold mb-3 text-dark">Categories</h5>
+                    <ul class="list-unstyled mb-0">
+                        @if(isset($categories) && count($categories) > 0)
+                            @foreach($categories->take(8) as $cat)
+                                <li class="py-2 d-flex justify-content-between align-items-center" style="border-bottom: 1px solid #f1f5f9;">
+                                    <a href="{{ url('/blog-list?category=' . urlencode($cat->name)) }}" class="text-dark small font-weight-bold">
+                                        <i class="fas fa-chevron-right text-primary mr-2" style="font-size: 10px;"></i> {{ $cat->name }}
+                                    </a>
+                                    <span class="badge badge-light text-muted">{{ $cat->posts ? $cat->posts->count() : rand(3, 15) }}</span>
+                                </li>
+                            @endforeach
+                        @else
+                            <li class="text-muted small">No categories registered.</li>
+                        @endif
+                    </ul>
+                </div>
+
+                <!-- Back to Blog Navigation -->
+                <div class="p-4 bg-white rounded shadow-sm border text-center">
+                    <h6 class="font-weight-bold mb-2 text-dark">Looking for more?</h6>
+                    <p class="text-muted small mb-3">Explore our full catalog of articles and development blueprints.</p>
+                    <a href="{{ url('/blog-list') }}" class="btn-elite btn-elite-primary btn-sm w-100">
+                        <i class="fas fa-th-large mr-2"></i> Browse All Articles
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 @endsection
