@@ -252,9 +252,9 @@
         </div>
 
         <!-- Custom Inquiry CTA -->
-        <div class="mt-5 p-5 bg-white rounded shadow-sm border text-center">
+        <div class="mt-5 p-5 card-elite rounded shadow-sm border text-center">
             <span class="badge-elite mb-3">Enterprise Custom Work</span>
-            <h3 class="font-weight-bold mb-3 text-dark">Need Custom Architecture or Bespoke Modules?</h3>
+            <h3 class="font-weight-bold mb-3">Need Custom Architecture or Bespoke Modules?</h3>
             <p class="text-muted lead mb-4" style="max-width: 650px; margin: 0 auto;">Our dedicated engineering team designs custom high-throughput solutions tailored to your infrastructure requirements.</p>
             <a href="{{ url('/contact') }}" class="btn-elite btn-elite-primary">
                 <i class="fas fa-comments mr-2"></i> Discuss Your Project

@@ -92,7 +92,7 @@
             </div>
         @else
             <div class="text-center py-5">
-                <div class="p-5 bg-white rounded shadow-sm d-inline-block" style="max-width: 500px;">
+                <div class="p-5 card-elite rounded shadow-sm d-inline-block border" style="max-width: 500px;">
                     <i class="fas fa-search fa-3x text-muted mb-3"></i>
                     <h4 class="font-weight-bold">No Articles Found</h4>
                     <p class="text-muted">We couldn't find any articles matching your query. Try resetting your search or filter.</p>

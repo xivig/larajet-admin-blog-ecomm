@@ -1305,9 +1305,11 @@ textarea.form-control-elite {
 }
 
 .page-title {
-  background-image: none !important;
+  background: #090d16 !important;
+  background-image: var(--gradient-mesh) !important;
   position: relative !important;
   overflow: hidden !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 .page-title .container {

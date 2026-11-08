@@ -152,7 +152,7 @@
                         </div>
 
                         <!-- Comment Submission Form -->
-                        <div class="mt-5 p-4 bg-white rounded shadow-sm border">
+                        <div class="mt-5 p-4 card-elite rounded shadow-sm border">
                             <h4 class="mb-3 font-weight-bold text-body">Leave a Comment</h4>
                             <p class="text-muted small mb-4">Share your perspectives or ask a question regarding this article.</p>
 

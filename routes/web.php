@@ -37,6 +37,7 @@ Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog-list', [BlogController::class, 'index'])->name('blog.list');
 Route::get('/blog-post', static fn() => redirect()->route('blog.list'));
 Route::get('/blog/{slug}', [BlogController::class, 'singlePost'])->name('single-post');
+Route::get('/single-post/{slug}', [BlogController::class, 'singlePost']);
 
 // Comments & replies
 Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');

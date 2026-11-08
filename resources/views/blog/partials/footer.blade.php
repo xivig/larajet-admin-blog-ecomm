@@ -1,8 +1,8 @@
-<footer class="footer section">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-3 col-md-6 col-sm-6 mb-4 mb-lg-0">
-                <div class="footer-widget">
+<footer class="footer section bg-transparent border-0 shadow-none">
+    <div class="container bg-transparent border-0 shadow-none">
+        <div class="row bg-transparent border-0 shadow-none">
+            <div class="col-lg-3 col-md-6 col-sm-6 mb-4 mb-lg-0 bg-transparent border-0 shadow-none">
+                <div class="footer-widget bg-transparent border-0 shadow-none p-0">
                     <h4 class="footer-title mb-4">Platform</h4>
                     <ul class="list-unstyled footer-menu lh-35">
                         <li><a href="{{ url('/') }}">Home</a></li>
@@ -13,8 +13,8 @@
                     </ul>
                 </div>
             </div>
-            <div class="col-lg-2 col-md-6 col-sm-6 mb-4 mb-lg-0">
-                <div class="footer-widget">
+            <div class="col-lg-2 col-md-6 col-sm-6 mb-4 mb-lg-0 bg-transparent border-0 shadow-none">
+                <div class="footer-widget bg-transparent border-0 shadow-none p-0">
                     <h4 class="footer-title mb-4">Ecosystem</h4>
                     <ul class="list-unstyled footer-menu lh-35">
                         <li><a href="{{ url('/blog-list') }}">Blog Magazine</a></li>
@@ -25,12 +25,12 @@
                     </ul>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6 col-sm-6 mb-4 mb-lg-0">
-                <div class="footer-widget">
+            <div class="col-lg-4 col-md-6 col-sm-6 mb-4 mb-lg-0 bg-transparent border-0 shadow-none">
+                <div class="footer-widget bg-transparent border-0 shadow-none p-0">
                     <h4 class="footer-title mb-4">Stay Ahead</h4>
                     <p class="text-muted">Subscribe for architecture insights, software engineering masterclasses, and releases.</p>
 
-                    <form action="#" class="sub-form mt-3" onsubmit="event.preventDefault(); alert('Thank you for subscribing to Xivig insights!');">
+                    <form action="#" class="sub-form mt-3 bg-transparent border-0 shadow-none" onsubmit="event.preventDefault(); alert('Thank you for subscribing to Xivig insights!');">
                         <div class="input-group">
                             <input type="email" class="form-control form-control-elite" placeholder="Enter your email" required>
                             <div class="input-group-append ml-2">
@@ -41,8 +41,8 @@
                 </div>
             </div>
 
-            <div class="col-lg-3 col-sm-6">
-                <div class="footer-widget">
+            <div class="col-lg-3 col-sm-6 bg-transparent border-0 shadow-none">
+                <div class="footer-widget bg-transparent border-0 shadow-none p-0">
                     <div class="logo mb-3">
                         <span class="text-gradient font-weight-bold h3">Xivig</span>
                     </div>
