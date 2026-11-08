@@ -3,8 +3,9 @@
 @section('title', 'Image Cropper Studio - Xivig Admin')
 
 @section('content')
-<!-- Cropper.js Styles -->
-<link rel="stylesheet" href="{{ asset('admin-dist/vendor/cropperjs/cropper.min.css') }}">
+<!-- Cropper.js CSS (Local + CDN Fallback) -->
+<link rel="stylesheet" href="{{ asset('admin-dist/vendor/cropperjs/cropper.min.css') }}?v={{ file_exists(public_path('admin-dist/vendor/cropperjs/cropper.min.css')) ? filemtime(public_path('admin-dist/vendor/cropperjs/cropper.min.css')) : time() }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 
 <div class="page-image-cropper">
     <!-- Header Hero Section -->
@@ -22,22 +23,22 @@
         </div>
         <div class="d-flex align-items-center gap-2">
             <label class="btn btn-outline-primary btn-sm rounded-pill px-3.5 mb-0 cursor-pointer" for="inputImage">
-                <i class="bi bi-upload me-1.5"></i> Upload from PC
+                <i class="bi bi-upload me-1.5"></i> Upload Image
             </label>
             <input type="file" class="d-none" id="inputImage" name="file" accept="image/*">
 
             <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#mediaPickerModal">
-                <i class="bi bi-images me-1.5"></i> Choose from Library
+                <i class="bi bi-images me-1.5"></i> Select from Library
             </button>
 
             <button type="button" class="btn btn-primary btn-sm rounded-pill px-4 shadow-sm" data-method="getCroppedCanvas">
-                <i class="bi bi-scissors me-1.5"></i> Render &amp; Export
+                <i class="bi bi-crop me-1.5"></i> Crop &amp; Preview
             </button>
         </div>
     </div>
 
     <!-- Active Media Notice -->
-    @if($selectedMedia)
+    @if(!empty($selectedMedia))
         <div class="alert alert-info alert-dismissible fade show d-flex align-items-center justify-content-between py-2 px-3 mb-4" role="alert">
             <div class="d-flex align-items-center gap-2">
                 <i class="bi bi-info-circle-fill"></i>
@@ -52,9 +53,9 @@
         <div class="col-xl-8 col-lg-7">
             <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4">
                 <!-- Image Viewport Canvas -->
-                <div class="rounded-3 overflow-hidden border bg-light-subtle mb-3 position-relative d-flex align-items-center justify-content-center" 
-                     style="min-height: 440px; max-height: 540px; background-image: radial-gradient(rgba(0,0,0,0.12) 1px, transparent 1px); background-size: 20px 20px;">
-                    <img id="image" src="{{ $defaultImageUrl }}" alt="Crop Target" class="img-fluid" style="max-height: 520px; max-width: 100%;">
+                <div class="img-container rounded-3 overflow-hidden border bg-light-subtle mb-3 position-relative d-flex align-items-center justify-content-center" 
+                     style="min-height: 420px; max-height: 520px; background-image: radial-gradient(rgba(0,0,0,0.12) 1px, transparent 1px); background-size: 20px 20px;">
+                    <img id="image" src="{{ $defaultImageUrl ?? asset('admin-dist/img/cropper-sample.jpg') }}" alt="Crop Target" style="max-width: 100%; display: block;">
                 </div>
 
                 <!-- Cropper Toolbar Controls -->
@@ -127,7 +128,7 @@
                     <a href="{{ route('admin.media.index') }}" class="small text-decoration-none">Open Media Library &rarr;</a>
                 </div>
                 <div class="d-flex gap-2 overflow-auto py-1">
-                    @foreach($recentAssets as $rec)
+                    @foreach($recentAssets ?? [] as $rec)
                         <div class="flex-shrink-0 cursor-pointer rounded border p-1 bg-light-subtle hover-shadow" 
                              style="width: 80px; height: 60px; cursor: pointer;"
                              onclick="switchCropperImage('{{ $rec->url }}', '{{ addslashes($rec->name) }}')"
@@ -147,14 +148,14 @@
                 <div class="d-flex flex-column align-items-center gap-3">
                     <!-- 16:9 Banner Preview -->
                     <div>
-                        <div class="img-preview rounded-3 overflow-hidden border shadow-sm mx-auto" style="width: 240px; height: 135px;"></div>
-                        <span class="text-muted small d-block mt-1">16:9 Blog Banner Preview</span>
+                        <div class="img-preview rounded-3 overflow-hidden border shadow-sm mx-auto" style="width: 220px; height: 124px;"></div>
+                        <span class="text-muted small d-block mt-1">16:9 Banner Preview</span>
                     </div>
 
                     <div class="d-flex gap-3 align-items-center justify-content-center">
                         <!-- Square Card Preview -->
                         <div>
-                            <div class="img-preview rounded-3 overflow-hidden border shadow-sm" style="width: 90px; height: 90px;"></div>
+                            <div class="img-preview rounded-3 overflow-hidden border shadow-sm" style="width: 80px; height: 80px;"></div>
                             <span class="text-muted small d-block mt-1">1:1 Square</span>
                         </div>
 
@@ -251,11 +252,11 @@
 <!-- Include Media Picker Modal Component -->
 @include('admin.partials.media-picker-modal')
 
-<!-- Cropper.js Script -->
-<script src="{{ asset('admin-dist/vendor/cropperjs/cropper.min.js') }}"></script>
+<!-- Cropper.js Script (Local with cache busting + CDN Fallback) -->
+<script src="{{ asset('admin-dist/vendor/cropperjs/cropper.min.js') }}?v={{ file_exists(public_path('admin-dist/vendor/cropperjs/cropper.min.js')) ? filemtime(public_path('admin-dist/vendor/cropperjs/cropper.min.js')) : time() }}"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+(function () {
     const image = document.getElementById('image');
     if (!image) return;
 
@@ -273,6 +274,40 @@ document.addEventListener('DOMContentLoaded', function () {
     const saveLibraryStatus = document.getElementById('saveLibraryStatus');
 
     let cropper = null;
+
+    // Self-healing Cropper loader matching xivig.github.io
+    function ensureCropper(callback, retries = 25) {
+        if (typeof window.Cropper === 'function') {
+            callback(window.Cropper);
+            return;
+        }
+
+        if (retries > 0) {
+            setTimeout(function() { ensureCropper(callback, retries - 1); }, 100);
+            return;
+        }
+
+        console.warn("Local Cropper.js not detected, attempting dynamic CDN fallback...");
+        if (!document.getElementById('cropper-cdn-fallback')) {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css';
+            document.head.appendChild(link);
+
+            const script = document.createElement('script');
+            script.id = 'cropper-cdn-fallback';
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js';
+            script.onload = function() {
+                if (typeof window.Cropper === 'function') {
+                    callback(window.Cropper);
+                }
+            };
+            script.onerror = function() {
+                console.error("Cropper.js library could not be loaded from local or CDN.");
+            };
+            document.head.appendChild(script);
+        }
+    }
 
     const cropperOptions = {
         aspectRatio: 16 / 9,
@@ -296,211 +331,215 @@ document.addEventListener('DOMContentLoaded', function () {
         },
     };
 
-    function initCropper() {
-        if (cropper) {
-            cropper.destroy();
-        }
-        cropper = new Cropper(image, cropperOptions);
-    }
-
-    if (image.complete && image.naturalWidth > 0) {
-        initCropper();
-    } else {
-        image.addEventListener('load', initCropper, { once: true });
-    }
-
-    // Switch image helper
-    window.switchCropperImage = function(url, title = 'Selected Image') {
-        if (!url || !cropper) return;
-        cropper.replace(url);
-    };
-
-    // Override picker modal selection to load image directly into cropper
-    window.selectPickerAsset = function(id, url, name) {
-        switchCropperImage(url, name);
-        const modalEl = document.getElementById('mediaPickerModal');
-        if (modalEl) {
-            const modal = bootstrap.Modal.getInstance(modalEl);
-            if (modal) modal.hide();
-        }
-    };
-
-    // Global action dispatcher for all [data-method] buttons
-    document.addEventListener('click', function(e) {
-        const btn = e.target.closest('[data-method]');
-        if (!btn || !cropper) return;
-
-        const method = btn.getAttribute('data-method');
-        let option = btn.getAttribute('data-option');
-        let secondOption = btn.getAttribute('data-second-option');
-
-        if (option && !isNaN(option)) {
-            option = parseFloat(option);
-        } else if (option === 'NaN') {
-            option = NaN;
+    ensureCropper(function (CropperClass) {
+        function startCropper() {
+            if (cropper) {
+                cropper.destroy();
+            }
+            cropper = new CropperClass(image, cropperOptions);
+            image.__cropper = cropper;
+            image.setAttribute('data-cropper-initialized', 'true');
         }
 
-        if (secondOption && !isNaN(secondOption)) {
-            secondOption = parseFloat(secondOption);
+        if (image.complete && image.naturalWidth > 0) {
+            startCropper();
+        } else {
+            image.addEventListener('load', startCropper, { once: true });
         }
 
-        switch (method) {
-            case 'getCroppedCanvas':
-                const canvas = cropper.getCroppedCanvas({
-                    imageSmoothingEnabled: true,
-                    imageSmoothingQuality: 'high',
-                });
-                if (canvas) {
-                    canvas.style.maxWidth = '100%';
-                    canvas.style.height = 'auto';
-                    canvas.style.borderRadius = '8px';
+        // Switch image helper
+        window.switchCropperImage = function(url, title = 'Selected Image') {
+            if (!url || !cropper) return;
+            cropper.replace(url);
+        };
 
-                    // Update side widget
-                    if (resultContainer) {
-                        resultContainer.innerHTML = '';
-                        resultContainer.appendChild(canvas);
+        // Override picker modal selection to load image directly into cropper
+        window.selectPickerAsset = function(id, url, name) {
+            switchCropperImage(url, name);
+            const modalEl = document.getElementById('mediaPickerModal');
+            if (modalEl) {
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+            }
+        };
+
+        // Global action dispatcher for all [data-method] buttons
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('[data-method]');
+            if (!btn || !cropper) return;
+
+            const method = btn.getAttribute('data-method');
+            let option = btn.getAttribute('data-option');
+            let secondOption = btn.getAttribute('data-second-option');
+
+            if (option && !isNaN(option)) {
+                option = parseFloat(option);
+            } else if (option === 'NaN') {
+                option = NaN;
+            }
+
+            if (secondOption && !isNaN(secondOption)) {
+                secondOption = parseFloat(secondOption);
+            }
+
+            switch (method) {
+                case 'getCroppedCanvas':
+                    const canvas = cropper.getCroppedCanvas({
+                        imageSmoothingEnabled: true,
+                        imageSmoothingQuality: 'high',
+                    });
+                    if (canvas) {
+                        canvas.style.maxWidth = '100%';
+                        canvas.style.height = 'auto';
+                        canvas.style.borderRadius = '8px';
+
+                        // Update side widget
+                        if (resultContainer) {
+                            resultContainer.innerHTML = '';
+                            resultContainer.appendChild(canvas);
+                        }
+
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+
+                        if (downloadBtn) {
+                            downloadBtn.href = dataUrl;
+                        }
+
+                        // Populate and open modal
+                        if (modalResultContainer) {
+                            modalResultContainer.innerHTML = '';
+                            const modalCanvas = document.createElement('img');
+                            modalCanvas.src = dataUrl;
+                            modalCanvas.className = 'img-fluid rounded shadow-sm';
+                            modalCanvas.style.maxHeight = '420px';
+                            modalResultContainer.appendChild(modalCanvas);
+                        }
+
+                        if (modalDownloadBtn) {
+                            modalDownloadBtn.href = dataUrl;
+                        }
+
+                        const modalEl = document.getElementById('getCroppedCanvasModal');
+                        if (modalEl && window.bootstrap && window.bootstrap.Modal) {
+                            const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+                            modal.show();
+                        }
                     }
+                    break;
 
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+                case 'scaleX':
+                    cropper.scaleX(option || -1);
+                    btn.setAttribute('data-option', -(option || 1));
+                    break;
 
-                    if (downloadBtn) {
-                        downloadBtn.href = dataUrl;
+                case 'scaleY':
+                    cropper.scaleY(option || -1);
+                    btn.setAttribute('data-option', -(option || 1));
+                    break;
+
+                case 'move':
+                    cropper.move(option || 0, secondOption || 0);
+                    break;
+
+                case 'setAspectRatio':
+                    cropper.setAspectRatio(option);
+                    const ratioGroup = btn.closest('#aspectRatioGroup, .cropper-toolbar-group');
+                    if (ratioGroup) {
+                        ratioGroup.querySelectorAll('[data-method="setAspectRatio"]').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
                     }
+                    break;
 
-                    // Populate and open modal
-                    if (modalResultContainer) {
-                        modalResultContainer.innerHTML = '';
-                        const modalCanvas = document.createElement('img');
-                        modalCanvas.src = dataUrl;
-                        modalCanvas.className = 'img-fluid rounded shadow-sm';
-                        modalCanvas.style.maxHeight = '420px';
-                        modalResultContainer.appendChild(modalCanvas);
+                default:
+                    if (typeof cropper[method] === 'function') {
+                        cropper[method](option);
                     }
+            }
+        });
 
-                    if (modalDownloadBtn) {
-                        modalDownloadBtn.href = dataUrl;
-                    }
-
-                    const modalEl = document.getElementById('getCroppedCanvasModal');
-                    if (modalEl && window.bootstrap && window.bootstrap.Modal) {
-                        const modal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
-                        modal.show();
+        // Local file upload input handler
+        const inputImage = document.getElementById('inputImage');
+        if (inputImage) {
+            const URL = window.URL || window.webkitURL;
+            inputImage.addEventListener('change', function () {
+                const files = this.files;
+                if (files && files.length && cropper) {
+                    const file = files[0];
+                    if (/^image\/\w+$/.test(file.type)) {
+                        const uploadedImageURL = URL.createObjectURL(file);
+                        cropper.replace(uploadedImageURL);
+                        inputImage.value = null;
+                    } else {
+                        alert('Please select a valid image file.');
                     }
                 }
-                break;
+            });
+        }
 
-            case 'scaleX':
-                cropper.scaleX(option || -1);
-                btn.setAttribute('data-option', -(option || 1));
-                break;
+        // Save directly to Media Library handler
+        function saveCroppedToMediaLibrary(triggerBtn) {
+            if (!cropper) return;
+            const canvas = cropper.getCroppedCanvas({
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high',
+            });
+            if (!canvas) {
+                alert('Failed to generate cropped canvas.');
+                return;
+            }
 
-            case 'scaleY':
-                cropper.scaleY(option || -1);
-                btn.setAttribute('data-option', -(option || 1));
-                break;
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+            const originalText = triggerBtn.innerHTML;
+            triggerBtn.disabled = true;
+            triggerBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saving...';
 
-            case 'move':
-                cropper.move(option || 0, secondOption || 0);
-                break;
-
-            case 'setAspectRatio':
-                cropper.setAspectRatio(option);
-                const ratioGroup = btn.closest('#aspectRatioGroup, .cropper-toolbar-group');
-                if (ratioGroup) {
-                    ratioGroup.querySelectorAll('[data-method="setAspectRatio"]').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
+            fetch('{{ route("admin.image-cropper.save") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    image_data: dataUrl,
+                    name: 'Cropped Asset ' + new Date().toISOString().slice(0,10),
+                    folder: 'cropped'
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                triggerBtn.disabled = false;
+                triggerBtn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Saved!';
+                if (saveLibraryStatus) {
+                    saveLibraryStatus.style.display = 'block';
+                    saveLibraryStatus.className = 'small mt-2 text-success fw-semibold';
+                    saveLibraryStatus.innerHTML = '<i class="bi bi-check-circle me-1"></i> ' + data.message + ' <a href="{{ route("admin.media.index") }}" class="text-decoration-underline ms-1">View in Library</a>';
                 }
-                break;
+                alert('Asset successfully saved into Media Library!');
+                setTimeout(() => {
+                    triggerBtn.innerHTML = originalText;
+                }, 3000);
+            })
+            .catch(err => {
+                triggerBtn.disabled = false;
+                triggerBtn.innerHTML = originalText;
+                alert('Failed to save cropped image to Media Library.');
+            });
+        }
 
-            default:
-                if (typeof cropper[method] === 'function') {
-                    cropper[method](option);
-                }
+        if (btnSaveToLibrary) {
+            btnSaveToLibrary.addEventListener('click', function() {
+                saveCroppedToMediaLibrary(this);
+            });
+        }
+
+        if (btnModalSaveToLibrary) {
+            btnModalSaveToLibrary.addEventListener('click', function() {
+                saveCroppedToMediaLibrary(this);
+            });
         }
     });
-
-    // Local file upload input handler
-    const inputImage = document.getElementById('inputImage');
-    if (inputImage) {
-        const URL = window.URL || window.webkitURL;
-        inputImage.addEventListener('change', function () {
-            const files = this.files;
-            if (files && files.length && cropper) {
-                const file = files[0];
-                if (/^image\/\w+$/.test(file.type)) {
-                    const uploadedImageURL = URL.createObjectURL(file);
-                    cropper.replace(uploadedImageURL);
-                    inputImage.value = null;
-                } else {
-                    alert('Please select a valid image file.');
-                }
-            }
-        });
-    }
-
-    // Save directly to Media Library handler
-    function saveCroppedToMediaLibrary(triggerBtn) {
-        if (!cropper) return;
-        const canvas = cropper.getCroppedCanvas({
-            imageSmoothingEnabled: true,
-            imageSmoothingQuality: 'high',
-        });
-        if (!canvas) {
-            alert('Failed to generate cropped canvas.');
-            return;
-        }
-
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-        const originalText = triggerBtn.innerHTML;
-        triggerBtn.disabled = true;
-        triggerBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saving...';
-
-        fetch('{{ route("admin.image-cropper.save") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({
-                image_data: dataUrl,
-                name: 'Cropped Asset ' + new Date().toISOString().slice(0,10),
-                folder: 'cropped'
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            triggerBtn.disabled = false;
-            triggerBtn.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Saved!';
-            if (saveLibraryStatus) {
-                saveLibraryStatus.style.display = 'block';
-                saveLibraryStatus.className = 'small mt-2 text-success fw-semibold';
-                saveLibraryStatus.innerHTML = '<i class="bi bi-check-circle me-1"></i> ' + data.message + ' <a href="{{ route("admin.media.index") }}" class="text-decoration-underline ms-1">View in Library</a>';
-            }
-            alert('Asset successfully saved into Media Library!');
-            setTimeout(() => {
-                triggerBtn.innerHTML = originalText;
-            }, 3000);
-        })
-        .catch(err => {
-            triggerBtn.disabled = false;
-            triggerBtn.innerHTML = originalText;
-            alert('Failed to save cropped image to Media Library.');
-        });
-    }
-
-    if (btnSaveToLibrary) {
-        btnSaveToLibrary.addEventListener('click', function() {
-            saveCroppedToMediaLibrary(this);
-        });
-    }
-
-    if (btnModalSaveToLibrary) {
-        btnModalSaveToLibrary.addEventListener('click', function() {
-            saveCroppedToMediaLibrary(this);
-        });
-    }
-});
+})();
 </script>
 
 <style>
@@ -559,6 +598,14 @@ document.addEventListener('DOMContentLoaded', function () {
 [data-bs-theme="dark"] .cropper-toolbar-group .btn.active {
     background: var(--bs-primary) !important;
     color: #ffffff !important;
+}
+
+.img-container {
+    width: 100%;
+}
+.img-container img {
+    max-width: 100% !important;
+    display: block !important;
 }
 
 .img-preview {
