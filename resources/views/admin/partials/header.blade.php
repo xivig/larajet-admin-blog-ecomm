@@ -96,7 +96,7 @@
                   default => 'bi-bell text-secondary',
                 };
               @endphp
-              <a href="{{ $notif->link ?: route('admin.notifications.index') }}" class="dropdown-item d-flex gap-2 p-2.5 border-bottom text-wrap {{ !$notif->is_read ? 'bg-light-subtle' : '' }}">
+              <a href="{{ route('admin.notifications.read', $notif->id) }}" class="dropdown-item d-flex gap-2 p-2.5 border-bottom text-wrap {{ !$notif->is_read ? 'bg-light-subtle' : '' }}">
                 <div class="flex-shrink-0 mt-1">
                   <i class="bi {{ $iconClass }} fs-5"></i>
                 </div>

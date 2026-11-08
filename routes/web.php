@@ -118,9 +118,9 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
     // Notifications Center
     Route::get('notifications', [AdminNotificationController::class, 'index'])->name('admin.notifications.index');
-    Route::post('notifications/{notification}/read', [AdminNotificationController::class, 'markAsRead'])->name('admin.notifications.read');
-    Route::post('notifications/mark-all-read', [AdminNotificationController::class, 'markAllAsRead'])->name('admin.notifications.mark-all-read');
-    Route::post('notifications/clear-read', [AdminNotificationController::class, 'clearRead'])->name('admin.notifications.clear-read');
+    Route::match(['get', 'post'], 'notifications/{notification}/read', [AdminNotificationController::class, 'markAsRead'])->name('admin.notifications.read');
+    Route::match(['get', 'post'], 'notifications/mark-all-read', [AdminNotificationController::class, 'markAllAsRead'])->name('admin.notifications.mark-all-read');
+    Route::match(['get', 'post'], 'notifications/clear-read', [AdminNotificationController::class, 'clearRead'])->name('admin.notifications.clear-read');
     Route::delete('notifications/{notification}', [AdminNotificationController::class, 'destroy'])->name('admin.notifications.destroy');
 
     // Chat App
