@@ -331,6 +331,7 @@
 
                 <div class="mb-4">
                   <div class="form-check form-switch">
+                    <input type="hidden" name="is_author" value="0">
                     <input class="form-check-input" type="checkbox" name="is_author" id="author_switch_{{ $user->id }}" value="1" {{ $user->author ? 'checked' : '' }}>
                     <label class="form-check-label fw-semibold" for="author_switch_{{ $user->id }}">
                       Editorial Author Contributor (Can compose and publish blog posts)

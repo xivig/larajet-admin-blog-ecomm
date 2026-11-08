@@ -273,48 +273,53 @@
 
     /* Normalize button groups and handle any form wrappers seamlessly */
     .btn-group {
-      display: inline-flex;
+      display: inline-flex !important;
       vertical-align: middle;
     }
-    .btn-group > .btn {
+    .btn-group > .btn,
+    .btn-group > form > .btn {
       position: relative;
       flex: 1 1 auto;
     }
-    .btn-group > .btn:not(:first-child):not(:last-child) {
+    .btn-group > .btn:not(:first-child),
+    .btn-group > form:not(:first-child) > .btn,
+    .btn-group > form + .btn {
+      margin-left: -1px !important;
+    }
+    .btn-group > .btn:hover,
+    .btn-group > .btn:focus,
+    .btn-group > .btn:active,
+    .btn-group > form > .btn:hover,
+    .btn-group > form > .btn:focus,
+    .btn-group > form > .btn:active {
+      z-index: 2;
+    }
+    .btn-group > .btn:not(:first-child):not(:last-child),
+    .btn-group > form:not(:first-child):not(:last-child) > .btn {
       border-radius: 0 !important;
     }
-    .btn-group > .btn:first-child {
+    .btn-group > .btn:first-child,
+    .btn-group > form:first-child > .btn {
       border-top-left-radius: var(--bs-border-radius-sm, 0.25rem) !important;
       border-bottom-left-radius: var(--bs-border-radius-sm, 0.25rem) !important;
       border-top-right-radius: 0 !important;
       border-bottom-right-radius: 0 !important;
+      margin-left: 0 !important;
     }
-    .btn-group > .btn:last-child {
+    .btn-group > .btn:last-child,
+    .btn-group > form:last-child > .btn {
       border-top-right-radius: var(--bs-border-radius-sm, 0.25rem) !important;
       border-bottom-right-radius: var(--bs-border-radius-sm, 0.25rem) !important;
       border-top-left-radius: 0 !important;
       border-bottom-left-radius: 0 !important;
+    }
+    .btn-group > .btn:first-child:last-child,
+    .btn-group > form:first-child:last-child > .btn {
+      border-radius: var(--bs-border-radius-sm, 0.25rem) !important;
     }
     .btn-group > form.d-inline {
       display: inline-flex !important;
       margin: 0 !important;
-    }
-    .btn-group > form.d-inline > .btn {
-      border-radius: 0 !important;
-      margin-left: -1px;
-    }
-    .btn-group > form.d-inline:first-child > .btn {
-      margin-left: 0;
-      border-top-left-radius: var(--bs-border-radius-sm, 0.25rem) !important;
-      border-bottom-left-radius: var(--bs-border-radius-sm, 0.25rem) !important;
-      border-top-right-radius: 0 !important;
-      border-bottom-right-radius: 0 !important;
-    }
-    .btn-group > form.d-inline:last-child > .btn {
-      border-top-right-radius: var(--bs-border-radius-sm, 0.25rem) !important;
-      border-bottom-right-radius: var(--bs-border-radius-sm, 0.25rem) !important;
-      border-top-left-radius: 0 !important;
-      border-bottom-left-radius: 0 !important;
     }
   </style>
 

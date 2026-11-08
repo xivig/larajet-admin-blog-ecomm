@@ -83,7 +83,8 @@
 
         <div class="mb-4">
           <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" name="is_author" id="isAuthor" value="1" {{ $user->author ? 'checked' : '' }}>
+            <input type="hidden" name="is_author" value="0">
+            <input class="form-check-input" type="checkbox" name="is_author" id="isAuthor" value="1" {{ old('is_author', $user->author ? '1' : '0') == '1' ? 'checked' : '' }}>
             <label class="form-check-label fw-semibold" for="isAuthor">
               Editorial Author Contributor (Can compose and publish blog posts)
             </label>

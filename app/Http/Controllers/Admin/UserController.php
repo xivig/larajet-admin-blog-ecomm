@@ -161,17 +161,45 @@ class UserController extends Controller
         $user->roles()->sync($request->input('roles', []));
 
         // Manage Author profile
-        if ($request->has('is_author')) {
+        $isAuthor = $request->boolean('is_author');
+        if ($isAuthor) {
             if (!$user->author) {
-                Author::create([
-                    'user_id' => $user->id,
-                    'nickname' => $user->name,
-                ]);
+                // Reconnect previously detached author if available, or create new
+                $existingAuthor = Author::where('former_user_id', $user->id)->whereNull('user_id')->first();
+                if (!$existingAuthor) {
+                    $prevAuthorId = Post::withTrashed()->where('user_id', $user->id)->value('author_id');
+                    if ($prevAuthorId) {
+                        $existingAuthor = Author::where('id', $prevAuthorId)->whereNull('user_id')->first();
+                    }
+                }
+                if (!$existingAuthor) {
+                    $existingAuthor = Author::where('nickname', $user->name)->whereNull('user_id')->first();
+                }
+
+                if ($existingAuthor) {
+                    $existingAuthor->update([
+                        'user_id' => $user->id,
+                        'former_user_id' => null,
+                    ]);
+                } else {
+                    Author::create([
+                        'user_id' => $user->id,
+                        'nickname' => $user->name,
+                    ]);
+                }
             }
         } else {
-            // Only detach author if user has no attached posts
-            if ($user->author && Post::withTrashed()->where('author_id', $user->author->id)->count() === 0) {
-                $user->author()->delete();
+            if ($user->author) {
+                $hasPosts = Post::withTrashed()->where('author_id', $user->author->id)->exists();
+                if ($hasPosts) {
+                    // Detach author from user to revoke author status, while preserving historical post attribution
+                    $user->author->update([
+                        'former_user_id' => $user->id,
+                        'user_id' => null,
+                    ]);
+                } else {
+                    $user->author->delete();
+                }
             }
         }
 
@@ -194,16 +222,43 @@ class UserController extends Controller
 
             $user->roles()->sync($request->input('roles', []));
 
-            if ($request->has('is_author')) {
+            $isAuthor = $request->boolean('is_author');
+            if ($isAuthor) {
                 if (!$user->author) {
-                    Author::create([
-                        'user_id' => $user->id,
-                        'nickname' => $user->name,
-                    ]);
+                    $existingAuthor = Author::where('former_user_id', $user->id)->whereNull('user_id')->first();
+                    if (!$existingAuthor) {
+                        $prevAuthorId = Post::withTrashed()->where('user_id', $user->id)->value('author_id');
+                        if ($prevAuthorId) {
+                            $existingAuthor = Author::where('id', $prevAuthorId)->whereNull('user_id')->first();
+                        }
+                    }
+                    if (!$existingAuthor) {
+                        $existingAuthor = Author::where('nickname', $user->name)->whereNull('user_id')->first();
+                    }
+
+                    if ($existingAuthor) {
+                        $existingAuthor->update([
+                            'user_id' => $user->id,
+                            'former_user_id' => null,
+                        ]);
+                    } else {
+                        Author::create([
+                            'user_id' => $user->id,
+                            'nickname' => $user->name,
+                        ]);
+                    }
                 }
             } else {
-                if ($user->author && Post::withTrashed()->where('author_id', $user->author->id)->count() === 0) {
-                    $user->author()->delete();
+                if ($user->author) {
+                    $hasPosts = Post::withTrashed()->where('author_id', $user->author->id)->exists();
+                    if ($hasPosts) {
+                        $user->author->update([
+                            'former_user_id' => $user->id,
+                            'user_id' => null,
+                        ]);
+                    } else {
+                        $user->author->delete();
+                    }
                 }
             }
 
