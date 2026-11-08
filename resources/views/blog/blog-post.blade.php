@@ -198,16 +198,18 @@
                         <h5 class="sidebar-widget-title"><i class="bi bi-fire text-danger me-2 mr-2"></i> Trending Articles</h5>
                         <div class="sidebar-recent-posts">
                             @foreach($recentPosts as $recent)
-                                <div class="recent-post-item d-flex align-items-center mb-3 pb-3" style="border-bottom: 1px solid rgba(226, 232, 240, 0.6);">
-                                    <a href="{{ route('single-post', $recent->slug) }}" class="flex-shrink-0 me-3 mr-3">
+                                <div class="recent-post-item">
+                                    <a href="{{ route('single-post', $recent->slug) }}" class="recent-post-thumb-link">
                                         <img src="{{ $recent->image->link ?? 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=160&auto=format&fit=crop&q=60' }}" 
-                                             alt="{{ $recent->title }}" class="rounded" style="width: 58px; height: 58px; object-fit: cover;">
+                                             alt="{{ $recent->title }}" class="recent-post-thumb">
                                     </a>
-                                    <div class="flex-grow-1 min-w-0">
-                                        <span class="badge badge-light text-primary font-weight-bold small mb-1">{{ $recent->category->name ?? 'General' }}</span>
-                                        <h6 class="mb-1 text-truncate" style="font-size: 13.5px; line-height: 1.35;">
+                                    <div class="recent-post-body">
+                                        <span class="badge badge-light text-primary font-weight-bold recent-post-badge">
+                                            {{ $recent->category->name ?? 'General' }}
+                                        </span>
+                                        <h6 class="recent-post-title">
                                             <a href="{{ route('single-post', $recent->slug) }}" class="blog-title-link">
-                                                {{ Str::limit($recent->title, 42) }}
+                                                {{ $recent->title }}
                                             </a>
                                         </h6>
                                         <small class="text-muted"><i class="bi bi-clock me-1 mr-1"></i> {{ $recent->created_at ? $recent->created_at->format('M d, Y') : 'Recent' }}</small>
@@ -237,21 +239,18 @@
                     </ul>
                 </div>
 
-                <!-- Technical Tags Cloud -->
+                <!-- Technical Tags Cloud (Limited to 25) -->
                 <div class="sidebar-widget">
-                    <h5 class="sidebar-widget-title"><i class="bi bi-tags text-primary me-2 mr-2"></i> Technical Tags</h5>
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h5 class="sidebar-widget-title mb-0"><i class="bi bi-tags text-primary me-2 mr-2"></i> Technical Tags</h5>
+                        <span class="badge badge-light text-muted font-weight-bold small">{{ min(25, count($tags ?? [])) }}</span>
+                    </div>
                     <div class="d-flex flex-wrap" style="gap: 8px;">
                         @if(isset($tags) && count($tags) > 0)
-                            @foreach($tags as $t)
+                            @foreach($tags->take(25) as $t)
                                 <a href="{{ url('/blog-list?tag=' . urlencode($t->name)) }}" class="tag-pill">#{{ $t->name }}</a>
                             @endforeach
                         @endif
-                        <a href="{{ url('/blog-list?search=Laravel') }}" class="tag-pill">#Laravel13</a>
-                        <a href="{{ url('/blog-list?search=Architecture') }}" class="tag-pill">#Architecture</a>
-                        <a href="{{ url('/blog-list?search=Security') }}" class="tag-pill">#Security2FA</a>
-                        <a href="{{ url('/blog-list?search=Cloud') }}" class="tag-pill">#CloudNative</a>
-                        <a href="{{ url('/blog-list?search=Docker') }}" class="tag-pill">#Docker</a>
-                        <a href="{{ url('/blog-list?search=API') }}" class="tag-pill">#REST-API</a>
                     </div>
                 </div>
 

@@ -49,7 +49,7 @@ class BlogController extends Controller
         $posts = $query->paginate($perPage)->withQueryString();
         $images = Picture::all();
         $categories = Category::withCount('posts')->get();
-        $tags = Tag::all();
+        $tags = Tag::withCount('posts')->orderByDesc('posts_count')->take(25)->get();
 
         return view('blog.blog-list', compact('posts', 'images', 'categories', 'tags', 'columns', 'isBlogList'));
     }
@@ -70,7 +70,7 @@ class BlogController extends Controller
             ->get();
 
         $categories = Category::withCount('posts')->get();
-        $tags = Tag::all();
+        $tags = Tag::withCount('posts')->orderByDesc('posts_count')->take(25)->get();
 
         return view('blog.blog-post', compact('post', 'recentPosts', 'categories', 'tags'));
     }
