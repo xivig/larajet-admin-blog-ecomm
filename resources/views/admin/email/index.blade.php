@@ -37,7 +37,7 @@
               <span>Inbox</span>
             </div>
             @if ($counts['unread'] > 0)
-              <span class="badge {{ $folder === 'inbox' && !request('starred') ? 'bg-white text-primary' : 'bg-primary' }} rounded-pill">{{ $counts['unread'] }}</span>
+              <span id="sidebar-unread-count" class="badge {{ $folder === 'inbox' && !request('starred') ? 'bg-white text-primary' : 'bg-primary' }} rounded-pill">{{ $counts['unread'] }}</span>
             @endif
           </a>
 
@@ -100,7 +100,7 @@
             <table class="table table-hover align-middle mb-0">
               <tbody>
                 @forelse ($emails as $email)
-                  <tr class="{{ !$email->is_read ? 'table-light fw-bold' : '' }}">
+                  <tr id="email-row-{{ $email->id }}" class="{{ !$email->is_read ? 'table-light fw-bold' : '' }}">
                     <td style="width: 40px;" class="text-center">
                       <form action="{{ route('admin.email.star', $email->id) }}" method="POST" class="d-inline">
                         @csrf
@@ -111,13 +111,13 @@
                     </td>
 
                     <td style="width: 200px;">
-                      <a href="{{ route('admin.email.show', $email->id) }}" class="text-reset text-decoration-none d-block text-truncate" style="max-width: 190px;">
+                      <a href="javascript:void(0)" onclick="openEmailModal({{ $email->id }})" class="text-reset text-decoration-none d-block text-truncate" style="max-width: 190px;" title="Click to read email">
                         {{ $email->folder === 'sent' ? 'To: ' . $email->recipient_email : ($email->sender_name ?: $email->sender_email) }}
                       </a>
                     </td>
 
                     <td>
-                      <a href="{{ route('admin.email.show', $email->id) }}" class="text-reset text-decoration-none d-block text-truncate" style="max-width: 450px;">
+                      <a href="javascript:void(0)" onclick="openEmailModal({{ $email->id }})" class="text-reset text-decoration-none d-block text-truncate" style="max-width: 450px;" title="Click to read email">
                         <span class="fw-semibold">{{ $email->subject }}</span>
                         <span class="text-muted fw-normal ms-1">— {{ Str::limit(strip_tags($email->body), 80) }}</span>
                       </a>
@@ -129,28 +129,32 @@
 
                     <td style="width: 90px;" class="text-end">
                       <div class="btn-group btn-group-sm">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewEmailModal-{{ $email->id }}" title="Read Email">
+                        <button type="button" class="btn btn-outline-secondary" onclick="openEmailModal({{ $email->id }})" title="Read Email">
                           <i class="bi bi-envelope-open"></i>
                         </button>
 
                         @if ($email->folder !== 'trash')
-                          <form action="{{ route('admin.email.move', $email->id) }}" method="POST" class="d-inline">
-                            @csrf
-                            <input type="hidden" name="folder" value="trash">
-                            <button type="submit" class="btn btn-outline-danger" title="Move to Trash">
-                              <i class="bi bi-trash"></i>
-                            </button>
-                          </form>
+                          <button type="submit" form="move-email-trash-{{ $email->id }}" class="btn btn-outline-danger" title="Move to Trash">
+                            <i class="bi bi-trash"></i>
+                          </button>
                         @else
-                          <form action="{{ route('admin.email.destroy', $email->id) }}" method="POST" class="d-inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="button" class="btn btn-outline-danger" title="Purge Permanently" onclick="confirmPurgeEmail(event, this)">
-                              <i class="bi bi-x-circle"></i>
-                            </button>
-                          </form>
+                          <button type="button" class="btn btn-outline-danger" title="Purge Permanently" onclick="confirmPurgeEmail(document.getElementById('destroy-email-{{ $email->id }}'))">
+                            <i class="bi bi-x-circle"></i>
+                          </button>
                         @endif
                       </div>
+
+                      @if ($email->folder !== 'trash')
+                        <form id="move-email-trash-{{ $email->id }}" action="{{ route('admin.email.move', $email->id) }}" method="POST" class="d-none">
+                          @csrf
+                          <input type="hidden" name="folder" value="trash">
+                        </form>
+                      @else
+                        <form id="destroy-email-{{ $email->id }}" action="{{ route('admin.email.destroy', $email->id) }}" method="POST" class="d-none">
+                          @csrf
+                          @method('DELETE')
+                        </form>
+                      @endif
                     </td>
                   </tr>
                 @empty
@@ -191,11 +195,11 @@
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label fw-semibold">Recipient Email <span class="text-danger">*</span></label>
-            <input type="email" name="recipient_email" class="form-control" placeholder="user@company.com" required>
+            <input type="email" name="recipient_email" id="composeRecipient" class="form-control" placeholder="user@company.com" required>
           </div>
           <div class="mb-3">
             <label class="form-label fw-semibold">Subject <span class="text-danger">*</span></label>
-            <input type="text" name="subject" class="form-control" placeholder="Brief subject line..." required>
+            <input type="text" name="subject" id="composeSubject" class="form-control" placeholder="Brief subject line..." required>
           </div>
           <div class="mb-3">
             <label class="form-label fw-semibold">Message Body</label>
@@ -219,26 +223,48 @@
 </div>
 
 <!-- View Email Modals -->
-@foreach ($emails as $email)
-  <div class="modal fade" id="viewEmailModal-{{ $email->id }}" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
+@php
+  $modalEmails = collect($emails->items());
+  if (isset($viewEmail) && !$modalEmails->contains('id', $viewEmail->id)) {
+      $modalEmails->push($viewEmail);
+  }
+@endphp
+@foreach ($modalEmails as $email)
+  <div class="modal fade" id="viewEmailModal-{{ $email->id }}" tabindex="-1" aria-labelledby="viewEmailModalLabel-{{ $email->id }}" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header bg-light">
           <div>
-            <h5 class="modal-title fw-bold mb-1">{{ $email->subject }}</h5>
+            <h5 class="modal-title fw-bold mb-1" id="viewEmailModalLabel-{{ $email->id }}">{{ $email->subject }}</h5>
             <small class="text-muted">From: <strong>{{ $email->sender_name ?: $email->sender_email }}</strong> &lt;{{ $email->sender_email }}&gt;</small>
           </div>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body p-4">
           <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom text-muted small">
-            <span>To: {{ $email->recipient_email }}</span>
-            <span>{{ $email->created_at ? $email->created_at->format('M d, Y h:i A') : '' }}</span>
+            <span>To: <strong class="text-body">{{ $email->recipient_email }}</strong></span>
+            <span><i class="bi bi-clock me-1"></i> {{ $email->created_at ? $email->created_at->format('M d, Y h:i A') : '' }}</span>
           </div>
-          <div class="p-3 bg-body-tertiary rounded" style="white-space: pre-wrap; line-height: 1.7;">{{ $email->body }}</div>
+          <div class="p-3 bg-light-subtle rounded border" style="white-space: pre-wrap; line-height: 1.7; font-size: 0.95rem;">{{ $email->body }}</div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <div class="modal-footer d-flex justify-content-between">
+          <div>
+            @if ($email->folder !== 'trash')
+              <form action="{{ route('admin.email.move', $email->id) }}" method="POST" class="d-inline">
+                @csrf
+                <input type="hidden" name="folder" value="trash">
+                <button type="submit" class="btn btn-outline-danger btn-sm">
+                  <i class="bi bi-trash me-1"></i> Move to Trash
+                </button>
+              </form>
+            @endif
+          </div>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary btn-sm px-3" onclick="replyToEmail('{{ addslashes($email->sender_email) }}', 'Re: {{ addslashes($email->subject) }}', {{ $email->id }})">
+              <i class="bi bi-reply-fill me-1"></i> Reply
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -247,9 +273,72 @@
 
 @push('scripts')
 <script>
-  function confirmPurgeEmail(e, btn) {
-    e.preventDefault();
-    const form = btn.closest('form');
+  // Open Email Modal helper
+  window.openEmailModal = function(id) {
+    const modalEl = document.getElementById('viewEmailModal-' + id);
+    if (modalEl) {
+      const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+      modal.show();
+
+      // Mark row as read visually in table
+      const row = document.getElementById('email-row-' + id);
+      if (row) {
+        row.classList.remove('table-light', 'fw-bold');
+      }
+
+      // Mark email as read on server
+      fetch('{{ url("admin/email") }}/' + id + '/mark-read', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.unread_count !== undefined) {
+          const badge = document.getElementById('sidebar-unread-count');
+          if (badge) {
+            badge.textContent = data.unread_count;
+            if (data.unread_count === 0) {
+              badge.style.display = 'none';
+            }
+          }
+        }
+      })
+      .catch(err => console.error('Error marking email as read:', err));
+    }
+  };
+
+  // Reply helper: closes view modal and opens compose modal with prefilled data
+  window.replyToEmail = function(recipient, subject, viewModalId) {
+    if (viewModalId) {
+      const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewEmailModal-' + viewModalId));
+      if (viewModal) viewModal.hide();
+    }
+    const composeRecipient = document.getElementById('composeRecipient');
+    const composeSubject = document.getElementById('composeSubject');
+    if (composeRecipient) composeRecipient.value = recipient;
+    if (composeSubject) composeSubject.value = subject;
+
+    const composeModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('composeEmailModal'));
+    composeModal.show();
+  };
+
+  // Automatically open modal if 'view' query param is in URL
+  document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewId = urlParams.get('view');
+    if (viewId) {
+      setTimeout(() => {
+        openEmailModal(viewId);
+      }, 150);
+    }
+  });
+
+  function confirmPurgeEmail(form) {
+    if (!form) return;
     if (window.showConfirmDialog) {
       window.showConfirmDialog({
         title: 'Purge Email Permanently?',

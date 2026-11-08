@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AdminEmail;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -36,6 +37,14 @@ class EmailController extends Controller
 
         $emails = $query->paginate(20)->withQueryString();
 
+        $viewEmail = null;
+        if ($request->filled('view')) {
+            $viewEmail = AdminEmail::find($request->view);
+            if ($viewEmail) {
+                $viewEmail->update(['is_read' => true]);
+            }
+        }
+
         $counts = [
             'inbox' => AdminEmail::where('folder', 'inbox')->count(),
             'unread' => AdminEmail::where('folder', 'inbox')->where('is_read', false)->count(),
@@ -45,7 +54,7 @@ class EmailController extends Controller
             'trash' => AdminEmail::where('folder', 'trash')->count(),
         ];
 
-        return view('admin.email.index', compact('emails', 'counts', 'folder'));
+        return view('admin.email.index', compact('emails', 'counts', 'folder', 'viewEmail'));
     }
 
     /**
@@ -79,10 +88,31 @@ class EmailController extends Controller
     /**
      * Mark an email as read and view details.
      */
-    public function show(AdminEmail $email): RedirectResponse
+    public function show(Request $request, AdminEmail $email): RedirectResponse|JsonResponse
     {
         $email->update(['is_read' => true]);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'email' => $email,
+            ]);
+        }
+
         return redirect()->route('admin.email.index', ['folder' => $email->folder, 'view' => $email->id]);
+    }
+
+    /**
+     * Mark an email as read via AJAX.
+     */
+    public function markRead(AdminEmail $email): JsonResponse
+    {
+        $email->update(['is_read' => true]);
+
+        return response()->json([
+            'success' => true,
+            'unread_count' => AdminEmail::where('folder', 'inbox')->where('is_read', false)->count(),
+        ]);
     }
 
     /**
