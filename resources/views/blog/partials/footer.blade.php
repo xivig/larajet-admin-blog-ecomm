@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-3 col-md-6 col-sm-6 mb-4 mb-lg-0">
-                <div class="widget">
+                <div class="footer-widget">
                     <h4 class="footer-title mb-4">Platform</h4>
                     <ul class="list-unstyled footer-menu lh-35">
                         <li><a href="{{ url('/') }}">Home</a></li>
@@ -14,7 +14,7 @@
                 </div>
             </div>
             <div class="col-lg-2 col-md-6 col-sm-6 mb-4 mb-lg-0">
-                <div class="widget">
+                <div class="footer-widget">
                     <h4 class="footer-title mb-4">Ecosystem</h4>
                     <ul class="list-unstyled footer-menu lh-35">
                         <li><a href="{{ url('/blog-list') }}">Blog Magazine</a></li>
@@ -26,7 +26,7 @@
                 </div>
             </div>
             <div class="col-lg-4 col-md-6 col-sm-6 mb-4 mb-lg-0">
-                <div class="widget">
+                <div class="footer-widget">
                     <h4 class="footer-title mb-4">Stay Ahead</h4>
                     <p class="text-muted">Subscribe for architecture insights, software engineering masterclasses, and releases.</p>
 
@@ -42,7 +42,7 @@
             </div>
 
             <div class="col-lg-3 col-sm-6">
-                <div class="widget">
+                <div class="footer-widget">
                     <div class="logo mb-3">
                         <span class="text-gradient font-weight-bold h3">Xivig</span>
                     </div>
