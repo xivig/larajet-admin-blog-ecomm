@@ -1,6 +1,6 @@
 @use('Illuminate\Support\Str')
 @extends('blog')
-@section('title', 'Xivig - Editorial & Engineering Blog')
+@section('title', ($columns ?? 3) == 4 ? 'Xivig - All Articles & Publications' : 'Xivig - Editorial & Engineering Blog')
 @section('content')
 
 <!-- Blog Hero Banner -->
@@ -9,13 +9,17 @@
         <div class="row align-items-center">
             <div class="col-lg-8">
                 <span class="badge-elite badge-elite-dark mb-3">
-                    <span class="badge-dot pulse"></span> Engineering & Architecture Magazine
+                    <span class="badge-dot pulse"></span> {{ ($columns ?? 3) == 4 ? 'Complete Technical Archive' : 'Engineering & Architecture Magazine' }}
                 </span>
-                <h1 class="font-weight-bold mb-3 display-4" style="letter-spacing: -0.03em;">Insights & Knowledge</h1>
-                <p class="text-muted lead mb-0">Explore deep-dive technical articles, architectural blueprints, and full-stack best practices.</p>
+                <h1 class="font-weight-bold mb-3 display-4" style="letter-spacing: -0.03em;">
+                    {{ ($columns ?? 3) == 4 ? 'All Articles & Blueprints' : 'Insights & Knowledge' }}
+                </h1>
+                <p class="text-muted lead mb-0">
+                    {{ ($columns ?? 3) == 4 ? 'Browse our complete multi-column catalog of engineering blueprints, tutorials, and system releases.' : 'Explore deep-dive technical articles, architectural blueprints, and full-stack best practices.' }}
+                </p>
             </div>
             <div class="col-lg-4 mt-4 mt-lg-0 text-lg-right">
-                <form action="{{ url('/blog-list') }}" method="GET" class="d-flex">
+                <form action="{{ request()->url() }}" method="GET" class="d-flex">
                     <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-elite mr-2" placeholder="Search insights...">
                     <button type="submit" class="btn-elite btn-elite-primary btn-sm"><i class="fas fa-search"></i></button>
                 </form>
@@ -26,12 +30,12 @@
 
 <!-- Main Blog Section -->
 <section class="section py-5">
-    <div class="container">
+    <div class="{{ ($columns ?? 3) == 4 ? 'container-fluid px-lg-5' : 'container' }}">
         @if(count($posts) > 0)
             <div class="row">
                 @foreach($posts as $post)
-                    <div class="col-lg-6 col-md-6 mb-4">
-                        <article class="blog-item">
+                    <div class="{{ ($columns ?? 3) == 4 ? 'col-xl-3 col-lg-4 col-md-6 mb-4' : 'col-lg-4 col-md-6 mb-4' }}">
+                        <article class="blog-item h-100 d-flex flex-column">
                             <div class="blog-img-wrap">
                                 <a href="{{ route('single-post', $post->slug) }}">
                                     <img loading="lazy" src="{{ $post->image->link ?? 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=60' }}" 
@@ -42,7 +46,7 @@
                                 </span>
                             </div>
 
-                            <div class="blog-item-content">
+                            <div class="blog-item-content d-flex flex-column flex-grow-1">
                                 <div class="blog-meta-pills">
                                     <span><i class="far fa-user"></i> {{ $post->author->nickname ?? ($post->user->name ?? 'Admin') }}</span>
                                     <span><i class="far fa-calendar-alt"></i> {{ $post->created_at ? $post->created_at->format('M d, Y') : 'Recent' }}</span>
@@ -51,22 +55,22 @@
                                     @endif
                                 </div>
 
-                                <h3>
+                                <h3 style="font-size: {{ ($columns ?? 3) == 4 ? '1.15rem' : '1.35rem' }};">
                                     <a href="{{ route('single-post', $post->slug) }}" class="blog-title-link">
                                         {{ $post->title }}
                                     </a>
                                 </h3>
 
                                 <p class="blog-excerpt">
-                                    {{ $post->excerpt ?: Str::limit(strip_tags($post->content), 130) }}
+                                    {{ $post->excerpt ?: Str::limit(strip_tags($post->content), ($columns ?? 3) == 4 ? 85 : 120) }}
                                 </p>
 
                                 <div class="mt-auto pt-3 d-flex align-items-center justify-content-between" style="border-top: 1px solid #f1f5f9;">
                                     <a href="{{ route('single-post', $post->slug) }}" class="btn-elite btn-elite-primary btn-sm">
-                                        Read Article <i class="fas fa-arrow-right ml-2" style="font-size: 11px;"></i>
+                                        Read <i class="fas fa-arrow-right ml-1" style="font-size: 11px;"></i>
                                     </a>
                                     <span class="text-muted small">
-                                        <i class="far fa-clock mr-1"></i> {{ max(2, round(str_word_count(strip_tags($post->content ?? $post->excerpt)) / 180)) }} min read
+                                        <i class="far fa-clock mr-1"></i> {{ max(2, round(str_word_count(strip_tags($post->content ?? $post->excerpt)) / 180)) }} min
                                     </span>
                                 </div>
                             </div>

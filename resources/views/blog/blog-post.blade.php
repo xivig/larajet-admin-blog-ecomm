@@ -169,23 +169,66 @@
 
             <!-- Sidebar Column -->
             <div class="col-lg-4">
-                <div class="p-4 bg-white rounded shadow-sm border mb-4">
-                    <h5 class="font-weight-bold mb-3 text-dark">About the Publisher</h5>
-                    <p class="text-muted small">Xivig publishes high-fidelity software engineering architectural insights, developer ergonomics, and modern framework patterns.</p>
-                    <a href="{{ url('/about') }}" class="btn-elite btn-elite-outline btn-sm w-100 text-center">Learn More</a>
+                <!-- Search Widget -->
+                <div class="sidebar-widget">
+                    <h5 class="sidebar-widget-title"><i class="bi bi-search text-primary me-2 mr-2"></i> Search Insights</h5>
+                    <form action="{{ url('/blog-list') }}" method="GET" class="d-flex">
+                        <input type="text" name="search" class="form-control form-control-elite me-2 mr-2" placeholder="Search architecture, 2FA, APIs...">
+                        <button type="submit" class="btn-elite btn-elite-primary btn-sm"><i class="bi bi-search"></i></button>
+                    </form>
                 </div>
 
+                <!-- About Publisher Widget -->
+                <div class="sidebar-widget">
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="brand-text-gradient font-weight-bold h4 mb-0">Xivig</span>
+                        <span class="badge-v13 ms-auto ml-auto"><span class="badge-dot pulse"></span> v13 Engine</span>
+                    </div>
+                    <p class="text-muted small mb-3">
+                        Xivig publishes high-fidelity software engineering architectural insights, developer ergonomics, and modern framework patterns built with Laravel 13, Fortify, and Jetstream.
+                    </p>
+                    <a href="{{ url('/about') }}" class="btn-elite btn-elite-outline btn-sm w-100 text-center">
+                        <i class="bi bi-info-circle me-1 mr-1"></i> About Our Mission
+                    </a>
+                </div>
+
+                <!-- Trending / Recent Articles Widget -->
+                @if(isset($recentPosts) && count($recentPosts) > 0)
+                    <div class="sidebar-widget">
+                        <h5 class="sidebar-widget-title"><i class="bi bi-fire text-danger me-2 mr-2"></i> Trending Articles</h5>
+                        <div class="sidebar-recent-posts">
+                            @foreach($recentPosts as $recent)
+                                <div class="recent-post-item d-flex align-items-center mb-3 pb-3" style="border-bottom: 1px solid rgba(226, 232, 240, 0.6);">
+                                    <a href="{{ route('single-post', $recent->slug) }}" class="flex-shrink-0 me-3 mr-3">
+                                        <img src="{{ $recent->image->link ?? 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=160&auto=format&fit=crop&q=60' }}" 
+                                             alt="{{ $recent->title }}" class="rounded" style="width: 58px; height: 58px; object-fit: cover;">
+                                    </a>
+                                    <div class="flex-grow-1 min-w-0">
+                                        <span class="badge badge-light text-primary font-weight-bold small mb-1">{{ $recent->category->name ?? 'General' }}</span>
+                                        <h6 class="mb-1 text-truncate" style="font-size: 13.5px; line-height: 1.35;">
+                                            <a href="{{ route('single-post', $recent->slug) }}" class="blog-title-link">
+                                                {{ Str::limit($recent->title, 42) }}
+                                            </a>
+                                        </h6>
+                                        <small class="text-muted"><i class="bi bi-clock me-1 mr-1"></i> {{ $recent->created_at ? $recent->created_at->format('M d, Y') : 'Recent' }}</small>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 <!-- Categories Widget -->
-                <div class="p-4 bg-white rounded shadow-sm border mb-4">
-                    <h5 class="font-weight-bold mb-3 text-dark">Categories</h5>
-                    <ul class="list-unstyled mb-0">
+                <div class="sidebar-widget">
+                    <h5 class="sidebar-widget-title"><i class="bi bi-folder2-open text-primary me-2 mr-2"></i> Topic Categories</h5>
+                    <ul class="list-unstyled mb-0 sidebar-cat-list">
                         @if(isset($categories) && count($categories) > 0)
                             @foreach($categories->take(8) as $cat)
-                                <li class="py-2 d-flex justify-content-between align-items-center" style="border-bottom: 1px solid #f1f5f9;">
-                                    <a href="{{ url('/blog-list?category=' . urlencode($cat->name)) }}" class="text-dark small font-weight-bold">
-                                        <i class="fas fa-chevron-right text-primary mr-2" style="font-size: 10px;"></i> {{ $cat->name }}
+                                <li class="py-2 d-flex justify-content-between align-items-center" style="border-bottom: 1px solid rgba(226, 232, 240, 0.6);">
+                                    <a href="{{ url('/blog-list?category=' . urlencode($cat->name)) }}" class="sidebar-cat-link">
+                                        <i class="bi bi-chevron-right text-primary me-2 mr-2" style="font-size: 11px;"></i> {{ $cat->name }}
                                     </a>
-                                    <span class="badge badge-light text-muted">{{ $cat->posts ? $cat->posts->count() : rand(3, 15) }}</span>
+                                    <span class="badge badge-light text-muted font-weight-bold">{{ $cat->posts_count ?? ($cat->posts ? $cat->posts->count() : 0) }}</span>
                                 </li>
                             @endforeach
                         @else
@@ -194,13 +237,68 @@
                     </ul>
                 </div>
 
-                <!-- Back to Blog Navigation -->
-                <div class="p-4 bg-white rounded shadow-sm border text-center">
-                    <h6 class="font-weight-bold mb-2 text-dark">Looking for more?</h6>
-                    <p class="text-muted small mb-3">Explore our full catalog of articles and development blueprints.</p>
-                    <a href="{{ url('/blog-list') }}" class="btn-elite btn-elite-primary btn-sm w-100">
-                        <i class="fas fa-th-large mr-2"></i> Browse All Articles
-                    </a>
+                <!-- Technical Tags Cloud -->
+                <div class="sidebar-widget">
+                    <h5 class="sidebar-widget-title"><i class="bi bi-tags text-primary me-2 mr-2"></i> Technical Tags</h5>
+                    <div class="d-flex flex-wrap" style="gap: 8px;">
+                        @if(isset($tags) && count($tags) > 0)
+                            @foreach($tags as $t)
+                                <a href="{{ url('/blog-list?tag=' . urlencode($t->name)) }}" class="tag-pill">#{{ $t->name }}</a>
+                            @endforeach
+                        @endif
+                        <a href="{{ url('/blog-list?search=Laravel') }}" class="tag-pill">#Laravel13</a>
+                        <a href="{{ url('/blog-list?search=Architecture') }}" class="tag-pill">#Architecture</a>
+                        <a href="{{ url('/blog-list?search=Security') }}" class="tag-pill">#Security2FA</a>
+                        <a href="{{ url('/blog-list?search=Cloud') }}" class="tag-pill">#CloudNative</a>
+                        <a href="{{ url('/blog-list?search=Docker') }}" class="tag-pill">#Docker</a>
+                        <a href="{{ url('/blog-list?search=API') }}" class="tag-pill">#REST-API</a>
+                    </div>
+                </div>
+
+                <!-- Newsletter Dispatch -->
+                <div class="sidebar-widget sidebar-newsletter-widget">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-envelope-paper text-primary me-2 mr-2 h5 mb-0"></i>
+                        <h5 class="mb-0 font-weight-bold">Architecture Dispatch</h5>
+                    </div>
+                    <p class="text-muted small mb-3">
+                        Curated enterprise engineering patterns, zero-trust protocols, and framework deep-dives delivered every Tuesday.
+                    </p>
+                    <form onsubmit="event.preventDefault(); alert('Subscribed to Architecture Dispatch!');">
+                        <div class="mb-2">
+                            <input type="email" class="form-control form-control-elite" placeholder="architect@company.com" required>
+                        </div>
+                        <button type="submit" class="btn-elite btn-elite-primary btn-sm w-100">
+                            <i class="bi bi-send me-1 mr-1"></i> Subscribe Free
+                        </button>
+                    </form>
+                    <small class="text-muted d-block text-center mt-2" style="font-size: 11px;">Zero spam. One-click unsubscribe.</small>
+                </div>
+
+                <!-- Developer Guild & Community -->
+                <div class="sidebar-widget text-center">
+                    <h6 class="font-weight-bold mb-2">Join Our Developer Guild</h6>
+                    <p class="text-muted small mb-3">Collaborate with fellow systems engineers and contributors across our open-source repositories.</p>
+                    <div class="d-flex justify-content-center" style="gap: 10px;">
+                        <a href="https://github.com/xivig/" target="_blank" class="footer-social-btn" title="GitHub"><i class="bi bi-github"></i></a>
+                        <a href="https://twitter.com/xivig" target="_blank" class="footer-social-btn" title="X / Twitter"><i class="bi bi-twitter-x"></i></a>
+                        <a href="https://www.linkedin.com/company/xivig" target="_blank" class="footer-social-btn" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                        <a href="https://www.facebook.com/xivig" target="_blank" class="footer-social-btn" title="Facebook"><i class="bi bi-facebook"></i></a>
+                    </div>
+                </div>
+
+                <!-- Browse Full Archive Navigation -->
+                <div class="sidebar-widget text-center">
+                    <h6 class="font-weight-bold mb-2">Explore the Full Archive</h6>
+                    <p class="text-muted small mb-3">Access our 3-column magazine or 4-column master catalog.</p>
+                    <div>
+                        <a href="{{ url('/blog-list') }}" class="btn-elite btn-elite-primary btn-sm w-100 mb-2">
+                            <i class="bi bi-grid-3x3-gap me-2 mr-2"></i> 3-Column Magazine
+                        </a>
+                        <a href="{{ url('/blog') }}" class="btn-elite btn-elite-outline btn-sm w-100">
+                            <i class="bi bi-grid me-2 mr-2"></i> 4-Column All Articles
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

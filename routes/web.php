@@ -28,6 +28,7 @@ Route::get('/ecomm', static fn() => view('ecomm'))->name('ecomm');
 // Blog routes
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog-list', [BlogController::class, 'index'])->name('blog.list');
+Route::get('/blog-post', static fn() => redirect()->route('blog.list'));
 Route::get('/blog/{slug}', [BlogController::class, 'singlePost'])->name('single-post');
 
 // Comments & replies

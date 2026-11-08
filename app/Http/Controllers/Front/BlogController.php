@@ -42,12 +42,16 @@ class BlogController extends Controller
             });
         }
 
-        $posts = $query->paginate(10)->withQueryString();
+        $isBlogList = $request->routeIs('blog.list') || $request->is('blog-list*');
+        $columns = $isBlogList ? 3 : 4;
+        $perPage = $isBlogList ? 9 : 12;
+
+        $posts = $query->paginate($perPage)->withQueryString();
         $images = Picture::all();
-        $categories = Category::all();
+        $categories = Category::withCount('posts')->get();
         $tags = Tag::all();
 
-        return view('blog.blog-list', compact('posts', 'images', 'categories', 'tags'));
+        return view('blog.blog-list', compact('posts', 'images', 'categories', 'tags', 'columns', 'isBlogList'));
     }
 
     /**
@@ -59,13 +63,13 @@ class BlogController extends Controller
             ->where('slug', $slug)
             ->firstOrFail();
 
-        $recentPosts = Post::with(['image', 'category'])
+        $recentPosts = Post::with(['image', 'category', 'author.user'])
             ->where('id', '!=', $post->id)
             ->latest()
-            ->take(3)
+            ->take(5)
             ->get();
 
-        $categories = Category::all();
+        $categories = Category::withCount('posts')->get();
         $tags = Tag::all();
 
         return view('blog.blog-post', compact('post', 'recentPosts', 'categories', 'tags'));

@@ -23,7 +23,7 @@
 </section>
 
 <!-- Trust Metrics -->
-<section class="py-4" style="background: #ffffff; border-bottom: 1px solid #e2e8f0;">
+<section class="py-4 ecomm-trust-bar">
     <div class="container">
         <div class="row text-center">
             <div class="col-md-4 py-2">
@@ -58,7 +58,7 @@
 </section>
 
 <!-- Products Catalog Section -->
-<section class="section py-5" id="catalog" style="background: #f8fafc;">
+<section class="section py-5 ecomm-catalog" id="catalog">
     <div class="container">
         <div class="row mb-5 justify-content-between align-items-center">
             <div class="col-lg-6">
