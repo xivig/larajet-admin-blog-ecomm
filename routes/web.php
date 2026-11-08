@@ -36,7 +36,7 @@ Route::post('/comment-replies', [CommentReplyController::class, 'store'])->name(
 
 // General previews
 Route::get('/user', static fn() => view('user'));
-Route::get('/admin', static fn() => view('admin'));
+Route::get('/admin', static fn() => redirect()->route('admin.dashboard'))->name('admin');
 
 // Fortify & Jetstream Authenticated User Routes
 Route::middleware([
@@ -52,10 +52,10 @@ Route::middleware([
 // Admin Guest Routes
 Route::prefix('admin')->middleware('guest:admin')->group(function () {
     Route::get('register', [RegisterController::class, 'create'])->name('admin.register');
-    Route::post('register', [RegisterController::class, 'store']);
+    Route::post('register', [RegisterController::class, 'store'])->name('admin.register.store');
 
     Route::get('login', [LoginController::class, 'create'])->name('admin.login');
-    Route::post('login', [LoginController::class, 'store']);
+    Route::post('login', [LoginController::class, 'store'])->name('admin.login.store');
 });
 
 // Admin Authenticated Routes

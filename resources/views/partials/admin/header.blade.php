@@ -258,11 +258,14 @@
                 <!-- User profile and search -->
                 <!-- ============================================================== -->
                 <li class="nav-item dropdown">
+                    @php
+                        $adminUser = auth('admin')->user() ?? auth()->user();
+                    @endphp
                     <a class="nav-link dropdown-toggle waves-effect waves-dark pro-pic" href="" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
                         <img src="{{asset('xivig-public/assets/images/users/2.jpg')}}" alt="user" class="rounded-circle"
                              width="40">
-                        <span class="m-l-5 font-medium d-none d-sm-inline-block">{{ auth()->user()->name }} <i
+                        <span class="m-l-5 font-medium d-none d-sm-inline-block">{{ $adminUser?->name ?? 'Administrator' }} <i
                                 class="mdi mdi-chevron-down"></i></span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right user-dd animated flipInY">
@@ -275,28 +278,22 @@
                                      class="rounded-circle" width="60">
                             </div>
                             <div class="m-l-10">
-                                <h4 class="m-b-0">{{ auth()->user()->name }}</h4>
-                                <p class=" m-b-0">{{ auth()->user()->email }}</p>
+                                <h4 class="m-b-0">{{ $adminUser?->name ?? 'Administrator' }}</h4>
+                                <p class=" m-b-0">{{ $adminUser?->email ?? 'admin@xivig.com' }}</p>
                             </div>
                         </div>
                         <div class="profile-dis scrollable">
-                            <a class="dropdown-item" href="#">
-                                <i class="ti-user m-r-5 m-l-5"></i> My Profile</a>
-                            <a class="dropdown-item" href="#">
-                                <i class="ti-email m-r-5 m-l-5"></i> Inbox</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#">
-                                <i class="ti-settings m-r-5 m-l-5"></i> Account Setting</a>
+                            <a class="dropdown-item" href="{{ url('/') }}" target="_blank">
+                                <i class="ti-world m-r-5 m-l-5"></i> View Website</a>
                             <div class="dropdown-divider"></div>
                             <a class="btn btn-danger btn-lg dropdown-item sidebar-link waves-effect waves-dark sidebar-link"
-                               href="{{ route('logout') }}"
-                               onclick="event.preventDefault();
-                                 document.getElementById('logout-form').submit();">
+                               href="javascript:void(0)"
+                               onclick="event.preventDefault(); document.getElementById('admin-logout-form').submit();">
                                 <i class="fa fa-power-off m-r-5 m-l-5"></i>
                                 {{ __('Logout') }}
                             </a>
 
-                            <form id="logout-form" action="{{ route('logout') }}" method="GET" class="d-none">
+                            <form id="admin-logout-form" action="{{ route('admin.logout') }}" method="POST" class="d-none">
                                 @csrf
                             </form>
                         </div>

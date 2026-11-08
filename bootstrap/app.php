@@ -12,7 +12,19 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->redirectGuestsTo(function (\Illuminate\Http\Request $request) {
+            if ($request->is('admin') || $request->is('admin/*')) {
+                return route('admin.login');
+            }
+            return route('login');
+        });
+
+        $middleware->redirectUsersTo(function (\Illuminate\Http\Request $request) {
+            if (\Illuminate\Support\Facades\Auth::guard('admin')->check()) {
+                return route('admin.dashboard');
+            }
+            return route('dashboard');
+        });
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

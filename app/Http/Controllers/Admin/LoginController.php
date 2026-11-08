@@ -16,8 +16,7 @@ class LoginController extends Controller
      */
     public function create(): View
     {
-//        return view('admin.auth.login');
-        return view('auth.login');
+        return view('admin.auth.login');
     }
 
     /**
@@ -29,8 +28,7 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
-//        return redirect()->intended(route('admin.dashboard', absolute: false));
-        return redirect()->intended(route('admin', absolute: false));
+        return redirect()->intended(route('admin.dashboard', absolute: false));
     }
 
     /**
@@ -44,6 +42,6 @@ class LoginController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/admin/login');
+        return redirect()->route('admin.login');
     }
 }

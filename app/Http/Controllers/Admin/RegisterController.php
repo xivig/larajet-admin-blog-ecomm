@@ -20,8 +20,7 @@ class RegisterController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
-
+        return view('admin.auth.register');
     }
 
     /**
@@ -47,6 +46,6 @@ class RegisterController extends Controller
 
         Auth::guard('admin')->login($admin);
 
-        return redirect(route('admin.dashboard', absolute: false));
+        return redirect()->intended(route('admin.dashboard', absolute: false));
     }
 }
