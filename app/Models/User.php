@@ -65,4 +65,19 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function author(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Author::class);
+    }
+
+    public function posts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    public function comments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
 }
