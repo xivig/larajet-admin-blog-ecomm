@@ -83,6 +83,36 @@
     </div>
   </div>
 
+  <!-- Status Filters & Views -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <ul class="nav nav-pills">
+      <li class="nav-item">
+        <a class="nav-link {{ request('status') === null || request('status') === 'all' ? 'active' : '' }}" href="{{ route('admin.users.index') }}">
+          All Accounts <span class="badge {{ request('status') === null || request('status') === 'all' ? 'bg-white text-primary' : 'bg-primary-subtle text-primary' }} ms-1">{{ $counts['all'] ?? count($users) }}</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {{ request('status') === 'active' ? 'active' : '' }}" href="{{ route('admin.users.index', ['status' => 'active']) }}">
+          Active <span class="badge {{ request('status') === 'active' ? 'bg-white text-primary' : 'bg-success-subtle text-success' }} ms-1">{{ $counts['active'] ?? 0 }}</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link {{ request('status') === 'trash' ? 'active' : '' }}" href="{{ route('admin.users.index', ['status' => 'trash']) }}">
+          <i class="bi bi-trash me-1"></i> Trash
+          @if (($counts['trash'] ?? 0) > 0)
+            <span class="badge bg-danger ms-1">{{ $counts['trash'] }}</span>
+          @endif
+        </a>
+      </li>
+    </ul>
+
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge bg-primary-subtle text-primary px-3 py-2">
+        <i class="bi bi-people me-1"></i> Showing {{ count($users) }} Users
+      </span>
+    </div>
+  </div>
+
   <!-- Users Table -->
   <div class="card shadow-sm">
     <div class="card-header d-flex justify-content-between align-items-center py-3">
@@ -90,29 +120,55 @@
         <h5 class="card-title mb-0">Platform User Accounts &amp; Authority</h5>
         <small class="text-muted">Manage user privileges, editorial attribution, and authority transfers</small>
       </div>
-      <span class="badge bg-primary-subtle text-primary">{{ count($users) }} Users</span>
+      @if (request('status') === 'trash')
+        <span class="badge bg-danger-subtle text-danger px-2.5 py-1.5"><i class="bi bi-trash me-1"></i> Recycle Bin Mode</span>
+      @else
+        <span class="badge bg-primary-subtle text-primary">{{ count($users) }} Users</span>
+      @endif
     </div>
     <div class="card-body">
-      <div class="table-responsive">
-        <table id="usersTable" class="table table-hover align-middle simple-datatable">
-          <thead>
-            <tr>
-              <th style="width: 50px;">#</th>
-              <th>User</th>
-              <th>Email</th>
-              <th>Authority &amp; Roles</th>
-              <th>Articles</th>
-              <th>Discussions</th>
-              <th>Joined</th>
-              <th data-sortable="false" class="text-end">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @foreach ($users as $user)
+      <!-- Bulk Actions Form -->
+      <form id="bulkUsersForm" action="{{ route('admin.users.bulk') }}" method="POST">
+        @csrf
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <select name="action" class="form-select form-select-sm w-auto" required>
+            <option value="">Bulk Actions</option>
+            @if (request('status') === 'trash')
+              <option value="restore">Restore Selected</option>
+              <option value="force_delete">Permanently Delete Selected</option>
+            @else
+              <option value="delete">Move to Trash</option>
+            @endif
+          </select>
+          <button type="button" class="btn btn-sm btn-primary" onclick="confirmBulkUserAction()">Apply</button>
+        </div>
+
+        <div class="table-responsive">
+          <table id="usersTable" class="table table-hover align-middle simple-datatable">
+            <thead>
               <tr>
-                <td>{{ $user->id }}</td>
-                <td>
-                  <div class="d-flex align-items-center gap-2">
+                <th style="width: 40px;" class="text-center" data-sortable="false">
+                  <input type="checkbox" id="selectAllUsers" class="form-check-input">
+                </th>
+                <th style="width: 50px;">#</th>
+                <th>User</th>
+                <th>Email</th>
+                <th>Authority &amp; Roles</th>
+                <th>Articles</th>
+                <th>Discussions</th>
+                <th>Joined</th>
+                <th data-sortable="false" class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach ($users as $user)
+                <tr>
+                  <td class="text-center">
+                    <input type="checkbox" name="ids[]" value="{{ $user->id }}" class="form-check-input user-check">
+                  </td>
+                  <td>{{ $user->id }}</td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
                     @if ($user->profile_photo_path)
                       <img src="{{ asset($user->profile_photo_path) }}" alt="{{ $user->name }}" class="rounded-circle border" style="width: 36px; height: 36px; object-fit: cover;">
                     @else
@@ -133,6 +189,12 @@
                 </td>
                 <td>
                   <div class="d-flex flex-wrap gap-1 align-items-center">
+                    @if ($user->trashed())
+                      <span class="badge bg-danger-subtle text-danger px-2 py-1">
+                        <i class="bi bi-trash me-1"></i> Trashed
+                      </span>
+                    @endif
+
                     @forelse ($user->roles as $role)
                       <span class="badge bg-{{ $role->color }}-subtle text-{{ $role->color }} px-2 py-1">
                         {{ $role->name }}
@@ -162,31 +224,51 @@
                   <span class="small text-muted">{{ $user->created_at ? $user->created_at->format('M d, Y') : 'N/A' }}</span>
                 </td>
                 <td class="text-end">
-                  <div class="btn-group btn-group-sm">
-                    <a href="{{ route('admin.users.show', $user->id) }}" class="btn btn-outline-info" title="View Profile & Authority">
-                      <i class="bi bi-eye"></i>
-                    </a>
-                    <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#reassignModal-{{ $user->id }}" title="Reassign Authority">
-                      <i class="bi bi-arrow-left-right"></i>
-                    </button>
-                    <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-outline-primary" title="Edit User">
-                      <i class="bi bi-pencil"></i>
-                    </a>
-                    <button type="button" class="btn btn-outline-danger" title="Delete User" data-id="{{ $user->id }}" data-name="{{ $user->name }}" onclick="handleDeleteUser(this.dataset.id, this.dataset.name)">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </div>
+                  @if ($user->trashed())
+                    <div class="btn-group btn-group-sm">
+                      <button type="submit" form="restore-user-{{ $user->id }}" class="btn btn-outline-success" title="Restore User Account">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
+                      </button>
+                      <button type="button" class="btn btn-outline-danger" title="Permanently Delete User" data-id="{{ $user->id }}" data-name="{{ $user->name }}" onclick="confirmForceDeleteUser(this.dataset.id, this.dataset.name)">
+                        <i class="bi bi-x-octagon me-1"></i> Delete
+                      </button>
+                    </div>
 
-                  <form id="delete-user-{{ $user->id }}" action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display: none;">
-                    @csrf
-                    @method('DELETE')
-                  </form>
+                    <form id="restore-user-{{ $user->id }}" action="{{ route('admin.users.restore', $user->id) }}" method="POST" class="d-none">
+                      @csrf
+                    </form>
+                    <form id="force-delete-user-{{ $user->id }}" action="{{ route('admin.users.force-delete', $user->id) }}" method="POST" class="d-none">
+                      @csrf
+                      @method('DELETE')
+                    </form>
+                  @else
+                    <div class="btn-group btn-group-sm">
+                      <a href="{{ route('admin.users.show', $user->id) }}" class="btn btn-outline-info" title="View Profile & Authority">
+                        <i class="bi bi-eye"></i>
+                      </a>
+                      <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#reassignModal-{{ $user->id }}" title="Reassign Authority">
+                        <i class="bi bi-arrow-left-right"></i>
+                      </button>
+                      <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-outline-primary" title="Edit User">
+                        <i class="bi bi-pencil"></i>
+                      </a>
+                      <button type="button" class="btn btn-outline-danger" title="Move to Trash" data-id="{{ $user->id }}" data-name="{{ $user->name }}" onclick="handleDeleteUser(this.dataset.id, this.dataset.name)">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+
+                    <form id="delete-user-{{ $user->id }}" action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="d-none">
+                      @csrf
+                      @method('DELETE')
+                    </form>
+                  @endif
                 </td>
               </tr>
             @endforeach
           </tbody>
         </table>
       </div>
+      </form>
     </div>
   </div>
 
@@ -393,10 +475,10 @@
 
   function handleDeleteUser(id, name) {
     showConfirmDialog({
-      title: 'Delete User Account?',
-      text: 'Are you sure you want to delete user "' + (name || 'this user') + '"? All their associated data and publications will be safely managed.',
+      title: 'Move User to Trash?',
+      text: 'Are you sure you want to move user "' + (name || 'this user') + '" to the trash? You can restore this account at any time.',
       icon: 'warning',
-      confirmButtonText: 'Yes, Delete User'
+      confirmButtonText: 'Yes, Move to Trash'
     }, function() {
       const form = document.getElementById('delete-user-' + id);
       if (form) {
@@ -409,6 +491,69 @@
         document.body.appendChild(dynamicForm);
         dynamicForm.submit();
       }
+    });
+  }
+
+  function confirmForceDeleteUser(id, name) {
+    showConfirmDialog({
+      title: 'Permanently Delete User?',
+      text: 'Are you sure you want to permanently delete user "' + (name || 'this user') + '"? This action is irreversible.',
+      icon: 'error',
+      confirmButtonText: 'Yes, Delete Permanently'
+    }, function() {
+      const form = document.getElementById('force-delete-user-' + id);
+      if (form) {
+        form.submit();
+      }
+    });
+  }
+
+  // Multi-selection checkboxes
+  document.addEventListener('DOMContentLoaded', function() {
+    const selectAllUsers = document.getElementById('selectAllUsers');
+    if (selectAllUsers) {
+      selectAllUsers.addEventListener('change', function() {
+        document.querySelectorAll('.user-check').forEach(cb => cb.checked = selectAllUsers.checked);
+      });
+    }
+  });
+
+  function confirmBulkUserAction() {
+    const form = document.getElementById('bulkUsersForm');
+    const action = form.querySelector('select[name="action"]').value;
+    const checked = form.querySelectorAll('.user-check:checked');
+
+    if (!action) {
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'warning', title: 'Action Required', text: 'Please select a bulk action from the dropdown.' });
+      } else {
+        alert('Please select a bulk action.');
+      }
+      return;
+    }
+
+    if (checked.length === 0) {
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'warning', title: 'Selection Required', text: 'Please select at least one user account.' });
+      } else {
+        alert('Please select at least one user.');
+      }
+      return;
+    }
+
+    const actionLabels = {
+      'delete': 'Move ' + checked.length + ' user(s) to trash?',
+      'restore': 'Restore ' + checked.length + ' user(s) from trash?',
+      'force_delete': 'Permanently delete ' + checked.length + ' user(s)? This cannot be undone!'
+    };
+
+    showConfirmDialog({
+      title: 'Confirm Bulk Action',
+      text: actionLabels[action] || 'Proceed with bulk action for ' + checked.length + ' user(s)?',
+      icon: (action === 'force_delete' || action === 'delete') ? 'warning' : 'question',
+      confirmButtonText: 'Yes, Proceed'
+    }, function() {
+      form.submit();
     });
   }
 </script>

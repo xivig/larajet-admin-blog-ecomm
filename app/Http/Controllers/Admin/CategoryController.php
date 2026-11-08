@@ -138,4 +138,51 @@ class CategoryController extends Controller
 
         return redirect()->route('admin.categories.index')->with('success', 'Category "' . $category->name . '" duplicated successfully as "' . $name . '"!');
     }
+
+    /**
+     * Bulk actions for categories.
+     */
+    public function bulkAction(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'action' => 'required|in:activate,deactivate,delete,restore,force_delete',
+            'ids' => 'required|array',
+            'ids.*' => 'integer',
+        ]);
+
+        $action = $request->input('action');
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return back()->with('error', 'No categories selected for bulk action.');
+        }
+
+        if ($action === 'activate') {
+            Category::whereIn('id', $ids)->update(['status' => true]);
+            return back()->with('success', count($ids) . ' category(s) activated successfully!');
+        } elseif ($action === 'deactivate') {
+            Category::whereIn('id', $ids)->update(['status' => false]);
+            return back()->with('success', count($ids) . ' category(s) deactivated successfully!');
+        } elseif ($action === 'delete') {
+            Category::whereIn('id', $ids)->delete();
+            return back()->with('success', count($ids) . ' category(s) moved to trash!');
+        } elseif ($action === 'restore') {
+            Category::onlyTrashed()->whereIn('id', $ids)->restore();
+            return back()->with('success', count($ids) . ' category(s) restored from trash!');
+        } elseif ($action === 'force_delete') {
+            $fallback = Category::whereNotIn('id', $ids)->first();
+            foreach ($ids as $id) {
+                $c = Category::onlyTrashed()->find($id);
+                if ($c) {
+                    if ($fallback) {
+                        Post::withTrashed()->where('category_id', $c->id)->update(['category_id' => $fallback->id]);
+                    }
+                    $c->forceDelete();
+                }
+            }
+            return back()->with('success', count($ids) . ' category(s) permanently deleted.');
+        }
+
+        return back();
+    }
 }

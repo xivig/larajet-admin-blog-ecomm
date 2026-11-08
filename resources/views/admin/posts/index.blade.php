@@ -88,25 +88,49 @@
       <p class="card-subtitle text-muted mb-0 small">Real-time searchable datatable with sorting and instant pagination</p>
     </div>
     <div class="card-body">
-      <div class="table-responsive">
-        <table id="postsDataTable" class="table table-hover align-middle">
-          <thead>
-            <tr>
-              <th style="width: 50px;">#</th>
-              <th style="width: 60px;">Cover</th>
-              <th>Article Title &amp; Slug</th>
-              <th>Category</th>
-              <th>Author</th>
-              <th>Comments</th>
-              <th>Status</th>
-              <th>Date</th>
-              <th data-sortable="false" class="text-end">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @foreach ($posts as $post)
+      <!-- Bulk Actions Form -->
+      <form id="bulkPostsForm" action="{{ route('admin.posts.bulk') }}" method="POST">
+        @csrf
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <select name="action" class="form-select form-select-sm w-auto" required>
+            <option value="">Bulk Actions</option>
+            @if (request('status') === 'trash')
+              <option value="restore">Restore Selected</option>
+              <option value="force_delete">Permanently Delete Selected</option>
+            @else
+              <option value="publish">Publish Selected</option>
+              <option value="draft">Draft Selected</option>
+              <option value="delete">Move to Trash</option>
+            @endif
+          </select>
+          <button type="button" class="btn btn-sm btn-primary" onclick="confirmBulkPostAction()">Apply</button>
+        </div>
+
+        <div class="table-responsive">
+          <table id="postsDataTable" class="table table-hover align-middle">
+            <thead>
               <tr>
-                <td>{{ $post->id }}</td>
+                <th style="width: 40px;" class="text-center" data-sortable="false">
+                  <input type="checkbox" id="selectAllPosts" class="form-check-input">
+                </th>
+                <th style="width: 50px;">#</th>
+                <th style="width: 60px;">Cover</th>
+                <th>Article Title &amp; Slug</th>
+                <th>Category</th>
+                <th>Author</th>
+                <th>Comments</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th data-sortable="false" class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach ($posts as $post)
+                <tr>
+                  <td class="text-center">
+                    <input type="checkbox" name="ids[]" value="{{ $post->id }}" class="form-check-input post-check">
+                  </td>
+                  <td>{{ $post->id }}</td>
                 <td>
                   @if ($post->image && $post->image->link)
                     <img src="{{ Str::startsWith($post->image->link, ['http', 'https', 'uploads/']) ? asset($post->image->link) : asset('xivig-blog/images/blog/' . $post->image->link) }}" alt="" class="post-thumb-sm" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
@@ -199,6 +223,7 @@
           </tbody>
         </table>
       </div>
+      </form>
     </div>
   </div>
 
@@ -206,6 +231,56 @@
 
 @push('scripts')
 <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAllPosts');
+    if (selectAll) {
+      selectAll.addEventListener('change', function() {
+        document.querySelectorAll('.post-check').forEach(cb => cb.checked = selectAll.checked);
+      });
+    }
+  });
+
+  function confirmBulkPostAction() {
+    const form = document.getElementById('bulkPostsForm');
+    const action = form.querySelector('select[name="action"]').value;
+    const checked = form.querySelectorAll('.post-check:checked');
+
+    if (!action) {
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'warning', title: 'Action Required', text: 'Please select a bulk action from the dropdown.' });
+      } else {
+        alert('Please select a bulk action.');
+      }
+      return;
+    }
+
+    if (checked.length === 0) {
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'warning', title: 'Selection Required', text: 'Please select at least one article.' });
+      } else {
+        alert('Please select at least one article.');
+      }
+      return;
+    }
+
+    const labels = {
+      'publish': 'Publish ' + checked.length + ' article(s)?',
+      'draft': 'Move ' + checked.length + ' article(s) to draft status?',
+      'delete': 'Move ' + checked.length + ' article(s) to trash?',
+      'restore': 'Restore ' + checked.length + ' article(s) from trash?',
+      'force_delete': 'Permanently delete ' + checked.length + ' article(s)? This cannot be undone!'
+    };
+
+    showConfirmDialog({
+      title: 'Confirm Bulk Action',
+      text: labels[action] || 'Proceed with bulk action for ' + checked.length + ' article(s)?',
+      icon: (action === 'force_delete' || action === 'delete') ? 'warning' : 'question',
+      confirmButtonText: 'Yes, Proceed'
+    }, function() {
+      form.submit();
+    });
+  }
+
   function confirmDelete(id, title) {
     showConfirmDialog({
       title: 'Move to Trash?',

@@ -337,4 +337,48 @@ class PostController extends Controller
 
         return redirect()->route('admin.dashboard')->with('success', 'Quick draft saved successfully!');
     }
+
+    /**
+     * Bulk actions for posts (publish, draft, delete, restore, force-delete).
+     */
+    public function bulkAction(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'action' => 'required|in:publish,draft,delete,restore,force_delete',
+            'ids' => 'required|array',
+            'ids.*' => 'integer',
+        ]);
+
+        $action = $request->input('action');
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return back()->with('error', 'No articles selected for bulk action.');
+        }
+
+        if ($action === 'publish') {
+            Post::whereIn('id', $ids)->update(['status' => true]);
+            return back()->with('success', count($ids) . ' article(s) published successfully!');
+        } elseif ($action === 'draft') {
+            Post::whereIn('id', $ids)->update(['status' => false]);
+            return back()->with('success', count($ids) . ' article(s) set to draft!');
+        } elseif ($action === 'delete') {
+            Post::whereIn('id', $ids)->delete();
+            return back()->with('success', count($ids) . ' article(s) moved to trash!');
+        } elseif ($action === 'restore') {
+            Post::onlyTrashed()->whereIn('id', $ids)->restore();
+            return back()->with('success', count($ids) . ' article(s) restored from trash!');
+        } elseif ($action === 'force_delete') {
+            foreach ($ids as $id) {
+                $p = Post::onlyTrashed()->find($id);
+                if ($p) {
+                    $p->comments()->forceDelete();
+                    $p->forceDelete();
+                }
+            }
+            return back()->with('success', count($ids) . ' article(s) permanently deleted.');
+        }
+
+        return back();
+    }
 }

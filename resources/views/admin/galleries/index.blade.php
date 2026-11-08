@@ -47,11 +47,30 @@
 
   <!-- Galleries Table Card -->
   <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="p-3 bg-light-subtle border-bottom">
+      <form id="bulkGalleriesForm" action="{{ route('admin.galleries.bulk') }}" method="POST">
+        @csrf
+        <div class="d-flex align-items-center gap-2">
+          <select name="action" class="form-select form-select-sm w-auto rounded-pill" required>
+            <option value="">Bulk Actions</option>
+            @if ($status === 'trash')
+              <option value="restore">Restore Selected</option>
+              <option value="force_delete">Permanently Delete Selected</option>
+            @else
+              <option value="delete">Move to Trash</option>
+            @endif
+          </select>
+          <button type="button" class="btn btn-sm btn-primary rounded-pill px-3" onclick="confirmBulkGalleryAction()">Apply</button>
+        </div>
+    </div>
     <div class="table-responsive">
       <table class="table table-hover align-middle mb-0">
         <thead class="bg-light-subtle text-muted text-uppercase" style="font-size: 11px; letter-spacing: 0.8px;">
           <tr>
-            <th class="ps-4 py-3" style="width: 320px;">Gallery Title</th>
+            <th class="ps-4 py-3 text-center" style="width: 40px;" data-sortable="false">
+              <input type="checkbox" id="selectAllGalleries" class="form-check-input">
+            </th>
+            <th class="py-3" style="width: 320px;">Gallery Title</th>
             <th class="py-3" style="width: 160px;">Assets</th>
             <th class="py-3" style="width: 140px;">Status</th>
             <th class="py-3" style="width: 180px;">Created At</th>
@@ -61,8 +80,11 @@
         <tbody class="border-top-0">
           @forelse ($galleries as $gallery)
             <tr>
+              <td class="ps-4 py-3 text-center">
+                <input type="checkbox" name="ids[]" value="{{ $gallery->id }}" class="form-check-input gallery-check">
+              </td>
               <!-- Gallery Title & Thumbnail -->
-              <td class="ps-4 py-3">
+              <td class="py-3">
                 <div class="d-flex align-items-center gap-3">
                   <img src="{{ $gallery->cover_url }}" 
                        alt="{{ $gallery->title }}" 
@@ -181,6 +203,7 @@
         </tbody>
       </table>
     </div>
+    </form>
   </div>
 
 </div>
@@ -303,6 +326,54 @@
 
 @push('scripts')
 <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAllGalleries');
+    if (selectAll) {
+      selectAll.addEventListener('change', function() {
+        document.querySelectorAll('.gallery-check').forEach(cb => cb.checked = selectAll.checked);
+      });
+    }
+  });
+
+  function confirmBulkGalleryAction() {
+    const form = document.getElementById('bulkGalleriesForm');
+    const action = form.querySelector('select[name="action"]').value;
+    const checked = form.querySelectorAll('.gallery-check:checked');
+
+    if (!action) {
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'warning', title: 'Action Required', text: 'Please select a bulk action from the dropdown.' });
+      } else {
+        alert('Please select a bulk action.');
+      }
+      return;
+    }
+
+    if (checked.length === 0) {
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'warning', title: 'Selection Required', text: 'Please select at least one gallery.' });
+      } else {
+        alert('Please select at least one gallery.');
+      }
+      return;
+    }
+
+    const labels = {
+      'delete': 'Move ' + checked.length + ' gallery(s) to trash?',
+      'restore': 'Restore ' + checked.length + ' gallery(s) from trash?',
+      'force_delete': 'Permanently delete ' + checked.length + ' gallery(s)?'
+    };
+
+    showConfirmDialog({
+      title: 'Confirm Bulk Action',
+      text: labels[action] || 'Proceed with bulk action for ' + checked.length + ' gallery(s)?',
+      icon: (action === 'force_delete' || action === 'delete') ? 'warning' : 'question',
+      confirmButtonText: 'Yes, Proceed'
+    }, function() {
+      form.submit();
+    });
+  }
+
   function confirmTrashGallery(id, title) {
     showConfirmDialog({
       title: 'Move Gallery to Trash?',

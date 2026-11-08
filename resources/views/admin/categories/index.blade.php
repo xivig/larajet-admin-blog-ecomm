@@ -75,22 +75,46 @@
           <small class="text-muted">Listing of all registered topic taxonomies and related post volumes</small>
         </div>
         <div class="card-body">
-          <div class="table-responsive">
-            <table id="categoriesTable" class="table table-hover align-middle">
-              <thead>
-                <tr>
-                  <th style="width: 50px;">#</th>
-                  <th>Category Name</th>
-                  <th>Description</th>
-                  <th>Articles</th>
-                  <th>Status</th>
-                  <th data-sortable="false" class="text-end">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                @foreach ($categories as $cat)
+          <!-- Bulk Actions Form -->
+          <form id="bulkCategoriesForm" action="{{ route('admin.categories.bulk') }}" method="POST">
+            @csrf
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <select name="action" class="form-select form-select-sm w-auto" required>
+                <option value="">Bulk Actions</option>
+                @if (request('status') === 'trash')
+                  <option value="restore">Restore Selected</option>
+                  <option value="force_delete">Permanently Delete Selected</option>
+                @else
+                  <option value="activate">Activate Selected</option>
+                  <option value="deactivate">Deactivate Selected</option>
+                  <option value="delete">Move to Trash</option>
+                @endif
+              </select>
+              <button type="button" class="btn btn-sm btn-primary" onclick="confirmBulkCatAction()">Apply</button>
+            </div>
+
+            <div class="table-responsive">
+              <table id="categoriesTable" class="table table-hover align-middle">
+                <thead>
                   <tr>
-                    <td>{{ $cat->id }}</td>
+                    <th style="width: 40px;" class="text-center" data-sortable="false">
+                      <input type="checkbox" id="selectAllCats" class="form-check-input">
+                    </th>
+                    <th style="width: 50px;">#</th>
+                    <th>Category Name</th>
+                    <th>Description</th>
+                    <th>Articles</th>
+                    <th>Status</th>
+                    <th data-sortable="false" class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach ($categories as $cat)
+                    <tr>
+                      <td class="text-center">
+                        <input type="checkbox" name="ids[]" value="{{ $cat->id }}" class="form-check-input cat-check">
+                      </td>
+                      <td>{{ $cat->id }}</td>
                     <td>
                       <strong class="text-primary">{{ $cat->name }}</strong>
                     </td>
@@ -156,6 +180,7 @@
               </tbody>
             </table>
           </div>
+          </form>
         </div>
       </div>
     </div>
@@ -206,6 +231,56 @@
 
 @push('scripts')
 <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAllCats');
+    if (selectAll) {
+      selectAll.addEventListener('change', function() {
+        document.querySelectorAll('.cat-check').forEach(cb => cb.checked = selectAll.checked);
+      });
+    }
+  });
+
+  function confirmBulkCatAction() {
+    const form = document.getElementById('bulkCategoriesForm');
+    const action = form.querySelector('select[name="action"]').value;
+    const checked = form.querySelectorAll('.cat-check:checked');
+
+    if (!action) {
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'warning', title: 'Action Required', text: 'Please select a bulk action from the dropdown.' });
+      } else {
+        alert('Please select a bulk action.');
+      }
+      return;
+    }
+
+    if (checked.length === 0) {
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'warning', title: 'Selection Required', text: 'Please select at least one category.' });
+      } else {
+        alert('Please select at least one category.');
+      }
+      return;
+    }
+
+    const labels = {
+      'activate': 'Activate ' + checked.length + ' category(s)?',
+      'deactivate': 'Deactivate ' + checked.length + ' category(s)?',
+      'delete': 'Move ' + checked.length + ' category(s) to trash?',
+      'restore': 'Restore ' + checked.length + ' category(s) from trash?',
+      'force_delete': 'Permanently delete ' + checked.length + ' category(s)? Any posts will be safely preserved.'
+    };
+
+    showConfirmDialog({
+      title: 'Confirm Bulk Action',
+      text: labels[action] || 'Proceed with bulk action for ' + checked.length + ' category(s)?',
+      icon: (action === 'force_delete' || action === 'delete') ? 'warning' : 'question',
+      confirmButtonText: 'Yes, Proceed'
+    }, function() {
+      form.submit();
+    });
+  }
+
   function deleteCategory(id, name) {
     showConfirmDialog({
       title: 'Move to Trash?',

@@ -285,4 +285,65 @@ class FileManagerController extends Controller
         return redirect()->route('admin.file-manager.index', ['folder' => 'uploads/trash'])
             ->with('success', 'Recycle Bin has been completely emptied.');
     }
+
+    /**
+     * Bulk actions for file manager files (delete, restore, force_delete).
+     */
+    public function bulkAction(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'action' => 'required|in:delete,restore,force_delete',
+            'paths' => 'required|array',
+            'paths.*' => 'string',
+        ]);
+
+        $action = $request->input('action');
+        $paths = $request->input('paths', []);
+        $count = 0;
+
+        $trashDir = public_path('uploads/trash');
+        if (!File::exists($trashDir)) {
+            File::makeDirectory($trashDir, 0755, true);
+        }
+
+        foreach ($paths as $relPath) {
+            if (str_contains($relPath, '..')) continue;
+            $fullPath = public_path($relPath);
+            if (!File::exists($fullPath) || !is_file($fullPath)) continue;
+
+            if ($action === 'delete') {
+                $dirSlug = str_replace(['/', '\\'], '_', dirname($relPath));
+                $trashName = $dirSlug . '___' . basename($fullPath);
+                $dest = $trashDir . DIRECTORY_SEPARATOR . $trashName;
+                File::move($fullPath, $dest);
+                $count++;
+            } elseif ($action === 'restore') {
+                $fileName = basename($fullPath);
+                $destFolder = 'uploads/posts';
+                $realName = $fileName;
+                if (str_contains($fileName, '___')) {
+                    [$originSlug, $extractedName] = explode('___', $fileName, 2);
+                    $realName = $extractedName;
+                    $destFolder = str_replace('_', '/', $originSlug);
+                }
+                $targetDir = public_path($destFolder);
+                if (!File::exists($targetDir)) {
+                    File::makeDirectory($targetDir, 0755, true);
+                }
+                $targetPath = $targetDir . DIRECTORY_SEPARATOR . $realName;
+                if (File::exists($targetPath)) {
+                    $ext = pathinfo($realName, PATHINFO_EXTENSION);
+                    $base = pathinfo($realName, PATHINFO_FILENAME);
+                    $targetPath = $targetDir . DIRECTORY_SEPARATOR . $base . '_restored_' . time() . '.' . $ext;
+                }
+                File::move($fullPath, $targetPath);
+                $count++;
+            } elseif ($action === 'force_delete') {
+                File::delete($fullPath);
+                $count++;
+            }
+        }
+
+        return back()->with('success', "Bulk action '{$action}' successfully executed on {$count} file(s).");
+    }
 }

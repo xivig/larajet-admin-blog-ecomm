@@ -264,4 +264,42 @@ class GalleryController extends Controller
 
         return redirect()->route('admin.galleries.show', $gallery->id)->with('success', 'Gallery cover updated.');
     }
+
+    /**
+     * Bulk actions for galleries.
+     */
+    public function bulkAction(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'action' => 'required|in:delete,restore,force_delete',
+            'ids' => 'required|array',
+            'ids.*' => 'integer',
+        ]);
+
+        $action = $request->input('action');
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return back()->with('error', 'No galleries selected for bulk action.');
+        }
+
+        if ($action === 'delete') {
+            Gallery::whereIn('id', $ids)->delete();
+            return back()->with('success', count($ids) . ' gallery(s) moved to trash!');
+        } elseif ($action === 'restore') {
+            Gallery::onlyTrashed()->whereIn('id', $ids)->restore();
+            return back()->with('success', count($ids) . ' gallery(s) restored from trash!');
+        } elseif ($action === 'force_delete') {
+            foreach ($ids as $id) {
+                $g = Gallery::onlyTrashed()->find($id);
+                if ($g) {
+                    $g->items()->delete();
+                    $g->forceDelete();
+                }
+            }
+            return back()->with('success', count($ids) . ' gallery(s) permanently deleted.');
+        }
+
+        return back();
+    }
 }

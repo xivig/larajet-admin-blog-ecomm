@@ -53,21 +53,40 @@
           <small class="text-muted">All metadata tags used across published articles</small>
         </div>
         <div class="card-body">
-          <div class="table-responsive">
-            <table id="tagsTable" class="table table-hover align-middle">
-              <thead>
-                <tr>
-                  <th style="width: 50px;">#</th>
-                  <th>Tag Name</th>
-                  <th>Articles Tagged</th>
-                  <th>Created</th>
-                  <th data-sortable="false" class="text-end">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                @foreach ($tags as $tag)
+          <!-- Bulk Actions Form -->
+          <form id="bulkTagsForm" action="{{ route('admin.tags.bulk') }}" method="POST">
+            @csrf
+            <div class="d-flex align-items-center gap-2 mb-3">
+              <select name="action" class="form-select form-select-sm w-auto" required>
+                <option value="">Bulk Actions</option>
+                <option value="delete">Move to Trash</option>
+                <option value="restore">Restore Selected</option>
+                <option value="force_delete">Permanently Delete Selected</option>
+              </select>
+              <button type="button" class="btn btn-sm btn-primary" onclick="confirmBulkTagAction()">Apply</button>
+            </div>
+
+            <div class="table-responsive">
+              <table id="tagsTable" class="table table-hover align-middle">
+                <thead>
                   <tr>
-                    <td>{{ $tag->id }}</td>
+                    <th style="width: 40px;" class="text-center" data-sortable="false">
+                      <input type="checkbox" id="selectAllTags" class="form-check-input">
+                    </th>
+                    <th style="width: 50px;">#</th>
+                    <th>Tag Name</th>
+                    <th>Articles Tagged</th>
+                    <th>Created</th>
+                    <th data-sortable="false" class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach ($tags as $tag)
+                    <tr>
+                      <td class="text-center">
+                        <input type="checkbox" name="ids[]" value="{{ $tag->id }}" class="form-check-input tag-check">
+                      </td>
+                      <td>{{ $tag->id }}</td>
                     <td>
                       <span class="badge bg-secondary-subtle text-secondary fs-6 px-2.5 py-1">
                         #{{ $tag->name }}
@@ -101,6 +120,7 @@
               </tbody>
             </table>
           </div>
+          </form>
         </div>
       </div>
     </div>
@@ -144,6 +164,54 @@
 
 @push('scripts')
 <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const selectAll = document.getElementById('selectAllTags');
+    if (selectAll) {
+      selectAll.addEventListener('change', function() {
+        document.querySelectorAll('.tag-check').forEach(cb => cb.checked = selectAll.checked);
+      });
+    }
+  });
+
+  function confirmBulkTagAction() {
+    const form = document.getElementById('bulkTagsForm');
+    const action = form.querySelector('select[name="action"]').value;
+    const checked = form.querySelectorAll('.tag-check:checked');
+
+    if (!action) {
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'warning', title: 'Action Required', text: 'Please select a bulk action from the dropdown.' });
+      } else {
+        alert('Please select a bulk action.');
+      }
+      return;
+    }
+
+    if (checked.length === 0) {
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'warning', title: 'Selection Required', text: 'Please select at least one tag.' });
+      } else {
+        alert('Please select at least one tag.');
+      }
+      return;
+    }
+
+    const labels = {
+      'delete': 'Move ' + checked.length + ' tag(s) to trash?',
+      'restore': 'Restore ' + checked.length + ' tag(s) from trash?',
+      'force_delete': 'Permanently delete ' + checked.length + ' tag(s)?'
+    };
+
+    showConfirmDialog({
+      title: 'Confirm Bulk Action',
+      text: labels[action] || 'Proceed with bulk action for ' + checked.length + ' tag(s)?',
+      icon: (action === 'force_delete' || action === 'delete') ? 'warning' : 'question',
+      confirmButtonText: 'Yes, Proceed'
+    }, function() {
+      form.submit();
+    });
+  }
+
   function deleteTag(id, name) {
     showConfirmDialog({
       title: 'Delete Tag?',

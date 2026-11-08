@@ -84,4 +84,36 @@ class TagController extends Controller
 
         return redirect()->route('admin.tags.index')->with('success', 'Tag "#' . $name . '" permanently deleted.');
     }
+
+    /**
+     * Bulk actions for tags.
+     */
+    public function bulkAction(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'action' => 'required|in:delete,restore,force_delete',
+            'ids' => 'required|array',
+            'ids.*' => 'integer',
+        ]);
+
+        $action = $request->input('action');
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return back()->with('error', 'No tags selected for bulk action.');
+        }
+
+        if ($action === 'delete') {
+            Tag::whereIn('id', $ids)->delete();
+            return back()->with('success', count($ids) . ' tag(s) moved to trash!');
+        } elseif ($action === 'restore') {
+            Tag::onlyTrashed()->whereIn('id', $ids)->restore();
+            return back()->with('success', count($ids) . ' tag(s) restored from trash!');
+        } elseif ($action === 'force_delete') {
+            Tag::onlyTrashed()->whereIn('id', $ids)->forceDelete();
+            return back()->with('success', count($ids) . ' tag(s) permanently deleted.');
+        }
+
+        return back();
+    }
 }

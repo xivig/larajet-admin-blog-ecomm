@@ -20,11 +20,32 @@ class UserController extends Controller
     /**
      * Display a listing of registered users with role and authority footprints.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $users = User::with(['roles', 'author'])->withCount(['posts', 'comments'])->latest()->get();
+        $status = $request->input('status');
+
+        if ($status === 'trash') {
+            $query = User::onlyTrashed()->with(['roles', 'author'])->withCount(['posts', 'comments'])->latest();
+        } else {
+            $query = User::with(['roles', 'author'])->withCount(['posts', 'comments'])->latest();
+        }
+
+        if ($request->filled('role')) {
+            $query->whereHas('roles', function ($q) use ($request) {
+                $q->where('roles.id', $request->role);
+            });
+        }
+
+        $users = $query->get();
         $roles = Role::all();
-        return view('admin.users.index', compact('users', 'roles'));
+
+        $counts = [
+            'all' => User::count(),
+            'active' => User::count(),
+            'trash' => User::onlyTrashed()->count(),
+        ];
+
+        return view('admin.users.index', compact('users', 'roles', 'counts'));
     }
 
     /**
@@ -349,21 +370,43 @@ class UserController extends Controller
     }
 
     /**
-     * Remove the specified user from storage with safe authority reassignment verification.
+     * Remove the specified user from storage with soft delete.
      */
     public function destroy(Request $request, User $user): RedirectResponse
     {
+        $adminUser = auth('admin')->user();
+        if ($adminUser && $adminUser->email === $user->email) {
+            return back()->with('error', 'You cannot move your currently logged-in administrator account to trash.');
+        }
+
+        $name = $user->name;
+        $user->delete();
+
+        return redirect()->route('admin.users.index')->with('success', 'User "' . $name . '" moved to trash successfully!');
+    }
+
+    /**
+     * Restore a soft-deleted user from trash.
+     */
+    public function restore(int|string $id): RedirectResponse
+    {
+        $user = User::onlyTrashed()->findOrFail($id);
+        $user->restore();
+
+        return redirect()->route('admin.users.index', ['status' => 'trash'])->with('success', 'User "' . $user->name . '" restored successfully!');
+    }
+
+    /**
+     * Permanently remove a user from storage and safely reassign orphan records.
+     */
+    public function forceDelete(Request $request, int|string $id): RedirectResponse
+    {
+        $user = User::onlyTrashed()->findOrFail($id);
         $name = $user->name;
 
-        DB::transaction(function () use ($request, $user) {
+        DB::transaction(function () use ($user) {
             // Find a recipient user to prevent orphan database foreign key issues
-            $targetUser = null;
-            if ($request->filled('reassign_to_user_id')) {
-                $targetUser = User::find($request->reassign_to_user_id);
-            }
-            if (!$targetUser) {
-                $targetUser = User::where('id', '!=', $user->id)->first();
-            }
+            $targetUser = User::where('id', '!=', $user->id)->first();
 
             if ($targetUser) {
                 $targetAuthor = $targetUser->author ?: Author::create([
@@ -394,9 +437,60 @@ class UserController extends Controller
             if ($user->author) {
                 $user->author()->delete();
             }
-            $user->delete();
+            $user->forceDelete();
         });
 
-        return redirect()->route('admin.users.index')->with('success', 'User "' . $name . '" deleted successfully!');
+        return redirect()->route('admin.users.index', ['status' => 'trash'])->with('success', 'User "' . $name . '" permanently deleted.');
+    }
+
+    /**
+     * Perform bulk actions on selected users.
+     */
+    public function bulkAction(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'action' => 'required|in:delete,restore,force_delete',
+            'ids' => 'required|array',
+            'ids.*' => 'integer',
+        ]);
+
+        $action = $request->input('action');
+        $rawIds = $request->input('ids', []);
+        $adminEmail = auth('admin')->user()?->email;
+
+        // Filter out current logged in admin user
+        $ids = [];
+        foreach ($rawIds as $id) {
+            $u = User::withTrashed()->find($id);
+            if ($u && (!$adminEmail || $u->email !== $adminEmail)) {
+                $ids[] = $u->id;
+            }
+        }
+
+        if (empty($ids)) {
+            return back()->with('error', 'No eligible users selected for this action (cannot modify own account).');
+        }
+
+        if ($action === 'delete') {
+            User::whereIn('id', $ids)->delete();
+            return back()->with('success', count($ids) . ' user(s) moved to trash successfully!');
+        } elseif ($action === 'restore') {
+            User::onlyTrashed()->whereIn('id', $ids)->restore();
+            return back()->with('success', count($ids) . ' user(s) restored successfully!');
+        } elseif ($action === 'force_delete') {
+            foreach ($ids as $id) {
+                $u = User::onlyTrashed()->find($id);
+                if ($u) {
+                    $u->roles()->detach();
+                    if ($u->author) {
+                        $u->author()->delete();
+                    }
+                    $u->forceDelete();
+                }
+            }
+            return back()->with('success', count($ids) . ' user(s) permanently deleted.');
+        }
+
+        return back();
     }
 }

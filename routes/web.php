@@ -92,6 +92,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('logout', [LoginController::class, 'destroy'])->name('admin.logout');
 
     // Posts Management
+    Route::post('posts/bulk', [AdminPostController::class, 'bulkAction'])->name('admin.posts.bulk');
     Route::post('posts/quick-draft', [AdminPostController::class, 'quickDraft'])->name('admin.posts.quick-draft');
     Route::post('posts/{post}/duplicate', [AdminPostController::class, 'duplicate'])->name('admin.posts.duplicate');
     Route::post('posts/{id}/restore', [AdminPostController::class, 'restore'])->name('admin.posts.restore');
@@ -99,12 +100,14 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::resource('posts', AdminPostController::class)->names('admin.posts');
 
     // Categories Management
+    Route::post('categories/bulk', [AdminCategoryController::class, 'bulkAction'])->name('admin.categories.bulk');
     Route::post('categories/{category}/duplicate', [AdminCategoryController::class, 'duplicate'])->name('admin.categories.duplicate');
     Route::post('categories/{id}/restore', [AdminCategoryController::class, 'restore'])->name('admin.categories.restore');
     Route::delete('categories/{id}/force-delete', [AdminCategoryController::class, 'forceDelete'])->name('admin.categories.force-delete');
     Route::resource('categories', AdminCategoryController::class)->names('admin.categories');
 
     // Tags Management
+    Route::post('tags/bulk', [AdminTagController::class, 'bulkAction'])->name('admin.tags.bulk');
     Route::post('tags/{id}/restore', [AdminTagController::class, 'restore'])->name('admin.tags.restore');
     Route::delete('tags/{id}/force-delete', [AdminTagController::class, 'forceDelete'])->name('admin.tags.force-delete');
     Route::resource('tags', AdminTagController::class)->names('admin.tags');
@@ -138,6 +141,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('file-manager/restore', [AdminFileManagerController::class, 'restore'])->name('admin.file-manager.restore');
     Route::delete('file-manager/force-delete', [AdminFileManagerController::class, 'forceDelete'])->name('admin.file-manager.force-delete');
     Route::post('file-manager/empty-trash', [AdminFileManagerController::class, 'emptyTrash'])->name('admin.file-manager.empty-trash');
+    Route::post('file-manager/bulk', [AdminFileManagerController::class, 'bulkAction'])->name('admin.file-manager.bulk');
     Route::delete('file-manager', [AdminFileManagerController::class, 'destroy'])->name('admin.file-manager.destroy');
 
     // Email / Communications App
@@ -174,10 +178,14 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('image-cropper/save', [ImageCropperController::class, 'save'])->name('admin.image-cropper.save');
 
     // Users Management & Authority Reassignment
+    Route::post('users/bulk', [AdminUserController::class, 'bulkAction'])->name('admin.users.bulk');
+    Route::post('users/{id}/restore', [AdminUserController::class, 'restore'])->name('admin.users.restore');
+    Route::delete('users/{id}/force-delete', [AdminUserController::class, 'forceDelete'])->name('admin.users.force-delete');
     Route::post('users/{user}/reassign-authority', [AdminUserController::class, 'reassignAuthority'])->name('admin.users.reassign-authority');
     Route::resource('users', AdminUserController::class)->names('admin.users');
 
     // Gallery Management
+    Route::post('galleries/bulk', [AdminGalleryController::class, 'bulkAction'])->name('admin.galleries.bulk');
     Route::post('galleries/{id}/restore', [AdminGalleryController::class, 'restore'])->name('admin.galleries.restore');
     Route::delete('galleries/{id}/force-delete', [AdminGalleryController::class, 'forceDelete'])->name('admin.galleries.force-delete');
     Route::post('galleries/{gallery}/photos', [AdminGalleryController::class, 'uploadPhotos'])->name('admin.galleries.photos.upload');
