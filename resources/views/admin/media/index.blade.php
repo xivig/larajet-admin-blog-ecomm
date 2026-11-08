@@ -241,10 +241,10 @@
 
     <!-- Main Content: Grid View or List View -->
     @if($activeView === 'grid')
-        <!-- GRID VIEW -->
+        <!-- GRID VIEW (4 COLUMNS) -->
         <div class="row g-3 mb-4">
             @forelse($pictures as $pic)
-                <div class="col-xxl-2 col-xl-3 col-lg-4 col-md-4 col-sm-6">
+                <div class="col-xxl-3 col-xl-3 col-lg-3 col-md-6 col-sm-6">
                     <div class="card h-100 border-0 shadow-sm media-card position-relative overflow-hidden group-hover">
                         <!-- Select Checkbox -->
                         <div class="position-absolute top-0 start-0 m-2" style="z-index: 10;">
@@ -260,7 +260,7 @@
                         </div>
 
                         <!-- Asset Image Thumbnail / File Representation -->
-                        <div class="media-thumb-wrap position-relative cursor-pointer" onclick="openInspectorModal({{ $pic->id }})" style="height: 160px; background: rgba(0,0,0,0.04); overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                        <div class="media-thumb-wrap position-relative cursor-pointer" onclick="openInspectorModal({{ $pic->id }})" style="height: 195px; background: rgba(0,0,0,0.04); overflow: hidden; display: flex; align-items: center; justify-content: center;">
                             @if($pic->is_image)
                                 <img src="{{ $pic->url }}" alt="{{ $pic->alt_text }}" class="w-100 h-100 object-fit-cover transition-transform" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                             @else

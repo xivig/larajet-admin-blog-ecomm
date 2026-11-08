@@ -72,9 +72,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         grid.innerHTML = items.map(item => `
-            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+            <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
                 <div class="card h-100 border p-1 picker-card cursor-pointer" onclick="selectPickerAsset(${item.id}, '${item.url}', '${item.name.replace(/'/g, "\\'")}')" style="cursor: pointer; transition: all 0.2s;">
-                    <div style="height: 100px; overflow: hidden; background: #0000000a; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                    <div style="height: 115px; overflow: hidden; background: #0000000a; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
                         <img src="${item.url}" alt="${item.alt_text || ''}" class="w-100 h-100 object-fit-cover" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                     </div>
                     <div class="p-1.5 text-truncate">
