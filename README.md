@@ -1,11 +1,11 @@
-# XivigAdmin & Larajet Blog/E-Commerce Command Center
+# Laravel Blog Admin Template (XivigAdmin)
 
 [![Laravel 12 / 13 Compatible](https://img.shields.io/badge/Laravel-12%20%7C%2013%20Compatible-FF2D20?style=flat&logo=laravel)](https://laravel.com)
 [![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-777BB4?style=flat&logo=php)](https://www.php.net)
 [![Bootstrap 5](https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=flat&logo=bootstrap)](https://getbootstrap.com)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-An enterprise-grade, high-performance Blog & Digital Media Command Center built with **Laravel 12/13 Compatibility**, **Laravel Fortify**, **Laravel Jetstream**, and **Bootstrap 5**. Designed with a dual-guard architecture (`admin` and `web`), granular Role-Based Access Control (RBAC), an interactive Cropper.js Studio, modern File Manager, Webmail, Real-Time Chat, and an automated SEO/Backup suite.
+An enterprise-grade, high-performance **Laravel Blog & Admin Template** built with **Laravel 12/13 Compatibility**, **Laravel Fortify**, **Laravel Jetstream**, and **Bootstrap 5**. Designed with a dual-guard architecture (`admin` and `web`), granular Role-Based Access Control (RBAC), an interactive Cropper.js Studio, modern File Manager, Webmail, Real-Time Chat, and an automated SEO/Backup suite.
 
 ---
 
@@ -74,8 +74,8 @@ An enterprise-grade, high-performance Blog & Digital Media Command Center built 
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/xivig/larajet-admin-blog-ecomm.git
-cd larajet-admin-blog-ecomm
+git clone https://github.com/xivig/laravel-blog-admin-template.git
+cd laravel-blog-admin-template
 ```
 
 ### Step 2: Environment Configuration
@@ -89,7 +89,7 @@ cp .env.example .env
 By default, the `.env` is pre-configured for portable **SQLite**:
 
 ```env
-APP_NAME=XivigAdmin
+APP_NAME=LaravelBlogAdminTemplate
 APP_ENV=local
 APP_KEY=
 APP_DEBUG=true
@@ -104,7 +104,7 @@ DB_DATABASE=database/database.sqlite
 > DB_CONNECTION=mysql
 > DB_HOST=127.0.0.1
 > DB_PORT=3306
-> DB_DATABASE=xivig_admin
+> DB_DATABASE=laravel_blog_admin
 > DB_USERNAME=root
 > DB_PASSWORD=
 > ```
@@ -288,7 +288,7 @@ The application is now accessible at:
 ## Directory Structure
 
 ```text
-larajet-admin-blog-ecomm/
+laravel-blog-admin-template/
 ├── app/
 │   ├── Actions/Fortify/          # Fortify user creation, reset, and password rules
 │   ├── Http/
