@@ -28,7 +28,10 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('admin.dashboard', absolute: false));
+        // Forget any stale intended URL that might point back to login
+        $request->session()->forget('url.intended');
+
+        return redirect()->route('admin.dashboard');
     }
 
     /**

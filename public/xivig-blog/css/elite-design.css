@@ -47,20 +47,20 @@ html {
 }
 
 /* ==============================================================
-   Elite Boxed Layout System
+   Elite Boxed Layout System (Seamless No-Border Frameless Canvas)
 ============================================================== */
 body.boxed-layout-body {
   background-color: #070a12 !important;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.10) 0px, transparent 50%),
     radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.08) 0px, transparent 50%),
-    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px) !important;
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px) !important;
   background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px !important;
   background-attachment: fixed !important;
   min-height: 100vh;
-  margin: 0;
-  padding: 0;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .boxed-layout-wrapper {
@@ -68,33 +68,87 @@ body.boxed-layout-body {
   max-width: 1380px;
   margin: 0 auto;
   background: #ffffff;
-  box-shadow: 0 0 70px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.08);
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border: none !important;
+  outline: none !important;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.7);
   position: relative;
   overflow-x: hidden;
 }
 
 @media (min-width: 1440px) {
   .boxed-layout-wrapper {
-    margin-top: 24px;
-    margin-bottom: 28px;
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 0 auto;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: -20px 0 50px rgba(0, 0, 0, 0.65), 20px 0 50px rgba(0, 0, 0, 0.65);
   }
 }
 
 @media (max-width: 1380px) {
   .boxed-layout-wrapper {
     max-width: 100%;
-    margin-top: 0;
-    margin-bottom: 0;
-    border-left: none;
-    border-right: none;
-    border-radius: 0;
+    margin: 0 auto;
+    border: none !important;
+    border-radius: 0 !important;
     box-shadow: none;
   }
 }
+
+/* ==============================================================
+   Bootstrap 5 Universal Compatibility Polyfill & Bridging Layer
+============================================================== */
+/* BS4 -> BS5 Spacing utilities */
+.mr-0 { margin-right: 0 !important; }
+.mr-1 { margin-right: 0.25rem !important; }
+.mr-2 { margin-right: 0.5rem !important; }
+.mr-3 { margin-right: 1rem !important; }
+.mr-4 { margin-right: 1.5rem !important; }
+.mr-5 { margin-right: 3rem !important; }
+.mr-auto { margin-right: auto !important; }
+
+.ml-0 { margin-left: 0 !important; }
+.ml-1 { margin-left: 0.25rem !important; }
+.ml-2 { margin-left: 0.5rem !important; }
+.ml-3 { margin-left: 1rem !important; }
+.ml-4 { margin-left: 1.5rem !important; }
+.ml-5 { margin-left: 3rem !important; }
+.ml-auto { margin-left: auto !important; }
+
+.pr-0 { padding-right: 0 !important; }
+.pr-1 { padding-right: 0.25rem !important; }
+.pr-2 { padding-right: 0.5rem !important; }
+.pr-3 { padding-right: 1rem !important; }
+.pr-4 { padding-right: 1.5rem !important; }
+.pr-5 { padding-right: 3rem !important; }
+
+.pl-0 { padding-left: 0 !important; }
+.pl-1 { padding-left: 0.25rem !important; }
+.pl-2 { padding-left: 0.5rem !important; }
+.pl-3 { padding-left: 1rem !important; }
+.pl-4 { padding-left: 1.5rem !important; }
+.pl-5 { padding-left: 3rem !important; }
+
+.float-left { float: left !important; }
+.float-right { float: right !important; }
+.text-left { text-align: left !important; }
+.text-right { text-align: right !important; }
+
+.font-weight-bold { font-weight: 700 !important; }
+.font-weight-normal { font-weight: 400 !important; }
+.font-weight-light { font-weight: 300 !important; }
+
+.badge-pill { border-radius: 50rem !important; }
+.badge-primary { background-color: #6366f1 !important; color: #fff !important; }
+.badge-success { background-color: #10b981 !important; color: #fff !important; }
+.badge-danger { background-color: #ef4444 !important; color: #fff !important; }
+.badge-warning { background-color: #f59e0b !important; color: #fff !important; }
+.badge-info { background-color: #06b6d4 !important; color: #fff !important; }
+.badge-dark { background-color: #1e293b !important; color: #fff !important; }
+
+.no-gutters { margin-right: 0 !important; margin-left: 0 !important; }
+.no-gutters > .col, .no-gutters > [class*="col-"] { padding-right: 0 !important; padding-left: 0 !important; }
+.form-row { display: flex; flex-wrap: wrap; margin-right: -5px; margin-left: -5px; }
+.form-row > .col, .form-row > [class*="col-"] { padding-right: 5px; padding-left: 5px; }
 
 body {
   font-family: var(--font-sans);

@@ -85,7 +85,7 @@
 
 <!-- Essential Scripts -->
 <script src="{{ asset('xivig-blog/plugins/jquery/jquery.js') }}"></script>
-<script src="{{ asset('xivig-blog/plugins/bootstrap/bootstrap.min.js') }}"></script>
+<script src="{{ asset('xivig-blog/plugins/bootstrap/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('xivig-blog/plugins/slick/slick.min.js') }}"></script>
 <script src="{{ asset('xivig-blog/plugins/magnific-popup/magnific-popup.js') }}"></script>
 <script src="{{ asset('xivig-blog/js/script.js') }}"></script>

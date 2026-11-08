@@ -28,23 +28,36 @@
                             <i class="fas fa-envelope mr-1 text-primary-light"></i> support@xivig.com
                         </a>
 
-                        <span class="top-util-divider mr-3"></span>
+                        <span class="top-util-divider me-3 mr-3"></span>
 
-                        @auth
-                            <a href="{{ url('/dashboard') }}" class="top-auth-link mr-3">
-                                <i class="fas fa-user-circle mr-1"></i> Dashboard
+                        @if(Auth::guard('admin')->check())
+                            <a href="{{ route('admin.dashboard') }}" class="top-auth-link me-3 mr-3">
+                                <i class="fas fa-shield-alt me-1 mr-1"></i> Admin Console
+                            </a>
+                            <a href="javascript:void(0)" onclick="event.preventDefault(); document.getElementById('header-admin-logout').submit();" class="top-auth-link top-auth-logout">
+                                <i class="fas fa-sign-out-alt me-1 mr-1"></i> Logout
+                            </a>
+                            <form id="header-admin-logout" action="{{ route('admin.logout') }}" method="POST" class="d-none">
+                                @csrf
+                            </form>
+                        @elseif(Auth::check())
+                            <a href="{{ url('/dashboard') }}" class="top-auth-link me-3 mr-3">
+                                <i class="fas fa-user-circle me-1 mr-1"></i> Dashboard
                             </a>
                             <a href="{{ route('logout') }}" class="top-auth-link top-auth-logout">
-                                <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                                <i class="fas fa-sign-out-alt me-1 mr-1"></i> Logout
                             </a>
                         @else
-                            <a href="{{ route('login') }}" class="top-auth-link mr-3">
-                                <i class="fas fa-sign-in-alt mr-1"></i> Sign In
+                            <a href="{{ route('admin.login') }}" class="top-auth-link me-3 mr-3" title="Admin Control Center">
+                                <i class="fas fa-lock me-1 mr-1"></i> Admin Sign In
+                            </a>
+                            <a href="{{ route('login') }}" class="top-auth-link me-3 mr-3">
+                                <i class="fas fa-sign-in-alt me-1 mr-1"></i> Sign In
                             </a>
                             <a href="{{ route('register') }}" class="top-auth-link top-auth-highlight">
-                                <i class="fas fa-user-plus mr-1"></i> Register
+                                <i class="fas fa-user-plus me-1 mr-1"></i> Register
                             </a>
-                        @endauth
+                        @endif
                     </div>
                 </div>
             </div>
@@ -60,13 +73,15 @@
                             <span class="brand-text-gradient font-weight-bold">Xivig</span>
                         </a>
 
-                        <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarsMain"
+                        <button class="navbar-toggler collapsed" type="button" 
+                                data-bs-toggle="collapse" data-bs-target="#navbarsMain"
+                                data-toggle="collapse" data-target="#navbarsMain"
                                 aria-controls="navbarsMain" aria-expanded="false" aria-label="Toggle navigation">
                             <span class="fa fa-bars text-white"></span>
                         </button>
 
                         <div class="collapse navbar-collapse text-center" id="navbarsMain">
-                            <ul class="navbar-nav ml-auto align-items-center">
+                            <ul class="navbar-nav ms-auto ml-auto align-items-center">
                                 <li class="nav-item {{ request()->is('/') ? 'active' : '' }}">
                                     <a class="nav-link" href="{{ url('/') }}">Home</a>
                                 </li>
@@ -83,8 +98,9 @@
                                     <a class="nav-link" href="{{ url('/project') }}">Portfolio</a>
                                 </li>
                                 <li class="nav-item dropdown {{ request()->is('blog*') ? 'active' : '' }}">
-                                    <a class="nav-link dropdown-toggle" href="#" id="dropdownBlog" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        Blog <i class="fas fa-chevron-down small ml-1"></i>
+                                    <a class="nav-link dropdown-toggle" href="#" id="dropdownBlog" 
+                                       data-bs-toggle="dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Blog <i class="fas fa-chevron-down small ms-1 ml-1"></i>
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownBlog">
                                         <li><a class="dropdown-item" href="{{ url('/blog-list') }}">Blog Magazine</a></li>
@@ -99,9 +115,9 @@
                                 </li>
                             </ul>
 
-                            <div class="my-2 my-md-0 ml-lg-4 text-center">
+                            <div class="my-2 my-md-0 ms-lg-4 ml-lg-4 text-center">
                                 <a href="{{ url('/contact') }}" class="btn-elite btn-elite-primary btn-sm">
-                                    <i class="fas fa-paper-plane mr-2" style="font-size: 11px;"></i> Get a Quote
+                                    <i class="fas fa-paper-plane me-2 mr-2" style="font-size: 11px;"></i> Get a Quote
                                 </a>
                             </div>
                         </div>

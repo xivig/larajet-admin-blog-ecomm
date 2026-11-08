@@ -44,6 +44,7 @@
             <!-- Toggle which is visible on mobile only -->
             <!-- ============================================================== -->
             <a class="topbartoggler d-block d-md-none waves-effect waves-light" href="javascript:void(0)"
+               data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                data-toggle="collapse" data-target="#navbarSupportedContent"
                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <i class="ti-more"></i>
@@ -90,7 +91,8 @@
                 <!-- Messages -->
                 <!-- ============================================================== -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle waves-effect waves-dark" href="" id="2" data-toggle="dropdown"
+                    <a class="nav-link dropdown-toggle waves-effect waves-dark" href="" id="2" 
+                       data-bs-toggle="dropdown" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
                         <i class="font-22 mdi mdi-email-outline"></i>
 
@@ -178,7 +180,8 @@
                 <!-- Comment -->
                 <!-- ============================================================== -->
                 <li class="nav-item dropdown border-right">
-                    <a class="nav-link dropdown-toggle waves-effect waves-dark" href="" data-toggle="dropdown"
+                    <a class="nav-link dropdown-toggle waves-effect waves-dark" href="" 
+                       data-bs-toggle="dropdown" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
                         <i class="mdi mdi-bell-outline font-22"></i>
                         <span class="badge badge-pill badge-info noti">3</span>
@@ -261,7 +264,8 @@
                     @php
                         $adminUser = auth('admin')->user() ?? auth()->user();
                     @endphp
-                    <a class="nav-link dropdown-toggle waves-effect waves-dark pro-pic" href="" data-toggle="dropdown"
+                    <a class="nav-link dropdown-toggle waves-effect waves-dark pro-pic" href="" 
+                       data-bs-toggle="dropdown" data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
                         <img src="{{asset('xivig-public/assets/images/users/2.jpg')}}" alt="user" class="rounded-circle"
                              width="40">

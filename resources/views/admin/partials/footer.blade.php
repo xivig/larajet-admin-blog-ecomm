@@ -4,7 +4,7 @@
     <script src="{{ asset('admin/assets/libs/jquery/dist/jquery.min.js')}}"></script>
     <!-- Bootstrap tether Core JavaScript -->
     <script src="{{ asset('admin/assets/libs/popper.js/dist/umd/popper.min.js')}}"></script>
-    <script src="{{ asset('admin/assets/libs/bootstrap/dist/js/bootstrap.min.js')}}"></script>
+    <script src="{{ asset('admin/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js')}}"></script>
     <!-- apps -->
     <script src="{{ asset('admin/dist/js/app.min.js')}}"></script>
     <script src="{{ asset('admin/dist/js/app.init.js')}}"></script>
