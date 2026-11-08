@@ -391,51 +391,38 @@
   }
 
   function handleDeleteUser(id, name, postsCount, commentsCount) {
-    if (postsCount > 0) {
-      if (typeof Swal !== 'undefined') {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Reassign Authority Required',
-          html: '<p class="mb-2">User <strong>"' + name + '"</strong> is the author of <strong>' + postsCount + '</strong> publication(s).</p>' +
-                '<p class="small text-muted mb-0">To protect content and attribution integrity, you must reassign their authority before deleting this account.</p>',
-          showCancelButton: true,
-          confirmButtonText: '<i class="bi bi-arrow-left-right me-1"></i> Reassign Authority Now',
-          cancelButtonText: 'Cancel',
-          customClass: {
-            confirmButton: 'btn btn-warning rounded-pill px-4',
-            cancelButton: 'btn btn-secondary rounded-pill px-4'
-          },
-          buttonsStyling: false
-        }).then(function(result) {
-          if (result.isConfirmed) {
-            const modalEl = document.getElementById('reassignModal-' + id);
-            if (modalEl) {
-              const modal = new bootstrap.Modal(modalEl);
-              // Also pre-check decommission
-              const delCheckbox = modalEl.querySelector('input[name="delete_source_user"]');
-              if (delCheckbox) delCheckbox.checked = true;
-              modal.show();
-            }
-          }
-        });
-      } else {
-        alert('Cannot delete user "' + name + '" because they have ' + postsCount + ' articles. Please reassign authority first.');
-      }
-      return;
-    }
-
     if (window.showConfirmDialog) {
-      showConfirmDialog({
+      window.showConfirmDialog({
         title: 'Delete User Account?',
-        text: 'Are you sure you want to delete user "' + name + '"? This will remove their profile and comments (' + commentsCount + ').',
+        text: 'Are you sure you want to delete user "' + name + '"? All their associated data and publications will be safely managed.',
         icon: 'warning',
         confirmButtonText: 'Yes, Delete User'
       }, function() {
-        document.getElementById('delete-user-' + id).submit();
+        const form = document.getElementById('delete-user-' + id);
+        if (form) {
+          form.submit();
+        } else {
+          const dynamicForm = document.createElement('form');
+          dynamicForm.method = 'POST';
+          dynamicForm.action = '/admin/users/' + id;
+          dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
+          document.body.appendChild(dynamicForm);
+          dynamicForm.submit();
+        }
       });
     } else {
       if (confirm('Delete user "' + name + '"?')) {
-        document.getElementById('delete-user-' + id).submit();
+        const form = document.getElementById('delete-user-' + id);
+        if (form) {
+          form.submit();
+        } else {
+          const dynamicForm = document.createElement('form');
+          dynamicForm.method = 'POST';
+          dynamicForm.action = '/admin/users/' + id;
+          dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
+          document.body.appendChild(dynamicForm);
+          dynamicForm.submit();
+        }
       }
     }
   }

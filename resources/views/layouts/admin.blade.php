@@ -140,6 +140,9 @@
       });
     };
 
+    var showConfirmDialog = window.showConfirmDialog;
+    var showToast = window.showToast;
+
     document.addEventListener('DOMContentLoaded', function() {
       // Dark/Light Theme Switching
       const themeToggleBtns = document.querySelectorAll('.theme-toggle');

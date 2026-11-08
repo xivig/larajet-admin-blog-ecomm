@@ -213,29 +213,38 @@
       icon: 'warning',
       confirmButtonText: 'Yes, Move to Trash'
     }, function() {
-      document.getElementById('delete-cat-' + id).submit();
+      const form = document.getElementById('delete-cat-' + id);
+      if (form) {
+        form.submit();
+      } else {
+        const dynamicForm = document.createElement('form');
+        dynamicForm.method = 'POST';
+        dynamicForm.action = '/admin/categories/' + id;
+        dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
+        document.body.appendChild(dynamicForm);
+        dynamicForm.submit();
+      }
     });
   }
 
   function confirmForceDeleteCat(id, name, postCount) {
-    if (postCount > 0) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Action Restricted',
-        text: 'Cannot delete category "' + name + '" because it still contains ' + postCount + ' post(s). Please reassign them first.',
-        customClass: { confirmButton: 'btn btn-primary px-4 rounded-pill' },
-        buttonsStyling: false
-      });
-      return;
-    }
-
     showConfirmDialog({
       title: 'Permanent Deletion',
-      text: 'Are you sure you want to permanently delete category "' + name + '"? This action cannot be undone.',
+      text: 'Are you sure you want to permanently delete category "' + name + '"?' + (postCount > 0 ? ' Its attached posts will be preserved in another category.' : ''),
       icon: 'error',
       confirmButtonText: 'Delete Permanently'
     }, function() {
-      document.getElementById('force-delete-cat-' + id).submit();
+      const form = document.getElementById('force-delete-cat-' + id);
+      if (form) {
+        form.submit();
+      } else {
+        const dynamicForm = document.createElement('form');
+        dynamicForm.method = 'POST';
+        dynamicForm.action = '/admin/categories/' + id + '/force-delete';
+        dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
+        document.body.appendChild(dynamicForm);
+        dynamicForm.submit();
+      }
     });
   }
 </script>

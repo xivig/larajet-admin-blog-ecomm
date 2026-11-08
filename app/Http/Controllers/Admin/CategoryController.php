@@ -103,8 +103,12 @@ class CategoryController extends Controller
         $category = Category::withTrashed()->findOrFail($id);
 
         if ($category->posts()->count() > 0) {
-            return redirect()->route('admin.categories.index', ['status' => 'trash'])
-                ->with('error', 'Cannot permanently delete category "' . $category->name . '" while posts are attached. Please reassign them first.');
+            $fallbackCategory = Category::where('id', '!=', $category->id)->first();
+            if ($fallbackCategory) {
+                Post::withTrashed()->where('category_id', $category->id)->update([
+                    'category_id' => $fallbackCategory->id,
+                ]);
+            }
         }
 
         $name = $category->name;

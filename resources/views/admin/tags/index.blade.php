@@ -152,10 +152,30 @@
         icon: 'warning',
         confirmButtonText: 'Yes, delete tag'
       }, function() {
-        document.getElementById('delete-tag-' + id).submit();
+        const form = document.getElementById('delete-tag-' + id);
+        if (form) {
+          form.submit();
+        } else {
+          const dynamicForm = document.createElement('form');
+          dynamicForm.method = 'POST';
+          dynamicForm.action = '/admin/tags/' + id;
+          dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
+          document.body.appendChild(dynamicForm);
+          dynamicForm.submit();
+        }
       });
     } else if (confirm('Are you sure you want to delete tag "#' + name + '"?')) {
-      document.getElementById('delete-tag-' + id).submit();
+      const form = document.getElementById('delete-tag-' + id);
+      if (form) {
+        form.submit();
+      } else {
+        const dynamicForm = document.createElement('form');
+        dynamicForm.method = 'POST';
+        dynamicForm.action = '/admin/tags/' + id;
+        dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
+        document.body.appendChild(dynamicForm);
+        dynamicForm.submit();
+      }
     }
   }
 </script>

@@ -116,6 +116,14 @@
           </a>
         </li>
 
+        <!-- Gallery Management -->
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.galleries.*') ? 'active' : '' }}" href="{{ route('admin.galleries.index') }}">
+            <span class="nav-icon"><i class="ph-light ph-images"></i></span>
+            <span class="nav-text">Galleries</span>
+          </a>
+        </li>
+
         <li class="nav-heading"><span>User Management</span></li>
 
         <!-- Users Directory -->
@@ -165,7 +173,14 @@
           </a>
         </li>
 
-        <li class="nav-heading"><span>Admin Account</span></li>
+        <li class="nav-heading"><span>Admin &amp; Settings</span></li>
+
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.index') }}">
+            <span class="nav-icon"><i class="ph-light ph-gear"></i></span>
+            <span class="nav-text">Site Settings</span>
+          </a>
+        </li>
 
         <li class="nav-item">
           <a class="nav-link {{ request()->routeIs('admin.profile') ? 'active' : '' }}" href="{{ route('admin.profile') }}">
@@ -194,7 +209,7 @@
           </div>
         </a>
         <div class="sidebar-account-actions">
-          <a href="{{ route('admin.profile') }}" class="sidebar-account-action" title="Settings" aria-label="Settings">
+          <a href="{{ route('admin.settings.index') }}" class="sidebar-account-action" title="Site Settings" aria-label="Site Settings">
             <i class="bi bi-gear"></i>
           </a>
           <a href="#" class="sidebar-account-action sidebar-account-logout" title="Sign Out" aria-label="Sign Out" onclick="event.preventDefault(); document.getElementById('adminSidebarLogoutForm').submit();">

@@ -289,34 +289,29 @@ class UserController extends Controller
     public function destroy(Request $request, User $user): RedirectResponse
     {
         $name = $user->name;
-        $postsCount = Post::withTrashed()
-            ->where('user_id', $user->id)
-            ->orWhere(function ($q) use ($user) {
-                if ($user->author) {
-                    $q->where('author_id', $user->author->id);
-                }
-            })->count();
 
-        // If user has posts and no recipient was provided, enforce authority reassignment
-        if ($postsCount > 0 && !$request->filled('reassign_to_user_id')) {
-            return redirect()->route('admin.users.index')
-                ->with('error', "Cannot delete user \"{$name}\" because they are author of {$postsCount} article(s). Please use 'Reassign Authority' first to preserve publications.");
-        }
-
-        DB::transaction(function () use ($request, $user, $postsCount) {
-            // If reassign_to_user_id is provided, transfer before deleting
+        DB::transaction(function () use ($request, $user) {
+            // Find a recipient user to prevent orphan database foreign key issues
+            $targetUser = null;
             if ($request->filled('reassign_to_user_id')) {
-                $targetUser = User::findOrFail($request->reassign_to_user_id);
+                $targetUser = User::find($request->reassign_to_user_id);
+            }
+            if (!$targetUser) {
+                $targetUser = User::where('id', '!=', $user->id)->first();
+            }
+
+            if ($targetUser) {
                 $targetAuthor = $targetUser->author ?: Author::create([
                     'user_id' => $targetUser->id,
                     'nickname' => $targetUser->name,
                 ]);
 
+                $sourceAuthorId = $user->author?->id;
                 Post::withTrashed()
                     ->where('user_id', $user->id)
-                    ->orWhere(function ($q) use ($user) {
-                        if ($user->author) {
-                            $q->where('author_id', $user->author->id);
+                    ->orWhere(function ($q) use ($sourceAuthorId) {
+                        if ($sourceAuthorId) {
+                            $q->where('author_id', $sourceAuthorId);
                         }
                     })->update([
                         'user_id' => $targetUser->id,

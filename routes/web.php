@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\EmailController as AdminEmailController;
 use App\Http\Controllers\Admin\FileManagerController as AdminFileManagerController;
 use App\Http\Controllers\Admin\ForgotPasswordController;
+use App\Http\Controllers\Admin\GalleryController as AdminGalleryController;
 use App\Http\Controllers\Admin\ImageCropperController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\RegisterController;
 use App\Http\Controllers\Admin\RoleController as AdminRoleController;
+use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\TagController as AdminTagController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AuthController;
@@ -171,11 +173,30 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('users/{user}/reassign-authority', [AdminUserController::class, 'reassignAuthority'])->name('admin.users.reassign-authority');
     Route::resource('users', AdminUserController::class)->names('admin.users');
 
+    // Gallery Management
+    Route::post('galleries/{id}/restore', [AdminGalleryController::class, 'restore'])->name('admin.galleries.restore');
+    Route::delete('galleries/{id}/force-delete', [AdminGalleryController::class, 'forceDelete'])->name('admin.galleries.force-delete');
+    Route::post('galleries/{gallery}/photos', [AdminGalleryController::class, 'uploadPhotos'])->name('admin.galleries.photos.upload');
+    Route::post('galleries/{gallery}/attach-media', [AdminGalleryController::class, 'attachMedia'])->name('admin.galleries.media.attach');
+    Route::delete('galleries/photos/{item}', [AdminGalleryController::class, 'deletePhoto'])->name('admin.galleries.photos.delete');
+    Route::post('galleries/{gallery}/cover/{item}', [AdminGalleryController::class, 'setCover'])->name('admin.galleries.cover');
+    Route::resource('galleries', AdminGalleryController::class)->names('admin.galleries');
+
+    // Site Settings Management
+    Route::get('settings', [AdminSettingController::class, 'index'])->name('admin.settings.index');
+    Route::post('settings/maintenance', [AdminSettingController::class, 'updateMaintenance'])->name('admin.settings.maintenance');
+    Route::post('settings/integrations', [AdminSettingController::class, 'updateIntegrations'])->name('admin.settings.integrations');
+    Route::post('settings/editorial', [AdminSettingController::class, 'updateEditorial'])->name('admin.settings.editorial');
+
     // Admin Profile
     Route::get('profile', [AdminProfileController::class, 'edit'])->name('admin.profile');
     Route::put('profile', [AdminProfileController::class, 'update'])->name('admin.profile.update');
     Route::put('profile/password', [AdminProfileController::class, 'updatePassword'])->name('admin.profile.password');
 });
+
+// Dynamic Public Feeds
+Route::get('/feed.xml', [AdminSettingController::class, 'feedXml'])->name('feed.xml');
+Route::get('/sitemap.xml', [AdminSettingController::class, 'sitemapXml'])->name('sitemap.xml');
 
 // Auth logout & user dashboard subpages
 Route::get('logout', [AuthController::class, 'logout'])->name('logout');

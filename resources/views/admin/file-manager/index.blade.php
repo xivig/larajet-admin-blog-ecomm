@@ -118,11 +118,11 @@
                           <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
                         </button>
                       </form>
-                      <form action="{{ route('admin.file-manager.force-delete') }}" method="POST" class="d-inline" onsubmit="return confirmForceDeleteFile(event, this, '{{ addslashes($file['name']) }}');">
+                      <form action="{{ route('admin.file-manager.force-delete') }}" method="POST" class="d-inline">
                         @csrf
                         @method('DELETE')
                         <input type="hidden" name="path" value="{{ $file['path'] }}">
-                        <button type="submit" class="btn btn-sm btn-outline-danger py-0.5 px-2" title="Delete Permanently">
+                        <button type="button" class="btn btn-sm btn-outline-danger py-0.5 px-2" title="Delete Permanently" onclick="confirmForceDeleteFile(this, '{{ addslashes($file['name']) }}')">
                           <i class="bi bi-x-octagon"></i>
                         </button>
                       </form>
@@ -140,11 +140,11 @@
                           <i class="bi bi-copy"></i>
                         </button>
                       </form>
-                      <form action="{{ route('admin.file-manager.destroy') }}" method="POST" class="d-inline" onsubmit="return confirmTrashFile(event, this, '{{ addslashes($file['name']) }}');">
+                      <form action="{{ route('admin.file-manager.destroy') }}" method="POST" class="d-inline">
                         @csrf
                         @method('DELETE')
                         <input type="hidden" name="path" value="{{ $file['path'] }}">
-                        <button type="submit" class="btn btn-sm btn-outline-danger py-0.5 px-2" title="Move to Trash">
+                        <button type="button" class="btn btn-sm btn-outline-danger py-0.5 px-2" title="Move to Trash" onclick="confirmTrashFile(this, '{{ addslashes($file['name']) }}')">
                           <i class="bi bi-trash"></i>
                         </button>
                       </form>
@@ -241,30 +241,28 @@
     });
   }
 
-  function confirmForceDeleteFile(e, form, name) {
-    e.preventDefault();
+  function confirmForceDeleteFile(btn, name) {
+    const form = btn.closest('form');
     showConfirmDialog({
       title: 'Permanent Deletion',
       text: 'Are you sure you want to permanently delete "' + name + '"? This file cannot be recovered.',
       icon: 'error',
       confirmButtonText: 'Delete Permanently'
     }, function() {
-      form.submit();
+      if (form) form.submit();
     });
-    return false;
   }
 
-  function confirmTrashFile(e, form, name) {
-    e.preventDefault();
+  function confirmTrashFile(btn, name) {
+    const form = btn.closest('form');
     showConfirmDialog({
       title: 'Move to Recycle Bin?',
       text: 'Move file "' + name + '" to Recycle Bin?',
       icon: 'warning',
       confirmButtonText: 'Move to Bin'
     }, function() {
-      form.submit();
+      if (form) form.submit();
     });
-    return false;
   }
 </script>
 @endpush

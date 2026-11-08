@@ -213,7 +213,17 @@
       icon: 'warning',
       confirmButtonText: 'Yes, Move to Trash'
     }, function() {
-      document.getElementById('delete-form-' + id).submit();
+      const form = document.getElementById('delete-form-' + id);
+      if (form) {
+        form.submit();
+      } else {
+        const dynamicForm = document.createElement('form');
+        dynamicForm.method = 'POST';
+        dynamicForm.action = '/admin/posts/' + id;
+        dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
+        document.body.appendChild(dynamicForm);
+        dynamicForm.submit();
+      }
     });
   }
 
@@ -224,7 +234,17 @@
       icon: 'error',
       confirmButtonText: 'Delete Permanently'
     }, function() {
-      document.getElementById('force-delete-form-' + id).submit();
+      const form = document.getElementById('force-delete-form-' + id);
+      if (form) {
+        form.submit();
+      } else {
+        const dynamicForm = document.createElement('form');
+        dynamicForm.method = 'POST';
+        dynamicForm.action = '/admin/posts/' + id + '/force-delete';
+        dynamicForm.innerHTML = '<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">';
+        document.body.appendChild(dynamicForm);
+        dynamicForm.submit();
+      }
     });
   }
 </script>
