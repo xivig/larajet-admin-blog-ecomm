@@ -116,48 +116,52 @@
                       </form>
                     </td>
                   </tr>
-
-                  <!-- Edit Modal -->
-                  <div class="modal fade" id="editCatModal-{{ $cat->id }}" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog">
-                      <div class="modal-content">
-                        <form action="{{ route('admin.categories.update', $cat->id) }}" method="POST">
-                          @csrf
-                          @method('PUT')
-                          <div class="modal-header">
-                            <h5 class="modal-title">Edit Category: {{ $cat->name }}</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                          </div>
-                          <div class="modal-body">
-                            <div class="mb-3">
-                              <label class="form-label fw-semibold">Name</label>
-                              <input type="text" name="name" class="form-control" value="{{ $cat->name }}" required>
-                            </div>
-                            <div class="mb-3">
-                              <label class="form-label fw-semibold">Description</label>
-                              <textarea name="description" class="form-control" rows="3">{{ $cat->description }}</textarea>
-                            </div>
-                            <div class="mb-3">
-                              <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" name="status" id="editStatus-{{ $cat->id }}" value="1" {{ $cat->status ? 'checked' : '' }}>
-                                <label class="form-check-label" for="editStatus-{{ $cat->id }}">Active</label>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Update Category</button>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-                  </div>
-
                 @endforeach
               </tbody>
             </table>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  {{-- Edit Modals rendered outside of table for DOM integrity --}}
+  @foreach ($categories as $cat)
+    <div class="modal fade" id="editCatModal-{{ $cat->id }}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form action="{{ route('admin.categories.update', $cat->id) }}" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="modal-header">
+              <h5 class="modal-title">Edit Category: {{ $cat->name }}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Name</label>
+                <input type="text" name="name" class="form-control" value="{{ $cat->name }}" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Description</label>
+                <textarea name="description" class="form-control" rows="3">{{ $cat->description }}</textarea>
+              </div>
+              <div class="mb-3">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" name="status" id="editStatus-{{ $cat->id }}" value="1" {{ $cat->status ? 'checked' : '' }}>
+                  <label class="form-check-label" for="editStatus-{{ $cat->id }}">Active</label>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Update Category</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  @endforeach
       </div>
     </div>
   </div>

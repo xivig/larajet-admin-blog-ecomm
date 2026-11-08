@@ -97,41 +97,45 @@
                       </form>
                     </td>
                   </tr>
-
-                  <!-- Edit Modal -->
-                  <div class="modal fade" id="editTagModal-{{ $tag->id }}" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog">
-                      <div class="modal-content">
-                        <form action="{{ route('admin.tags.update', $tag->id) }}" method="POST">
-                          @csrf
-                          @method('PUT')
-                          <div class="modal-header">
-                            <h5 class="modal-title">Edit Tag</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                          </div>
-                          <div class="modal-body">
-                            <div class="mb-3">
-                              <label class="form-label fw-semibold">Tag Name</label>
-                              <div class="input-group">
-                                <span class="input-group-text">#</span>
-                                <input type="text" name="name" class="form-control" value="{{ $tag->name }}" required>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Update Tag</button>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-                  </div>
-
                 @endforeach
               </tbody>
             </table>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  {{-- Edit Modals rendered outside of table for DOM integrity --}}
+  @foreach ($tags as $tag)
+    <div class="modal fade" id="editTagModal-{{ $tag->id }}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form action="{{ route('admin.tags.update', $tag->id) }}" method="POST">
+            @csrf
+            @method('PUT')
+            <div class="modal-header">
+              <h5 class="modal-title">Edit Tag</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Tag Name</label>
+                <div class="input-group">
+                  <span class="input-group-text">#</span>
+                  <input type="text" name="name" class="form-control" value="{{ $tag->name }}" required>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Update Tag</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  @endforeach
       </div>
     </div>
   </div>

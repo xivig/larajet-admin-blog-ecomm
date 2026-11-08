@@ -381,7 +381,10 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="adminPassword">Access Password</label>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <label class="form-label" style="margin-bottom: 0;" for="adminPassword">Access Password</label>
+                        <a href="{{ route('admin.password.request') }}" style="color: #a5b4fc; font-size: 0.8rem; text-decoration: none;">Forgot password?</a>
+                    </div>
                     <div class="input-wrapper">
                         <i class="bi bi-shield-lock input-icon"></i>
                         <input 

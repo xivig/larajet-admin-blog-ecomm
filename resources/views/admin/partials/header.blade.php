@@ -66,38 +66,55 @@
       </div>
 
       <!-- Notifications -->
+      @php
+        $navNotifications = \App\Models\AdminNotification::latest()->take(5)->get();
+        $navUnreadCount = \App\Models\AdminNotification::where('is_read', false)->count();
+      @endphp
       <div class="header-action-wrap dropdown notifications-dropdown">
-        <button class="header-action dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
+        <button class="header-action dropdown-toggle position-relative" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
           <i class="bi bi-bell"></i>
-          <span class="header-badge">3</span>
+          @if($navUnreadCount > 0)
+            <span class="header-badge">{{ $navUnreadCount }}</span>
+          @endif
         </button>
-        <div class="dropdown-menu dropdown-menu-end notifications-menu">
-          <div class="notification-header">
+        <div class="dropdown-menu dropdown-menu-end notifications-menu" style="min-width: 320px;">
+          <div class="notification-header d-flex justify-content-between align-items-center p-3 border-bottom">
             <div>
-              <h6>Blog Alerts</h6>
-              <span>3 updates</span>
+              <h6 class="mb-0 fw-bold">Notifications</h6>
+              <span class="small text-muted">{{ $navUnreadCount }} unread alert{{ $navUnreadCount === 1 ? '' : 's' }}</span>
             </div>
-            <a href="{{ route('admin.comments.index') }}">Moderate</a>
+            <a href="{{ route('admin.notifications.index') }}" class="small text-primary text-decoration-none fw-semibold">View Center</a>
           </div>
-          <div class="notification-list">
-            <div class="notification-item unread">
-              <span class="notification-dot"></span>
-              <div class="notification-icon success"><i class="bi bi-chat-quote"></i></div>
-              <div class="notification-content">
-                <div class="notification-title">New discussion comment</div>
-                <div class="notification-text">A reader posted a response to latest article.</div>
-                <span class="notification-time">10m ago</span>
+          <div class="notification-list" style="max-height: 280px; overflow-y: auto;">
+            @forelse($navNotifications as $notif)
+              @php
+                $iconClass = match($notif->type) {
+                  'comment' => 'bi-chat-dots text-primary',
+                  'user' => 'bi-person-check text-success',
+                  'system' => 'bi-shield-check text-info',
+                  'warning' => 'bi-exclamation-triangle text-warning',
+                  default => 'bi-bell text-secondary',
+                };
+              @endphp
+              <a href="{{ $notif->link ?: route('admin.notifications.index') }}" class="dropdown-item d-flex gap-2 p-2.5 border-bottom text-wrap {{ !$notif->is_read ? 'bg-light-subtle' : '' }}">
+                <div class="flex-shrink-0 mt-1">
+                  <i class="bi {{ $iconClass }} fs-5"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="fw-semibold small text-body">{{ $notif->title }}</div>
+                  <div class="text-muted small lh-sm">{{ Str::limit($notif->message, 60) }}</div>
+                  <small class="text-muted" style="font-size: 0.72rem;">{{ $notif->created_at ? $notif->created_at->diffForHumans() : 'Just now' }}</small>
+                </div>
+              </a>
+            @empty
+              <div class="p-3 text-center text-muted small">
+                <i class="bi bi-bell-slash fs-4 d-block mb-1 text-muted"></i>
+                No notifications right now.
               </div>
-            </div>
-            <div class="notification-item unread">
-              <span class="notification-dot"></span>
-              <div class="notification-icon info"><i class="bi bi-speedometer2"></i></div>
-              <div class="notification-content">
-                <div class="notification-title">Traffic milestone reached</div>
-                <div class="notification-text">Blog readership exceeded daily threshold.</div>
-                <span class="notification-time">1h ago</span>
-              </div>
-            </div>
+            @endforelse
+          </div>
+          <div class="p-2 text-center border-top bg-light-subtle">
+            <a href="{{ route('admin.notifications.index') }}" class="small text-decoration-none fw-semibold">Go to Notification Center &rarr;</a>
           </div>
         </div>
       </div>

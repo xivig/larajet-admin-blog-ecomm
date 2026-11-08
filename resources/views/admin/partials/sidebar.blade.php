@@ -64,6 +64,40 @@
           </a>
         </li>
 
+        <li class="nav-heading"><span>Applications &amp; Workspace</span></li>
+
+        <!-- Chat -->
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.chat.*') ? 'active' : '' }}" href="{{ route('admin.chat.index') }}">
+            <span class="nav-icon"><i class="ph-light ph-chats-circle"></i></span>
+            <span class="nav-text">Team Chat</span>
+          </a>
+        </li>
+
+        <!-- Email / Inbox -->
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.email.*') ? 'active' : '' }}" href="{{ route('admin.email.index') }}">
+            <span class="nav-icon"><i class="ph-light ph-envelope-simple"></i></span>
+            <span class="nav-text">Mail Center</span>
+          </a>
+        </li>
+
+        <!-- File Manager -->
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.file-manager.*') ? 'active' : '' }}" href="{{ route('admin.file-manager.index') }}">
+            <span class="nav-icon"><i class="ph-light ph-folder-simple-star"></i></span>
+            <span class="nav-text">File Manager</span>
+          </a>
+        </li>
+
+        <!-- Notifications Center -->
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}" href="{{ route('admin.notifications.index') }}">
+            <span class="nav-icon"><i class="ph-light ph-bell"></i></span>
+            <span class="nav-text">Notifications</span>
+          </a>
+        </li>
+
         <li class="nav-heading"><span>Assets &amp; Media</span></li>
 
         <!-- Media Library -->
@@ -95,6 +129,14 @@
               </a>
             </li>
           </ul>
+        </li>
+
+        <!-- Roles & Permissions -->
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}" href="{{ route('admin.roles.index') }}">
+            <span class="nav-icon"><i class="ph-light ph-shield-check"></i></span>
+            <span class="nav-text">Roles &amp; Permissions</span>
+          </a>
         </li>
 
         <li class="nav-heading"><span>Ecosystem &amp; Live Site</span></li>

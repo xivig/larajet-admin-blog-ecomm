@@ -1,3 +1,30 @@
+<style>
+    /* Absolute reset for footer column cards/boxes */
+    footer.footer,
+    footer.footer .container,
+    footer.footer .row,
+    footer.footer [class*="col-"],
+    footer.footer .footer-widget,
+    footer.footer .widget,
+    [data-bs-theme="dark"] footer.footer [class*="col-"],
+    [data-bs-theme="dark"] footer.footer .footer-widget,
+    [data-bs-theme="dark"] footer.footer .widget,
+    [data-theme="dark"] footer.footer [class*="col-"],
+    [data-theme="dark"] footer.footer .footer-widget,
+    [data-theme="dark"] footer.footer .widget,
+    [data-bs-theme="light"] footer.footer [class*="col-"],
+    [data-bs-theme="light"] footer.footer .footer-widget,
+    [data-bs-theme="light"] footer.footer .widget,
+    [data-theme="light"] footer.footer [class*="col-"],
+    [data-theme="light"] footer.footer .footer-widget,
+    [data-theme="light"] footer.footer .widget {
+        background: transparent !important;
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+</style>
 <footer class="footer section bg-transparent border-0 shadow-none">
     <div class="container bg-transparent border-0 shadow-none">
         <div class="row bg-transparent border-0 shadow-none">

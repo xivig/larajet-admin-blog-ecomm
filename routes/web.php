@@ -1,13 +1,19 @@
 <?php
 
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\ChatController as AdminChatController;
 use App\Http\Controllers\Admin\CommentController as AdminCommentController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\EmailController as AdminEmailController;
+use App\Http\Controllers\Admin\FileManagerController as AdminFileManagerController;
+use App\Http\Controllers\Admin\ForgotPasswordController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
+use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\RegisterController;
+use App\Http\Controllers\Admin\RoleController as AdminRoleController;
 use App\Http\Controllers\Admin\TagController as AdminTagController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AuthController;
@@ -65,6 +71,12 @@ Route::prefix('admin')->middleware('guest:admin')->group(function () {
 
     Route::get('login', [LoginController::class, 'create'])->name('admin.login');
     Route::post('login', [LoginController::class, 'store'])->name('admin.login.store');
+
+    // Admin Password Reset
+    Route::get('forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('admin.password.request');
+    Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('admin.password.email');
+    Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('admin.password.reset');
+    Route::post('reset-password', [ForgotPasswordController::class, 'reset'])->name('admin.password.update');
 });
 
 // Admin Authenticated Routes
@@ -83,8 +95,46 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     // Tags Management
     Route::resource('tags', AdminTagController::class)->names('admin.tags');
 
-    // Comments Moderation
-    Route::resource('comments', AdminCommentController::class)->only(['index', 'destroy'])->names('admin.comments');
+    // Comments Moderation & Actions
+    Route::get('comments', [AdminCommentController::class, 'index'])->name('admin.comments.index');
+    Route::post('comments/{comment}/status', [AdminCommentController::class, 'updateStatus'])->name('admin.comments.status');
+    Route::post('comments/{comment}/reply', [AdminCommentController::class, 'reply'])->name('admin.comments.reply');
+    Route::put('comments/{comment}', [AdminCommentController::class, 'update'])->name('admin.comments.update');
+    Route::post('comments/bulk', [AdminCommentController::class, 'bulkAction'])->name('admin.comments.bulk');
+    Route::delete('comments/{comment}', [AdminCommentController::class, 'destroy'])->name('admin.comments.destroy');
+
+    // Notifications Center
+    Route::get('notifications', [AdminNotificationController::class, 'index'])->name('admin.notifications.index');
+    Route::post('notifications/{notification}/read', [AdminNotificationController::class, 'markAsRead'])->name('admin.notifications.read');
+    Route::post('notifications/mark-all-read', [AdminNotificationController::class, 'markAllAsRead'])->name('admin.notifications.mark-all-read');
+    Route::post('notifications/clear-read', [AdminNotificationController::class, 'clearRead'])->name('admin.notifications.clear-read');
+    Route::delete('notifications/{notification}', [AdminNotificationController::class, 'destroy'])->name('admin.notifications.destroy');
+
+    // Chat App
+    Route::get('chat', [AdminChatController::class, 'index'])->name('admin.chat.index');
+    Route::post('chat', [AdminChatController::class, 'store'])->name('admin.chat.store');
+    Route::get('chat/api/messages', [AdminChatController::class, 'fetchMessages'])->name('admin.chat.messages');
+
+    // File Manager App
+    Route::get('file-manager', [AdminFileManagerController::class, 'index'])->name('admin.file-manager.index');
+    Route::post('file-manager/upload', [AdminFileManagerController::class, 'upload'])->name('admin.file-manager.upload');
+    Route::delete('file-manager', [AdminFileManagerController::class, 'destroy'])->name('admin.file-manager.destroy');
+
+    // Email / Communications App
+    Route::get('email', [AdminEmailController::class, 'index'])->name('admin.email.index');
+    Route::post('email', [AdminEmailController::class, 'store'])->name('admin.email.store');
+    Route::get('email/{email}', [AdminEmailController::class, 'show'])->name('admin.email.show');
+    Route::post('email/{email}/star', [AdminEmailController::class, 'toggleStar'])->name('admin.email.star');
+    Route::post('email/{email}/move', [AdminEmailController::class, 'moveFolder'])->name('admin.email.move');
+    Route::delete('email/{email}', [AdminEmailController::class, 'destroy'])->name('admin.email.destroy');
+
+    // Roles & Permissions App
+    Route::get('roles', [AdminRoleController::class, 'index'])->name('admin.roles.index');
+    Route::post('roles', [AdminRoleController::class, 'store'])->name('admin.roles.store');
+    Route::put('roles/{role}', [AdminRoleController::class, 'update'])->name('admin.roles.update');
+    Route::delete('roles/{role}', [AdminRoleController::class, 'destroy'])->name('admin.roles.destroy');
+    Route::post('roles/assign', [AdminRoleController::class, 'assignUser'])->name('admin.roles.assign');
+    Route::post('roles/{role}/remove-user', [AdminRoleController::class, 'removeUser'])->name('admin.roles.remove-user');
 
     // Media Library
     Route::get('media', [AdminMediaController::class, 'index'])->name('admin.media.index');
