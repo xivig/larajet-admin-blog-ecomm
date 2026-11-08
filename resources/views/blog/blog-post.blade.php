@@ -180,9 +180,11 @@
                 <!-- Search Widget -->
                 <div class="sidebar-widget">
                     <h5 class="sidebar-widget-title"><i class="bi bi-search text-primary me-2 mr-2"></i> Search Insights</h5>
-                    <form action="{{ url('/blog-list') }}" method="GET" class="d-flex">
-                        <input type="text" name="search" class="form-control form-control-elite me-2 mr-2" placeholder="Search architecture, 2FA, APIs...">
-                        <button type="submit" class="btn-elite btn-elite-primary btn-sm"><i class="bi bi-search"></i></button>
+                    <form action="{{ url('/blog-list') }}" method="GET" class="position-relative w-100">
+                        <input type="text" name="search" class="form-control form-control-elite pr-5" style="border-radius: 999px; padding-right: 50px; height: 44px;" placeholder="Search architecture, 2FA, APIs...">
+                        <button type="submit" class="btn-elite btn-elite-primary btn-sm position-absolute" style="top: 50%; right: 5px; transform: translateY(-50%); border-radius: 999px; height: 34px; width: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; z-index: 5;" title="Search">
+                            <i class="bi bi-search"></i>
+                        </button>
                     </form>
                 </div>
 
@@ -274,12 +276,10 @@
                     <p class="text-muted small mb-3">
                         Curated enterprise engineering patterns, zero-trust protocols, and framework deep-dives delivered every Tuesday.
                     </p>
-                    <form onsubmit="event.preventDefault(); alert('Subscribed to Architecture Dispatch!');">
-                        <div class="mb-2">
-                            <input type="email" class="form-control form-control-elite" placeholder="architect@company.com" required>
-                        </div>
-                        <button type="submit" class="btn-elite btn-elite-primary btn-sm w-100">
-                            <i class="bi bi-send me-1 mr-1"></i> Subscribe Free
+                    <form onsubmit="event.preventDefault(); alert('Subscribed to Architecture Dispatch!');" class="position-relative w-100">
+                        <input type="email" class="form-control form-control-elite pr-5" placeholder="architect@company.com" style="border-radius: 999px; padding-right: 48px; height: 46px;" required>
+                        <button type="submit" class="btn-elite btn-elite-primary btn-sm position-absolute" style="top: 50%; right: 5px; transform: translateY(-50%); border-radius: 999px; height: 36px; width: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; z-index: 5;" title="Subscribe Free">
+                            <i class="bi bi-send"></i>
                         </button>
                     </form>
                     <small class="text-muted d-block text-center mt-2" style="font-size: 11px;">Zero spam. One-click unsubscribe.</small>

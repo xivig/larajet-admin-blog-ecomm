@@ -1,20 +1,14 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-bs-theme="dark" data-theme="dark">
 <head>
-
-  <!-- ** Basic Page Needs ** -->
   <meta charset="utf-8">
-  <title>@yield('title', 'Xivig - Modern Elite Architecture')</title>
-
-  <!-- ** Mobile Specific Metas ** -->
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="description" content="Xivig - Modern High-Performance Laravel 13 Powered Web Architecture">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-  <meta name="author" content="Xivig">
   <meta name="generator" content="Xivig Elite Architecture">
-
-  <!-- theme meta -->
   <meta name="theme-name" content="xivig" />
+
+  <!-- Full-Fledged SEO & Social Intelligence Suite -->
+  @include('partials.seo-meta')
 
   <!-- Google Fonts Outfit & Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,12 +32,23 @@
   <!-- Elite Modern Design System -->
   <link rel="stylesheet" href="{{asset('xivig-blog/css/elite-design.css')}}?v={{ filemtime(public_path('xivig-blog/css/elite-design.css')) }}">
 
-  <!-- Theme Controller Pre-loader -->
+  <!-- Theme Controller Pre-loader & Extension Error Guard -->
   <script>
     (function() {
       var saved = localStorage.getItem('xivig-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       document.documentElement.setAttribute('data-bs-theme', saved);
       document.documentElement.setAttribute('data-theme', saved);
+
+      window.addEventListener('unhandledrejection', function(e) {
+        if (e.reason && (e.reason.message || '').includes('Could not establish connection')) {
+          e.preventDefault();
+        }
+      });
+      window.addEventListener('error', function(e) {
+        if ((e.message || '').includes('Could not establish connection')) {
+          e.preventDefault();
+        }
+      });
     })();
   </script>
 

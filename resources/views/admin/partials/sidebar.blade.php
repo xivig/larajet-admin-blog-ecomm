@@ -176,9 +176,17 @@
         <li class="nav-heading"><span>Admin &amp; Settings</span></li>
 
         <li class="nav-item">
-          <a class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" href="{{ route('admin.settings.index') }}">
+          <a class="nav-link {{ request()->routeIs('admin.settings.index') || request()->routeIs('admin.settings.maintenance') || request()->routeIs('admin.settings.integrations') || request()->routeIs('admin.settings.editorial') ? 'active' : '' }}" href="{{ route('admin.settings.index') }}">
             <span class="nav-icon"><i class="ph-light ph-gear"></i></span>
             <span class="nav-text">Site Settings</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.settings.seo*') ? 'active' : '' }}" href="{{ route('admin.settings.seo') }}">
+            <span class="nav-icon"><i class="ph-light ph-globe"></i></span>
+            <span class="nav-text">SEO Suite</span>
+            <span class="badge bg-primary-subtle text-primary rounded-pill ms-auto" style="font-size: 0.65rem;">PRO</span>
           </a>
         </li>
 

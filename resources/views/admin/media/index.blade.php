@@ -293,7 +293,7 @@
                         <!-- Card Body -->
                         <div class="card-body p-2.5 d-flex flex-column justify-content-between">
                             <div>
-                                <h6 class="card-title mb-1 text-truncate fw-semibold small cursor-pointer" onclick="openInspectorModal({{ $pic->id }})" title="{{ $pic->name }}">
+                                <h6 class="card-title mb-1 text-truncate fw-semibold small cursor-pointer" id="asset-card-title-{{ $pic->id }}" data-asset-title-id="{{ $pic->id }}" onclick="openInspectorModal({{ $pic->id }})" title="{{ $pic->name }}">
                                     {{ $pic->name ?: 'Asset #' . $pic->id }}
                                 </h6>
                                 <div class="d-flex justify-content-between align-items-center text-muted" style="font-size: 0.75rem;">
@@ -392,13 +392,13 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <a href="javascript:void(0)" onclick="openInspectorModal({{ $pic->id }})" class="fw-semibold text-body text-decoration-none d-block">
+                                        <a href="javascript:void(0)" onclick="openInspectorModal({{ $pic->id }})" class="fw-semibold text-body text-decoration-none d-block" id="asset-list-title-{{ $pic->id }}" data-asset-title-id="{{ $pic->id }}">
                                             {{ $pic->name ?: 'Asset #' . $pic->id }}
                                         </a>
-                                        <small class="text-muted d-block text-truncate" style="max-width: 240px;">{{ $pic->alt_text ?: 'No alt text set' }}</small>
+                                        <small class="text-muted d-block text-truncate" style="max-width: 240px;" id="asset-list-alt-{{ $pic->id }}">{{ $pic->alt_text ?: 'No alt text set' }}</small>
                                     </td>
                                     <td>
-                                        <span class="badge bg-light text-dark border">{{ $pic->folder ?: 'general' }}</span>
+                                        <span class="badge bg-light text-dark border" id="asset-list-folder-{{ $pic->id }}">{{ $pic->folder ?: 'general' }}</span>
                                     </td>
                                     <td><code class="small text-muted">{{ $pic->dimensions ?: 'N/A' }}</code></td>
                                     <td class="small">{{ $pic->formatted_size }}</td>
@@ -869,28 +869,39 @@ document.addEventListener('DOMContentLoaded', function() {
                 const dupBtn = document.getElementById('btnInspectorDuplicate');
                 if (dupBtn) {
                     dupBtn.onclick = function() {
+                        const modalInstance = bootstrap.Modal.getInstance(document.getElementById('mediaInspectorModal'));
+                        if (modalInstance) modalInstance.hide();
                         duplicateSingleAsset(a.id);
                     };
                 }
 
                 // Bind delete button
-                document.getElementById('btnInspectorDelete').onclick = function() {
-                    deleteSingleAsset(a.id, a.name);
-                };
+                const delBtn = document.getElementById('btnInspectorDelete');
+                if (delBtn) {
+                    delBtn.onclick = function() {
+                        const modalInstance = bootstrap.Modal.getInstance(document.getElementById('mediaInspectorModal'));
+                        if (modalInstance) modalInstance.hide();
+                        deleteSingleAsset(a.id, a.name);
+                    };
+                }
 
-                const modal = new bootstrap.Modal(document.getElementById('mediaInspectorModal'));
+                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('mediaInspectorModal'));
                 modal.show();
             }
         })
         .catch(err => {
             console.error('Error fetching asset details:', err);
-            Swal.fire({
-                icon: 'error',
-                title: 'Load Failed',
-                text: 'Failed to load asset details from server.',
-                customClass: { confirmButton: 'btn btn-primary px-4 rounded-pill' },
-                buttonsStyling: false
-            });
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Load Failed',
+                    text: 'Failed to load asset details from server.',
+                    customClass: { confirmButton: 'btn btn-primary px-4 rounded-pill' },
+                    buttonsStyling: false
+                });
+            } else {
+                alert('Failed to load asset details.');
+            }
         });
     };
 
@@ -923,27 +934,82 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(payload)
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(errData => { throw errData; });
+                }
+                return res.json();
+            })
             .then(data => {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Saved!';
+
+                // Update DOM immediately in Media Library
+                const newName = data.asset?.name || payload.name;
+                const newAlt = data.asset?.alt_text || payload.alt_text;
+                const newFolder = data.asset?.folder || payload.folder;
+
+                document.querySelectorAll('[data-asset-title-id="' + id + '"]').forEach(el => {
+                    el.textContent = newName;
+                    el.setAttribute('title', newName);
+                });
+                const listAltEl = document.getElementById('asset-list-alt-' + id);
+                if (listAltEl) listAltEl.textContent = newAlt || 'No alt text set';
+                const listFolderEl = document.getElementById('asset-list-folder-' + id);
+                if (listFolderEl) listFolderEl.textContent = newFolder || 'general';
+
+                // Show success toast notification
+                const msg = data.message || 'Media metadata updated successfully!';
+                if (window.showToast) {
+                    window.showToast(msg, 'success');
+                } else if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Saved!',
+                        text: msg,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+
+                // Smoothly dismiss modal so user immediately sees updated library
                 setTimeout(() => {
                     btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Save Changes';
-                }, 2000);
+                    const modalEl = document.getElementById('mediaInspectorModal');
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if (modalInstance) modalInstance.hide();
+                }, 400);
             })
             .catch(err => {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="bi bi-check-lg me-1"></i> Save Changes';
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Save Failed',
-                    text: 'Failed to save metadata updates.',
-                    customClass: { confirmButton: 'btn btn-primary px-4 rounded-pill' },
-                    buttonsStyling: false
-                });
+                let errMsg = 'Failed to save metadata updates.';
+                if (err && err.errors) {
+                    errMsg = Object.values(err.errors).flat().join('<br>');
+                } else if (err && err.message) {
+                    errMsg = err.message;
+                }
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Save Failed',
+                        html: errMsg,
+                        customClass: { confirmButton: 'btn btn-primary px-4 rounded-pill' },
+                        buttonsStyling: false
+                    });
+                } else {
+                    alert(errMsg);
+                }
             });
         });
     }
+
+    // Suppress chrome extension background disconnect errors
+    window.addEventListener('error', function(e) {
+        if (e.message && e.message.includes('Could not establish connection')) {
+            e.preventDefault();
+        }
+    });
 });
 </script>
 

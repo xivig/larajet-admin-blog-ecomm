@@ -6,13 +6,29 @@
 <div class="page-site-settings">
 
   <!-- Header -->
-  <div class="page-header mb-4">
+  <div class="page-header mb-3">
     <h1 class="page-title mb-1">System Engine &amp; Global Properties</h1>
     <nav class="breadcrumb mb-0">
       <a href="{{ route('admin.dashboard') }}" class="breadcrumb-item">Dashboard</a>
       <span class="breadcrumb-item">Administration</span>
       <span class="breadcrumb-item active">Site Settings</span>
     </nav>
+  </div>
+
+  <!-- Settings Navigation Tabs -->
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <ul class="nav nav-pills gap-2 bg-body-secondary p-1.5 rounded-4 shadow-2xs">
+      <li class="nav-item">
+        <a class="nav-link active rounded-pill px-3 py-1.5 fw-semibold" href="{{ route('admin.settings.index') }}">
+          <i class="bi bi-gear-fill me-1"></i> General Settings &amp; Engine
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link rounded-pill px-3 py-1.5 fw-semibold text-body" href="{{ route('admin.settings.seo') }}">
+          <i class="bi bi-globe-americas me-1"></i> SEO &amp; Meta Suite <span class="badge bg-primary-subtle text-primary rounded-pill ms-1" style="font-size: 0.65rem;">PRO</span>
+        </a>
+      </li>
+    </ul>
   </div>
 
   <!-- 1. Site Maintenance Card (Matching Screenshot) -->

@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\RegisterController;
 use App\Http\Controllers\Admin\RoleController as AdminRoleController;
+use App\Http\Controllers\Admin\SeoSettingController as AdminSeoSettingController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\TagController as AdminTagController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
@@ -190,6 +191,11 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('settings/integrations', [AdminSettingController::class, 'updateIntegrations'])->name('admin.settings.integrations');
     Route::post('settings/editorial', [AdminSettingController::class, 'updateEditorial'])->name('admin.settings.editorial');
 
+    // SEO & Search Engine Intelligence Suite
+    Route::get('settings/seo', [AdminSeoSettingController::class, 'index'])->name('admin.settings.seo');
+    Route::post('settings/seo', [AdminSeoSettingController::class, 'update'])->name('admin.settings.seo.update');
+    Route::post('settings/seo/reset-robots', [AdminSeoSettingController::class, 'resetRobots'])->name('admin.settings.seo.reset-robots');
+
     // Activity Logs
     Route::get('activity-logs', [AdminActivityLogController::class, 'index'])->name('admin.activity-logs.index');
     Route::post('activity-logs/clear', [AdminActivityLogController::class, 'clear'])->name('admin.activity-logs.clear');
@@ -208,9 +214,10 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::put('profile/password', [AdminProfileController::class, 'updatePassword'])->name('admin.profile.password');
 });
 
-// Dynamic Public Feeds
+// Dynamic Public Feeds & Crawlers
 Route::get('/feed.xml', [AdminSettingController::class, 'feedXml'])->name('feed.xml');
 Route::get('/sitemap.xml', [AdminSettingController::class, 'sitemapXml'])->name('sitemap.xml');
+Route::get('/robots.txt', [AdminSeoSettingController::class, 'robotsTxt'])->name('robots.txt');
 
 // Auth logout & user dashboard subpages
 Route::get('logout', [AuthController::class, 'logout'])->name('logout');

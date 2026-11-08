@@ -19,9 +19,11 @@
                 </p>
             </div>
             <div class="col-lg-4 mt-4 mt-lg-0 text-lg-right">
-                <form action="{{ request()->url() }}" method="GET" class="d-flex">
-                    <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-elite mr-2" placeholder="Search insights...">
-                    <button type="submit" class="btn-elite btn-elite-primary btn-sm"><i class="fas fa-search"></i></button>
+                <form action="{{ request()->url() }}" method="GET" class="position-relative w-100" style="max-width: 360px; margin-left: auto;">
+                    <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-elite pr-5" style="border-radius: 999px; padding-right: 52px; height: 46px;" placeholder="Search insights...">
+                    <button type="submit" class="btn-elite btn-elite-primary btn-sm position-absolute" style="top: 50%; right: 5px; transform: translateY(-50%); border-radius: 999px; height: 36px; width: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; z-index: 5;" title="Search">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </form>
             </div>
         </div>

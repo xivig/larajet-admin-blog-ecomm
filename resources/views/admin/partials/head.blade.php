@@ -38,12 +38,24 @@
   <!-- Template Main CSS File (Compiled SCSS + Bootstrap 5 + Dark/Light Mode) -->
   <link rel="stylesheet" href="{{ asset('admin-dist/css/main-DjChhAQn.css') }}">
 
-  <!-- Theme Controller Pre-loader -->
+  <!-- Theme Controller Pre-loader & Extension Error Guard -->
   <script>
     (function() {
       const saved = localStorage.getItem('xivig_admin_theme') || localStorage.getItem('xivig-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       document.documentElement.setAttribute('data-bs-theme', saved);
       document.documentElement.setAttribute('data-theme', saved);
+
+      // Catch and suppress browser extension port disconnects
+      window.addEventListener('unhandledrejection', function(e) {
+        if (e.reason && (e.reason.message || '').includes('Could not establish connection')) {
+          e.preventDefault();
+        }
+      });
+      window.addEventListener('error', function(e) {
+        if ((e.message || '').includes('Could not establish connection')) {
+          e.preventDefault();
+        }
+      });
     })();
   </script>
 

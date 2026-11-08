@@ -58,11 +58,11 @@
                     <p class="text-muted">Subscribe for architecture insights, software engineering masterclasses, and releases.</p>
 
                     <form action="#" class="sub-form mt-3 bg-transparent border-0 shadow-none" onsubmit="event.preventDefault(); alert('Thank you for subscribing to Xivig insights!');">
-                        <div class="input-group">
-                            <input type="email" class="form-control form-control-elite" placeholder="Enter your email" required>
-                            <div class="input-group-append ml-2">
-                                <button type="submit" class="btn-elite btn-elite-primary btn-sm">Subscribe</button>
-                            </div>
+                        <div class="position-relative w-100">
+                            <input type="email" class="form-control form-control-elite" placeholder="Enter your email" style="border-radius: 999px; padding-right: 115px; height: 46px;" required>
+                            <button type="submit" class="btn-elite btn-elite-primary btn-sm position-absolute" style="top: 50%; right: 5px; transform: translateY(-50%); border-radius: 999px; height: 36px; padding: 0 18px; display: inline-flex; align-items: center; justify-content: center; z-index: 5;">
+                                Subscribe
+                            </button>
                         </div>
                     </form>
                 </div>
