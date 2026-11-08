@@ -167,7 +167,8 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::get('image-cropper', [ImageCropperController::class, 'index'])->name('admin.image-cropper.index');
     Route::post('image-cropper/save', [ImageCropperController::class, 'save'])->name('admin.image-cropper.save');
 
-    // Users Management
+    // Users Management & Authority Reassignment
+    Route::post('users/{user}/reassign-authority', [AdminUserController::class, 'reassignAuthority'])->name('admin.users.reassign-authority');
     Route::resource('users', AdminUserController::class)->names('admin.users');
 
     // Admin Profile

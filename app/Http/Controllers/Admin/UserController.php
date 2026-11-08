@@ -4,34 +4,40 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Author;
+use App\Models\Comment;
+use App\Models\Post;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
     /**
-     * Display a listing of registered users.
+     * Display a listing of registered users with role and authority footprints.
      */
     public function index(): View
     {
-        $users = User::withCount(['posts', 'comments'])->latest()->get();
-        return view('admin.users.index', compact('users'));
+        $users = User::with(['roles', 'author'])->withCount(['posts', 'comments'])->latest()->get();
+        $roles = Role::all();
+        return view('admin.users.index', compact('users', 'roles'));
     }
 
     /**
-     * Show the form for creating a new user.
+     * Show the form for creating a new user with initial authority.
      */
     public function create(): View
     {
-        return view('admin.users.create');
+        $roles = Role::all();
+        return view('admin.users.create', compact('roles'));
     }
 
     /**
-     * Store a newly created user in storage.
+     * Store a newly created user in storage with assigned authority.
      */
     public function store(Request $request): RedirectResponse
     {
@@ -40,6 +46,8 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email',
             'password' => ['required', 'confirmed', Password::defaults()],
             'is_author' => 'nullable',
+            'roles' => 'nullable|array',
+            'roles.*' => 'exists:roles,id',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:5120',
         ]);
 
@@ -58,6 +66,10 @@ class UserController extends Controller
             'profile_photo_path' => $profilePhotoPath,
         ]);
 
+        if ($request->has('roles')) {
+            $user->roles()->sync($request->roles);
+        }
+
         if ($request->has('is_author')) {
             Author::create([
                 'user_id' => $user->id,
@@ -65,33 +77,45 @@ class UserController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.users.index')->with('success', 'User "' . $user->name . '" created successfully!');
+        return redirect()->route('admin.users.index')->with('success', 'User "' . $user->name . '" created successfully with configured authority!');
     }
 
     /**
-     * Display the specified user.
+     * Display detailed profile, authority audit, and publication footprint for the specified user.
      */
     public function show(User $user): View
     {
-        $user->load(['posts' => function ($q) {
-            $q->latest()->take(5);
-        }, 'comments' => function ($q) {
-            $q->latest()->take(5);
-        }]);
+        $user->load([
+            'roles.permissions',
+            'author',
+            'posts' => function ($q) {
+                $q->withTrashed()->with('category')->latest()->take(10);
+            },
+            'comments' => function ($q) {
+                $q->withTrashed()->with('post')->latest()->take(10);
+            }
+        ])->loadCount(['posts', 'comments']);
 
-        return view('admin.users.show', compact('user'));
+        $roles = Role::all();
+        $otherUsers = User::where('id', '!=', $user->id)->orderBy('name')->get();
+
+        return view('admin.users.show', compact('user', 'roles', 'otherUsers'));
     }
 
     /**
-     * Show the form for editing the specified user.
+     * Show the form for editing the specified user and their security authority.
      */
     public function edit(User $user): View
     {
-        return view('admin.users.edit', compact('user'));
+        $user->load(['roles', 'author'])->loadCount(['posts', 'comments']);
+        $roles = Role::all();
+        $otherUsers = User::where('id', '!=', $user->id)->orderBy('name')->get();
+
+        return view('admin.users.edit', compact('user', 'roles', 'otherUsers'));
     }
 
     /**
-     * Update the specified user in storage.
+     * Update the specified user in storage, including security roles and author status.
      */
     public function update(Request $request, User $user): RedirectResponse
     {
@@ -99,6 +123,9 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => ['nullable', 'confirmed', Password::defaults()],
+            'roles' => 'nullable|array',
+            'roles.*' => 'exists:roles,id',
+            'is_author' => 'nullable',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:5120',
         ]);
 
@@ -120,18 +147,195 @@ class UserController extends Controller
 
         $user->update($data);
 
-        return redirect()->route('admin.users.index')->with('success', 'User updated successfully!');
+        // Update security roles
+        $user->roles()->sync($request->input('roles', []));
+
+        // Manage Author profile
+        if ($request->has('is_author')) {
+            if (!$user->author) {
+                Author::create([
+                    'user_id' => $user->id,
+                    'nickname' => $user->name,
+                ]);
+            }
+        } else {
+            // Only detach author if user has no attached posts
+            if ($user->author && Post::withTrashed()->where('author_id', $user->author->id)->count() === 0) {
+                $user->author()->delete();
+            }
+        }
+
+        return redirect()->route('admin.users.index')->with('success', 'User account and authority updated successfully!');
     }
 
     /**
-     * Remove the specified user from storage.
+     * Reassign authority (roles, permissions, authored publications, and discussions) from or to a user.
      */
-    public function destroy(User $user): RedirectResponse
+    public function reassignAuthority(Request $request, User $user): RedirectResponse
+    {
+        $action = $request->input('action_type', 'transfer');
+
+        if ($action === 'roles_only') {
+            $request->validate([
+                'roles' => 'nullable|array',
+                'roles.*' => 'exists:roles,id',
+                'is_author' => 'nullable',
+            ]);
+
+            $user->roles()->sync($request->input('roles', []));
+
+            if ($request->has('is_author')) {
+                if (!$user->author) {
+                    Author::create([
+                        'user_id' => $user->id,
+                        'nickname' => $user->name,
+                    ]);
+                }
+            } else {
+                if ($user->author && Post::withTrashed()->where('author_id', $user->author->id)->count() === 0) {
+                    $user->author()->delete();
+                }
+            }
+
+            return back()->with('success', "Authority roles and contributor access updated for \"{$user->name}\".");
+        }
+
+        // Full Authority & Content Transfer
+        $request->validate([
+            'target_user_id' => 'required|exists:users,id',
+            'transfer_posts' => 'nullable|boolean',
+            'transfer_comments' => 'nullable|boolean',
+            'copy_roles' => 'nullable|boolean',
+            'delete_source_user' => 'nullable|boolean',
+        ]);
+
+        $targetUser = User::findOrFail($request->target_user_id);
+
+        if ($targetUser->id === $user->id) {
+            return back()->with('error', 'Cannot reassign authority to the exact same user account.');
+        }
+
+        $transferredPosts = 0;
+        $transferredComments = 0;
+
+        DB::transaction(function () use ($request, $user, $targetUser, &$transferredPosts, &$transferredComments) {
+            // 1. Ensure target user has an Author profile
+            $targetAuthor = $targetUser->author;
+            if (!$targetAuthor) {
+                $targetAuthor = Author::create([
+                    'user_id' => $targetUser->id,
+                    'nickname' => $targetUser->name,
+                ]);
+            }
+
+            // 2. Transfer Authored Publications
+            if ($request->input('transfer_posts', true)) {
+                $sourceAuthorId = $user->author?->id;
+
+                $postQuery = Post::withTrashed()->where(function ($q) use ($user, $sourceAuthorId) {
+                    $q->where('user_id', $user->id);
+                    if ($sourceAuthorId) {
+                        $q->orWhere('author_id', $sourceAuthorId);
+                    }
+                });
+
+                $transferredPosts = $postQuery->count();
+
+                $postQuery->update([
+                    'user_id' => $targetUser->id,
+                    'author_id' => $targetAuthor->id,
+                ]);
+            }
+
+            // 3. Transfer Discussions / Comments
+            if ($request->input('transfer_comments', true)) {
+                $transferredComments = Comment::withTrashed()->where('user_id', $user->id)->count();
+                Comment::withTrashed()->where('user_id', $user->id)->update([
+                    'user_id' => $targetUser->id,
+                ]);
+            }
+
+            // 4. Optionally copy security roles
+            if ($request->input('copy_roles', false) && $user->roles()->exists()) {
+                $targetUser->roles()->syncWithoutDetaching($user->roles->pluck('id')->toArray());
+            }
+
+            // 5. Optionally delete source user
+            if ($request->input('delete_source_user', false)) {
+                $user->roles()->detach();
+                if ($user->author) {
+                    $user->author->delete();
+                }
+                $user->delete();
+            }
+        });
+
+        if ($request->input('delete_source_user', false)) {
+            return redirect()->route('admin.users.index')->with(
+                'success',
+                "Authority and publications ({$transferredPosts} article(s)" . ($transferredComments ? ", {$transferredComments} comment(s)" : "") . ") successfully reassigned to \"{$targetUser->name}\", and account for \"{$user->name}\" was safely decommissioned."
+            );
+        }
+
+        return back()->with(
+            'success',
+            "Authority and {$transferredPosts} article(s)" . ($transferredComments ? " and {$transferredComments} comment(s)" : "") . " successfully reassigned from \"{$user->name}\" to \"{$targetUser->name}\"."
+        );
+    }
+
+    /**
+     * Remove the specified user from storage with safe authority reassignment verification.
+     */
+    public function destroy(Request $request, User $user): RedirectResponse
     {
         $name = $user->name;
-        $user->comments()->delete();
-        $user->author()->delete();
-        $user->delete();
+        $postsCount = Post::withTrashed()
+            ->where('user_id', $user->id)
+            ->orWhere(function ($q) use ($user) {
+                if ($user->author) {
+                    $q->where('author_id', $user->author->id);
+                }
+            })->count();
+
+        // If user has posts and no recipient was provided, enforce authority reassignment
+        if ($postsCount > 0 && !$request->filled('reassign_to_user_id')) {
+            return redirect()->route('admin.users.index')
+                ->with('error', "Cannot delete user \"{$name}\" because they are author of {$postsCount} article(s). Please use 'Reassign Authority' first to preserve publications.");
+        }
+
+        DB::transaction(function () use ($request, $user, $postsCount) {
+            // If reassign_to_user_id is provided, transfer before deleting
+            if ($request->filled('reassign_to_user_id')) {
+                $targetUser = User::findOrFail($request->reassign_to_user_id);
+                $targetAuthor = $targetUser->author ?: Author::create([
+                    'user_id' => $targetUser->id,
+                    'nickname' => $targetUser->name,
+                ]);
+
+                Post::withTrashed()
+                    ->where('user_id', $user->id)
+                    ->orWhere(function ($q) use ($user) {
+                        if ($user->author) {
+                            $q->where('author_id', $user->author->id);
+                        }
+                    })->update([
+                        'user_id' => $targetUser->id,
+                        'author_id' => $targetAuthor->id,
+                    ]);
+
+                Comment::withTrashed()->where('user_id', $user->id)->update([
+                    'user_id' => $targetUser->id,
+                ]);
+            } else {
+                $user->comments()->delete();
+            }
+
+            $user->roles()->detach();
+            if ($user->author) {
+                $user->author()->delete();
+            }
+            $user->delete();
+        });
 
         return redirect()->route('admin.users.index')->with('success', 'User "' . $name . '" deleted successfully!');
     }

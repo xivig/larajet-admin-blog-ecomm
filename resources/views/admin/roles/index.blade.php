@@ -272,12 +272,20 @@
                                             {{ $u->created_at ? $u->created_at->format('M d, Y') : 'N/A' }}
                                         </td>
                                         <td class="text-end pe-4">
-                                            <form id="removeUserForm-{{ $u->id }}" action="{{ route('admin.roles.remove-user', $currentRole->id) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                <input type="hidden" name="user_id" value="{{ $u->id }}">
-                                                <button type="button" class="btn btn-outline-danger btn-sm" title="Remove role from user" onclick="showConfirmDialog({ title: 'Remove Role Assignment?', text: 'Remove {{ $u->name }} from {{ $currentRole->name }} role?' }, () => document.getElementById('removeUserForm-{{ $u->id }}').submit())">
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{{ route('admin.users.show', $u->id) }}" class="btn btn-outline-info" title="View Profile & Authority">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a href="{{ route('admin.users.edit', $u->id) }}" class="btn btn-outline-primary" title="Edit & Reassign Authority">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-outline-danger" title="Remove role from user" onclick="showConfirmDialog({ title: 'Remove Role Assignment?', text: 'Remove {{ $u->name }} from {{ $currentRole->name }} role?' }, () => document.getElementById('removeUserForm-{{ $u->id }}').submit())">
                                                     <i class="bi bi-person-x"></i>
                                                 </button>
+                                            </div>
+                                            <form id="removeUserForm-{{ $u->id }}" action="{{ route('admin.roles.remove-user', $currentRole->id) }}" method="POST" style="display: none;">
+                                                @csrf
+                                                <input type="hidden" name="user_id" value="{{ $u->id }}">
                                             </form>
                                         </td>
                                     </tr>

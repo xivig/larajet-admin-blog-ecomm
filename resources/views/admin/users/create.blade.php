@@ -57,10 +57,29 @@
         </div>
 
         <div class="mb-4">
+          <label class="form-label fw-semibold d-block">Security Authority &amp; System Roles</label>
+          <div class="row g-2">
+            @foreach ($roles as $role)
+              <div class="col-md-6">
+                <div class="border rounded p-2.5 h-100">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="roles[]" value="{{ $role->id }}" id="role_{{ $role->id }}">
+                    <label class="form-check-label fw-semibold" for="role_{{ $role->id }}">
+                      <span class="badge bg-{{ $role->color }}-subtle text-{{ $role->color }} me-1">{{ $role->name }}</span>
+                    </label>
+                    <div class="text-muted small mt-1" style="font-size: 11px;">{{ $role->description }}</div>
+                  </div>
+                </div>
+              </div>
+            @endforeach
+          </div>
+        </div>
+
+        <div class="mb-4">
           <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" name="is_author" id="isAuthor" value="1" checked>
             <label class="form-check-label fw-semibold" for="isAuthor">
-              Register as Editorial Author (Can be assigned to write blog posts)
+              Register as Editorial Author (Can compose and publish blog posts)
             </label>
           </div>
         </div>
