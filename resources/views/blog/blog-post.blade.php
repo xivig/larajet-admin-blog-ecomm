@@ -1,4 +1,4 @@
-@extends('blog')
+@extends('layouts.blog')
 @section('title', $post->title . ' - Xivig Editorial')
 @section('content')
 
@@ -315,4 +315,5 @@
     </div>
 </section>
 @endsection
+
 

@@ -1,5 +1,5 @@
 @use('Illuminate\Support\Str')
-@extends('blog')
+@extends('layouts.blog')
 @section('title', ($columns ?? 3) == 4 ? 'Xivig - All Articles & Publications' : 'Xivig - Editorial & Engineering Blog')
 @section('content')
 
@@ -103,3 +103,4 @@
     </div>
 </section>
 @endsection
+

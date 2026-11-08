@@ -1,4 +1,4 @@
-@extends('blog')
+@extends('layouts.blog')
 @section('title', 'Xivig Store - Developer & Enterprise Solutions')
 @section('content')
 
@@ -263,4 +263,5 @@
     </div>
 </section>
 @endsection
+
 

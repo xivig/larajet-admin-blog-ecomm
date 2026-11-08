@@ -1,8 +1,9 @@
-@include('partials.blog.head')
-@include('partials.blog.header')
+@include('blog.partials.head')
+@include('blog.partials.header')
 
 @if(($title ?? '') !== 'Home page')
-    @include('partials.blog.common')
+    @include('blog.partials.common')
 @endif
 @yield('content')
-@include('partials.blog.footer')
+@include('blog.partials.footer')
+

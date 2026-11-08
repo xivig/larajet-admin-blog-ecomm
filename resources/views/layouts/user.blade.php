@@ -1,4 +1,4 @@
-@include('partials.user.head')
+@include('user.partials.head')
 
 <body>
     <!-- ============================================================== -->
@@ -15,9 +15,9 @@
     <!-- ============================================================== -->
     <div id="main-wrapper">
 
-        @include('partials.user.header')
+        @include('user.partials.header')
 
-        @include('partials.user.sidebar')
+        @include('user.partials.sidebar')
 
         <!-- ============================================================== -->
         <!-- Page wrapper  -->
@@ -88,5 +88,6 @@
     <!-- ============================================================== -->
 
 
-   @include('partials.user.footer')
+   @include('user.partials.footer')
+
 
