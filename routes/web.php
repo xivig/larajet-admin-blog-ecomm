@@ -139,6 +139,10 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     // Media Library
     Route::get('media', [AdminMediaController::class, 'index'])->name('admin.media.index');
     Route::post('media', [AdminMediaController::class, 'store'])->name('admin.media.store');
+    Route::get('media/picker-api', [AdminMediaController::class, 'pickerApi'])->name('admin.media.picker');
+    Route::get('media/{picture}', [AdminMediaController::class, 'show'])->name('admin.media.show');
+    Route::put('media/{picture}', [AdminMediaController::class, 'update'])->name('admin.media.update');
+    Route::post('media/bulk', [AdminMediaController::class, 'bulkAction'])->name('admin.media.bulk');
     Route::delete('media/{picture}', [AdminMediaController::class, 'destroy'])->name('admin.media.destroy');
 
     // Users Management

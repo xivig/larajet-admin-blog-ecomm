@@ -75,16 +75,21 @@
               <div class="col-md-4">
                 <label class="form-label small text-muted d-block">Current Cover:</label>
                 @if ($post->image && $post->image->link)
-                  <img src="{{ Str::startsWith($post->image->link, ['http', 'https', 'uploads/']) ? asset($post->image->link) : asset('xivig-blog/images/blog/' . $post->image->link) }}" alt="Cover" class="img-fluid rounded border" style="max-height: 140px;" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                  <img id="currentCoverImg" src="{{ Str::startsWith($post->image->link, ['http', 'https', 'uploads/']) ? asset($post->image->link) : asset('xivig-blog/images/blog/' . $post->image->link) }}" alt="Cover" class="img-fluid rounded border" style="max-height: 140px;" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                 @else
-                  <div class="text-muted small">No cover image attached.</div>
+                  <img id="currentCoverImg" src="{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}" alt="Cover" class="img-fluid rounded border" style="max-height: 140px;">
                 @endif
               </div>
               <div class="col-md-8">
                 <label class="form-label fw-semibold">Replace Cover Image</label>
                 <input type="file" name="featured_image" id="featuredImageInput" class="form-control mb-2" accept="image/*">
 
-                <label class="form-label fw-semibold">Or Switch to Library Asset</label>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <label class="form-label fw-semibold mb-0">Switch to Library Asset</label>
+                  <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2" data-bs-toggle="modal" data-bs-target="#mediaPickerModal">
+                    <i class="bi bi-images me-1"></i> Visual Picker
+                  </button>
+                </div>
                 <select name="image_id" class="form-select">
                   @foreach ($pictures as $pic)
                     <option value="{{ $pic->id }}" {{ $post->image_id == $pic->id ? 'selected' : '' }}>
@@ -232,4 +237,5 @@
   });
 </script>
 @endpush
+@include('admin.partials.media-picker-modal')
 @endsection

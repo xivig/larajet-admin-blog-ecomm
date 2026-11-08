@@ -77,7 +77,12 @@
                 <div class="form-text small">Supported formats: JPG, PNG, WEBP, SVG (Max 5MB).</div>
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-semibold">Or Select From Existing Library</label>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <label class="form-label fw-semibold mb-0">Select From Media Library</label>
+                  <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2" data-bs-toggle="modal" data-bs-target="#mediaPickerModal">
+                    <i class="bi bi-images me-1"></i> Visual Picker
+                  </button>
+                </div>
                 <select name="image_id" id="imageIdSelect" class="form-select">
                   <option value="">-- Choose from existing media --</option>
                   @foreach ($pictures as $pic)
@@ -277,4 +282,5 @@
   });
 </script>
 @endpush
+@include('admin.partials.media-picker-modal')
 @endsection
