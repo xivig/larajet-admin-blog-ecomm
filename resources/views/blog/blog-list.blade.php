@@ -49,6 +49,15 @@
                                 <span class="blog-category-tag">
                                     {{ $post->category->name ?? 'General' }}
                                 </span>
+                                @if($post->is_sticky)
+                                    <span class="badge badge-danger position-absolute" style="top: 12px; left: 12px; z-index: 2; padding: 6px 10px; font-weight: 700;">
+                                        <i class="fas fa-thumbtack mr-1"></i> Pinned
+                                    </span>
+                                @elseif($post->is_featured)
+                                    <span class="badge badge-warning text-dark position-absolute" style="top: 12px; left: 12px; z-index: 2; padding: 6px 10px; font-weight: 700;">
+                                        <i class="fas fa-star mr-1"></i> Featured
+                                    </span>
+                                @endif
                             </div>
 
                             <div class="blog-item-content d-flex flex-column flex-grow-1">
@@ -75,7 +84,7 @@
                                         Read <i class="fas fa-arrow-right ml-1" style="font-size: 11px;"></i>
                                     </a>
                                     <span class="text-muted small">
-                                        <i class="far fa-clock mr-1"></i> {{ max(2, round(str_word_count(strip_tags($post->content ?? $post->excerpt)) / 180)) }} min
+                                        <i class="far fa-clock mr-1"></i> {{ $post->reading_time }} min read
                                     </span>
                                 </div>
                             </div>

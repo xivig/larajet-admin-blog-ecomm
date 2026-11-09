@@ -27,11 +27,12 @@
     <input type="hidden" name="content" id="hiddenContent">
 
     <div class="row g-4">
-      <!-- Main Editorial Column (Title, Quill WYSIWYG, Excerpt) -->
+      <!-- Main Editorial Column (Title, Quill WYSIWYG, Excerpt, Gallery, SEO) -->
       <div class="col-lg-8">
-        <div class="card mb-4">
-          <div class="card-header py-3">
-            <h5 class="card-title mb-0">Article Content</h5>
+        <!-- Content Card -->
+        <div class="card mb-4 border-0 shadow-sm">
+          <div class="card-header bg-transparent py-3">
+            <h5 class="card-title mb-0 fw-bold">Article Content</h5>
             <small class="text-muted">Draft formatted text, code snippets, headers, and media</small>
           </div>
           <div class="card-body">
@@ -64,9 +65,9 @@
         </div>
 
         <!-- Featured Image Card -->
-        <div class="card">
-          <div class="card-header py-3">
-            <h5 class="card-title mb-0">Featured Cover Image</h5>
+        <div class="card mb-4 border-0 shadow-sm">
+          <div class="card-header bg-transparent py-3">
+            <h5 class="card-title mb-0 fw-bold">Featured Cover Image</h5>
             <small class="text-muted">Display image for article headers and card showcases</small>
           </div>
           <div class="card-body">
@@ -101,33 +102,90 @@
             </div>
           </div>
         </div>
+
+        <!-- Unlimited Images / Photo Gallery Component -->
+        @include('admin.posts.partials.gallery-fields')
+
+        <!-- Professional SEO Suite Component -->
+        @include('admin.posts.partials.seo-fields')
+
       </div>
 
-      <!-- Right Column: Settings, Category, Tag, Author, Publish -->
+      <!-- Right Column: Publishing, Visibility, Taxonomy, Author -->
       <div class="col-lg-4">
 
-        <!-- Publish Box -->
-        <div class="card mb-4">
-          <div class="card-header py-3">
-            <h5 class="card-title mb-0">Publishing Operations</h5>
+        <!-- Publishing Operations Box -->
+        <div class="card mb-4 border-0 shadow-sm">
+          <div class="card-header bg-transparent py-3">
+            <h5 class="card-title mb-0 fw-bold">Publishing Operations</h5>
           </div>
           <div class="card-body">
+            <!-- Publication Status -->
             <div class="mb-3">
-              <label class="form-label fw-semibold d-block">Publication Status</label>
-              <div class="form-check form-switch fs-5">
-                <input class="form-check-input" type="checkbox" name="status" id="postStatus" value="1" checked>
-                <label class="form-check-label fs-6 fw-normal" for="postStatus" id="statusLabel">
-                  Published Immediately
+              <label class="form-label fw-semibold">Publication Status</label>
+              <select name="post_status" id="postStatusSelect" class="form-select" onchange="handleStatusChange(this.value)">
+                <option value="published" {{ old('post_status', 'published') === 'published' ? 'selected' : '' }}>Published Immediately</option>
+                <option value="scheduled" {{ old('post_status') === 'scheduled' ? 'selected' : '' }}>Scheduled for Future</option>
+                <option value="draft" {{ old('post_status') === 'draft' ? 'selected' : '' }}>Internal Draft</option>
+              </select>
+            </div>
+
+            <!-- Scheduled Date/Time (Conditional) -->
+            <div class="mb-3 {{ old('post_status') === 'scheduled' ? '' : 'd-none' }}" id="scheduledDateBox">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-clock me-1 text-warning"></i> Scheduled Publication Date
+              </label>
+              <input type="datetime-local" name="scheduled_at" class="form-control" value="{{ old('scheduled_at') }}">
+              <div class="form-text small">Article will be published automatically by the scheduler.</div>
+            </div>
+
+            <!-- Visibility -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Audience Visibility</label>
+              <select name="visibility" id="visibilitySelect" class="form-select" onchange="handleVisibilityChange(this.value)">
+                <option value="public" {{ old('visibility', 'public') === 'public' ? 'selected' : '' }}>Public (Open to everyone)</option>
+                <option value="password_protected" {{ old('visibility') === 'password_protected' ? 'selected' : '' }}>Password Protected</option>
+                <option value="private" {{ old('visibility') === 'private' ? 'selected' : '' }}>Private (Members Only)</option>
+              </select>
+            </div>
+
+            <!-- Password Protected Passphrase (Conditional) -->
+            <div class="mb-3 {{ old('visibility') === 'password_protected' ? '' : 'd-none' }}" id="passwordBox">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-key me-1 text-info"></i> Access Passphrase
+              </label>
+              <input type="text" name="password" class="form-control" placeholder="Enter access passphrase..." value="{{ old('password') }}">
+              <div class="form-text small">Readers must enter this password to read the article.</div>
+            </div>
+
+            <hr>
+
+            <!-- Sticky & Featured Toggles -->
+            <div class="mb-2">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="is_sticky" id="isSticky" value="1" {{ old('is_sticky') ? 'checked' : '' }}>
+                <label class="form-check-label fw-semibold" for="isSticky">
+                  <i class="bi bi-pin-angle text-danger me-1"></i> Sticky Post (Pin to Top)
                 </label>
               </div>
-              <small class="text-muted d-block mt-1">Uncheck to save as an unpublished internal draft.</small>
+              <small class="text-muted ps-4 d-block">Pinned articles float to the top of category &amp; blog lists.</small>
+            </div>
+
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="is_featured" id="isFeatured" value="1" {{ old('is_featured') ? 'checked' : '' }}>
+                <label class="form-check-label fw-semibold" for="isFeatured">
+                  <i class="bi bi-star text-warning me-1"></i> Featured Spotlight
+                </label>
+              </div>
+              <small class="text-muted ps-4 d-block">Spotlighted in hero banners and featured widgets.</small>
             </div>
 
             <hr>
 
             <div class="d-grid gap-2">
               <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
-                <i class="bi bi-send me-1"></i> Publish Article
+                <i class="bi bi-send me-1"></i> Save &amp; Publish
               </button>
               <button type="button" class="btn btn-outline-secondary" onclick="saveAsDraft()">
                 <i class="bi bi-save me-1"></i> Save as Draft
@@ -136,10 +194,10 @@
           </div>
         </div>
 
-        <!-- Taxonomy: Category & Tag -->
-        <div class="card mb-4">
-          <div class="card-header py-3">
-            <h5 class="card-title mb-0">Taxonomy &amp; Categories</h5>
+        <!-- Taxonomy: Category, Tag, Author -->
+        <div class="card mb-4 border-0 shadow-sm">
+          <div class="card-header bg-transparent py-3">
+            <h5 class="card-title mb-0 fw-bold">Taxonomy &amp; Editorial</h5>
           </div>
           <div class="card-body">
 
@@ -200,93 +258,160 @@
 
 </div>
 
+<!-- Media Picker Modal -->
+<div class="modal fade" id="mediaPickerModal" tabindex="-1" aria-labelledby="mediaPickerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="mediaPickerModalLabel">
+          <i class="bi bi-images me-2 text-primary"></i> Media Library Picker
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          @forelse ($pictures as $pic)
+            <div class="col-md-3 col-sm-4 col-6">
+              <div class="card h-100 border text-center p-2 cursor-pointer media-picker-item" data-id="{{ $pic->id }}" data-name="{{ $pic->name ?? 'Image' }}" data-src="{{ Str::startsWith($pic->link, ['http', 'https', 'uploads/']) ? asset($pic->link) : asset('xivig-blog/images/blog/' . $pic->link) }}" onclick="selectMediaItem(this)">
+                <div class="ratio ratio-1x1 mb-2 bg-light rounded overflow-hidden">
+                  <img src="{{ Str::startsWith($pic->link, ['http', 'https', 'uploads/']) ? asset($pic->link) : asset('xivig-blog/images/blog/' . $pic->link) }}" alt="{{ $pic->name }}" class="object-fit-cover w-100 h-100" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                </div>
+                <div class="small text-truncate fw-semibold">{{ $pic->name ?? 'ID: ' . $pic->id }}</div>
+              </div>
+            </div>
+          @empty
+            <div class="col-12 text-center py-4 text-muted">
+              No media items available in gallery.
+            </div>
+          @endforelse
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 @push('scripts')
 <script>
+  let quill;
+
   document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Quill Snow Editor
-    const quill = new Quill('#postContentEditor', {
-      theme: 'snow',
-      modules: {
-        toolbar: [
-          [{ 'header': [1, 2, 3, 4, false] }],
-          ['bold', 'italic', 'underline', 'strike'],
-          [{ 'color': [] }, { 'background': [] }],
-          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-          ['blockquote', 'code-block'],
-          ['link', 'image', 'clean']
-        ]
-      },
-      placeholder: 'Write your comprehensive article content here...'
-    });
-
-    // Auto-update slug preview on title input
-    const titleInput = document.getElementById('postTitle');
-    const slugPreview = document.getElementById('slugPreview');
-    if (titleInput && slugPreview) {
-      titleInput.addEventListener('input', function() {
-        const slug = titleInput.value
-          .toLowerCase()
-          .trim()
-          .replace(/[^a-z0-9 -]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/-+/g, '-');
-        slugPreview.textContent = slug || 'article-title';
-      });
-    }
-
-    // Status switch label update
-    const postStatus = document.getElementById('postStatus');
-    const statusLabel = document.getElementById('statusLabel');
-    if (postStatus && statusLabel) {
-      postStatus.addEventListener('change', function() {
-        statusLabel.textContent = this.checked ? 'Published Immediately' : 'Saved as Draft';
-      });
-    }
-
-    // Live preview for image upload
-    const featuredImageInput = document.getElementById('featuredImageInput');
-    const imagePreviewBox = document.getElementById('imagePreviewBox');
-    const imagePreview = document.getElementById('imagePreview');
-    if (featuredImageInput) {
-      featuredImageInput.addEventListener('change', function() {
-        const file = this.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = function(e) {
-            imagePreview.src = e.target.result;
-            imagePreviewBox.style.display = 'block';
-          };
-          reader.readAsDataURL(file);
+    // 1. Initialize Quill WYSIWYG
+    if (typeof Quill !== 'undefined') {
+      quill = new Quill('#postContentEditor', {
+        theme: 'snow',
+        placeholder: 'Write your comprehensive article insight...',
+        modules: {
+          toolbar: [
+            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'color': [] }, { 'background': [] }],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ 'align': [] }],
+            ['blockquote', 'code-block'],
+            ['link', 'image', 'video'],
+            ['clean']
+          ]
         }
       });
     }
 
-    // Form submit handler: copy Quill HTML into hidden textarea
-    const postForm = document.getElementById('postForm');
-    postForm.addEventListener('submit', function(e) {
-      const hiddenContent = document.getElementById('hiddenContent');
-      hiddenContent.value = quill.root.innerHTML;
-      if (quill.getText().trim().length === 0) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Content Required',
-          text: 'Please enter article body content before publishing.',
-          customClass: { confirmButton: 'btn btn-primary px-4 rounded-pill' },
-          buttonsStyling: false
-        });
-        e.preventDefault();
-        return false;
-      }
-    });
+    // 2. Slug Auto-generate
+    const titleInput = document.getElementById('postTitle');
+    const slugPreview = document.getElementById('slugPreview');
+    if (titleInput && slugPreview) {
+      titleInput.addEventListener('input', function() {
+        const slug = this.value
+          .toLowerCase()
+          .trim()
+          .replace(/[^\w\s-]/g, '')
+          .replace(/[\s_-]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+        slugPreview.textContent = slug || 'article-title';
+      });
+    }
 
-    // Save as draft function
-    window.saveAsDraft = function() {
-      postStatus.checked = false;
-      statusLabel.textContent = 'Saved as Draft';
-      postForm.submit();
-    };
+    // 3. Featured Image Upload Preview
+    const featuredInput = document.getElementById('featuredImageInput');
+    const previewBox = document.getElementById('imagePreviewBox');
+    const previewImg = document.getElementById('imagePreview');
+
+    if (featuredInput) {
+      featuredInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            previewBox.style.display = 'block';
+            document.getElementById('imageIdSelect').value = '';
+          };
+          reader.readAsDataURL(this.files[0]);
+        }
+      });
+    }
+
+    // 4. Form Submit Handler (Sync Quill HTML to Hidden Input)
+    const form = document.getElementById('postForm');
+    if (form) {
+      form.addEventListener('submit', function() {
+        if (quill) {
+          document.getElementById('hiddenContent').value = quill.root.innerHTML;
+        }
+      });
+    }
   });
+
+  function handleStatusChange(status) {
+    const scheduledBox = document.getElementById('scheduledDateBox');
+    const submitBtn = document.getElementById('submitBtn');
+
+    if (status === 'scheduled') {
+      scheduledBox.classList.remove('d-none');
+      submitBtn.innerHTML = '<i class="bi bi-clock me-1"></i> Schedule Article';
+    } else if (status === 'draft') {
+      scheduledBox.classList.add('d-none');
+      submitBtn.innerHTML = '<i class="bi bi-save me-1"></i> Save Draft';
+    } else {
+      scheduledBox.classList.add('d-none');
+      submitBtn.innerHTML = '<i class="bi bi-send me-1"></i> Publish Article';
+    }
+  }
+
+  function handleVisibilityChange(vis) {
+    const pwdBox = document.getElementById('passwordBox');
+    if (vis === 'password_protected') {
+      pwdBox.classList.remove('d-none');
+    } else {
+      pwdBox.classList.add('d-none');
+    }
+  }
+
+  function selectMediaItem(item) {
+    const id = item.dataset.id;
+    const src = item.dataset.src;
+
+    document.getElementById('imageIdSelect').value = id;
+    document.getElementById('featuredImageInput').value = '';
+
+    const previewBox = document.getElementById('imagePreviewBox');
+    const previewImg = document.getElementById('imagePreview');
+    previewImg.src = src;
+    previewBox.style.display = 'block';
+
+    const modal = bootstrap.Modal.getInstance(document.getElementById('mediaPickerModal'));
+    if (modal) modal.hide();
+  }
+
+  function saveAsDraft() {
+    document.getElementById('postStatusSelect').value = 'draft';
+    handleStatusChange('draft');
+    if (quill) {
+      document.getElementById('hiddenContent').value = quill.root.innerHTML;
+    }
+    document.getElementById('postForm').submit();
+  }
 </script>
 @endpush
-@include('admin.partials.media-picker-modal')
 @endsection

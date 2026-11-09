@@ -7,29 +7,50 @@ use App\Models\Author;
 use App\Models\Category;
 use App\Models\Picture;
 use App\Models\Post;
+use App\Models\PostImage;
 use App\Models\Tag;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
     /**
-     * Display a listing of posts for admin.
+     * Display a listing of posts for admin with granular status filters.
      */
     public function index(Request $request): View
     {
-        $status = $request->input('status');
+        $status = $request->input('status', 'all');
 
         if ($status === 'trash') {
-            $query = Post::onlyTrashed()->with(['category', 'author.user', 'image', 'tag', 'comments'])->latest();
+            $query = Post::onlyTrashed()->with(['category', 'author.user', 'image', 'tag', 'comments', 'images'])->latest();
         } else {
-            $query = Post::with(['category', 'author.user', 'image', 'tag', 'comments'])->latest();
+            $query = Post::with(['category', 'author.user', 'image', 'tag', 'comments', 'images'])->latest();
+
             if ($status === 'published') {
-                $query->where('status', true);
+                $query->where(function ($q) {
+                    $q->where('post_status', 'published')
+                      ->orWhere(function ($sub) {
+                          $sub->where('status', true)->where('post_status', '!=', 'draft')->where('post_status', '!=', 'scheduled');
+                      });
+                });
+            } elseif ($status === 'scheduled') {
+                $query->where('post_status', 'scheduled');
             } elseif ($status === 'draft') {
-                $query->where('status', false);
+                $query->where(function ($q) {
+                    $q->where('post_status', 'draft')
+                      ->orWhere(function ($sub) {
+                          $sub->where('status', false)->where('post_status', '!=', 'scheduled');
+                      });
+                });
+            } elseif ($status === 'sticky') {
+                $query->where('is_sticky', true);
+            } elseif ($status === 'featured') {
+                $query->where('is_featured', true);
             }
         }
 
@@ -37,17 +58,29 @@ class PostController extends Controller
             $query->where('category_id', $request->category_id);
         }
 
-        $posts = $query->get();
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where(function ($q) use ($s) {
+                $q->where('title', 'like', "%{$s}%")
+                  ->orWhere('slug', 'like', "%{$s}%")
+                  ->orWhere('excerpt', 'like', "%{$s}%");
+            });
+        }
+
+        $posts = $query->paginate(15)->withQueryString();
         $categories = Category::all();
 
         $counts = [
             'all' => Post::count(),
-            'published' => Post::where('status', true)->count(),
-            'draft' => Post::where('status', false)->count(),
+            'published' => Post::where(fn($q) => $q->where('post_status', 'published')->orWhere('status', true))->count(),
+            'scheduled' => Post::where('post_status', 'scheduled')->count(),
+            'draft' => Post::where(fn($q) => $q->where('post_status', 'draft')->orWhere(fn($s) => $s->where('status', false)->where('post_status', '!=', 'scheduled')))->count(),
+            'sticky' => Post::where('is_sticky', true)->count(),
+            'featured' => Post::where('is_featured', true)->count(),
             'trash' => Post::onlyTrashed()->count(),
         ];
 
-        return view('admin.posts.index', compact('posts', 'categories', 'counts'));
+        return view('admin.posts.index', compact('posts', 'categories', 'counts', 'status'));
     }
 
     /**
@@ -64,7 +97,7 @@ class PostController extends Controller
     }
 
     /**
-     * Store a newly created post.
+     * Store a newly created post with complete blog & SEO suite.
      */
     public function store(Request $request): RedirectResponse
     {
@@ -76,11 +109,37 @@ class PostController extends Controller
             'author_id' => 'nullable',
             'content' => 'required|string',
             'excerpt' => 'nullable|string|max:500',
-            'status' => 'nullable',
+            'post_status' => 'nullable|in:draft,scheduled,published',
+            'scheduled_at' => 'nullable|date',
+            'visibility' => 'nullable|in:public,password_protected,private',
+            'password' => 'nullable|string|max:255',
+            'is_sticky' => 'nullable|boolean',
+            'is_featured' => 'nullable|boolean',
             'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:5120',
+            // Gallery files
+            'gallery_images' => 'nullable|array',
+            'gallery_images.*' => 'image|mimes:jpeg,png,jpg,webp,gif,svg|max:5120',
+            // SEO Meta Validation
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'meta_keywords' => 'nullable|string|max:500',
+            'canonical_url' => 'nullable|url|max:500',
+            'meta_author' => 'nullable|string|max:255',
+            'meta_robots' => 'nullable|string|max:100',
+            'meta_language' => 'nullable|string|max:20',
+            'geo_region' => 'nullable|string|max:50',
+            'geo_placename' => 'nullable|string|max:100',
+            'geo_position' => 'nullable|string|max:100',
+            'meta_rating' => 'nullable|string|max:50',
+            'meta_copyright' => 'nullable|string|max:255',
+            'og_title' => 'nullable|string|max:255',
+            'og_description' => 'nullable|string|max:500',
+            'og_image' => 'nullable|string|max:500',
+            'twitter_card' => 'nullable|string|max:50',
+            'schema_type' => 'nullable|string|max:50',
         ]);
 
-        // Handle image upload if provided
+        // Featured Hero Image
         $imageId = $request->filled('image_id') ? $request->input('image_id') : null;
         if ($request->hasFile('featured_image')) {
             $postsDir = public_path('uploads/posts');
@@ -97,7 +156,6 @@ class PostController extends Controller
             $imageId = $picture->id;
         }
 
-        // Fallback image if none selected
         if (!$imageId) {
             $defaultPic = Picture::first();
             $imageId = $defaultPic ? $defaultPic->id : 1;
@@ -117,7 +175,7 @@ class PostController extends Controller
             $tagId = $firstTag ? $firstTag->id : 1;
         }
 
-        // Unique slug
+        // Unique Slug
         $baseSlug = Str::slug($request->title);
         $slug = $baseSlug;
         $counter = 1;
@@ -130,9 +188,41 @@ class PostController extends Controller
             ? $request->excerpt
             : Str::limit(strip_tags($request->content), 150);
 
-        $status = $request->has('status') && ($request->status == '1' || $request->status == 'published' || $request->status == 'on');
+        // Status & Publishing Calculation
+        $postStatus = $request->input('post_status', 'draft');
+        $publishedAt = null;
+        $scheduledAt = null;
 
-        Post::create([
+        if ($postStatus === 'published') {
+            $publishedAt = Carbon::now();
+            $statusBool = true;
+        } elseif ($postStatus === 'scheduled') {
+            $scheduledAt = $request->filled('scheduled_at') ? Carbon::parse($request->scheduled_at) : Carbon::now()->addHour();
+            $statusBool = false;
+        } else {
+            $postStatus = 'draft';
+            $statusBool = false;
+        }
+
+        // Reading Time Calculation
+        $readingTime = max(1, (int) ceil(str_word_count(strip_tags($request->content)) / 200));
+
+        // FAQs parsing if submitted
+        $faqSchema = null;
+        if ($request->has('faq_questions') && is_array($request->faq_questions)) {
+            $faqs = [];
+            foreach ($request->faq_questions as $idx => $question) {
+                $answer = $request->faq_answers[$idx] ?? '';
+                if (!empty(trim($question)) && !empty(trim($answer))) {
+                    $faqs[] = ['question' => trim($question), 'answer' => trim($answer)];
+                }
+            }
+            if (!empty($faqs)) {
+                $faqSchema = $faqs;
+            }
+        }
+
+        $post = Post::create([
             'user_id' => auth()->id() ?? 1,
             'category_id' => $request->category_id,
             'tag_id' => $tagId,
@@ -142,10 +232,57 @@ class PostController extends Controller
             'slug' => $slug,
             'content' => $request->content,
             'excerpt' => $excerpt,
-            'status' => $status,
+            'status' => $statusBool,
+            'post_status' => $postStatus,
+            'published_at' => $publishedAt,
+            'scheduled_at' => $scheduledAt,
+            'is_sticky' => $request->boolean('is_sticky'),
+            'is_featured' => $request->boolean('is_featured'),
+            'visibility' => $request->input('visibility', 'public'),
+            'password' => $request->filled('password') ? $request->password : null,
+            'reading_time' => $readingTime,
+            // SEO Meta
+            'meta_title' => $request->meta_title,
+            'meta_description' => $request->meta_description,
+            'meta_keywords' => $request->meta_keywords,
+            'canonical_url' => $request->canonical_url,
+            'meta_author' => $request->meta_author,
+            'meta_robots' => $request->input('meta_robots', 'index, follow'),
+            'meta_language' => $request->input('meta_language', 'en'),
+            'geo_region' => $request->geo_region,
+            'geo_placename' => $request->geo_placename,
+            'geo_position' => $request->geo_position,
+            'meta_rating' => $request->input('meta_rating', 'general'),
+            'meta_copyright' => $request->meta_copyright,
+            'og_title' => $request->og_title,
+            'og_description' => $request->og_description,
+            'og_image' => $request->og_image,
+            'twitter_card' => $request->input('twitter_card', 'summary_large_image'),
+            'schema_type' => $request->input('schema_type', 'Article'),
+            'faq_schema' => $faqSchema,
         ]);
 
-        return redirect()->route('admin.posts.index')->with('success', 'Article "' . $request->title . '" published successfully!');
+        // Process Unlimited Gallery Images
+        if ($request->hasFile('gallery_images')) {
+            $galleryDir = public_path('uploads/posts/gallery');
+            if (!file_exists($galleryDir)) {
+                mkdir($galleryDir, 0755, true);
+            }
+
+            foreach ($request->file('gallery_images') as $idx => $galleryFile) {
+                $galleryName = time() . '_' . $idx . '_' . Str::slug(pathinfo($galleryFile->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $galleryFile->getClientOriginalExtension();
+                $galleryFile->move($galleryDir, $galleryName);
+
+                $post->images()->create([
+                    'image_path' => 'uploads/posts/gallery/' . $galleryName,
+                    'caption' => pathinfo($galleryFile->getClientOriginalName(), PATHINFO_FILENAME),
+                    'alt_text' => $post->title,
+                    'sort_order' => $idx + 1,
+                ]);
+            }
+        }
+
+        return redirect()->route('admin.posts.index')->with('success', 'Article "' . $request->title . '" created successfully!');
     }
 
     /**
@@ -153,7 +290,7 @@ class PostController extends Controller
      */
     public function show(Post $post): View
     {
-        $post->load(['category', 'author.user', 'image', 'tag', 'comments.user']);
+        $post->load(['category', 'author.user', 'image', 'tag', 'comments.user', 'images']);
         return view('admin.posts.show', compact('post'));
     }
 
@@ -162,6 +299,7 @@ class PostController extends Controller
      */
     public function edit(Post $post): View
     {
+        $post->load(['images']);
         $categories = Category::all();
         $tags = Tag::all();
         $authors = Author::with('user')->get();
@@ -183,8 +321,34 @@ class PostController extends Controller
             'author_id' => 'nullable',
             'content' => 'required|string',
             'excerpt' => 'nullable|string|max:500',
-            'status' => 'nullable',
+            'post_status' => 'nullable|in:draft,scheduled,published',
+            'scheduled_at' => 'nullable|date',
+            'visibility' => 'nullable|in:public,password_protected,private',
+            'password' => 'nullable|string|max:255',
+            'is_sticky' => 'nullable|boolean',
+            'is_featured' => 'nullable|boolean',
             'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:5120',
+            // Gallery files
+            'gallery_images' => 'nullable|array',
+            'gallery_images.*' => 'image|mimes:jpeg,png,jpg,webp,gif,svg|max:5120',
+            // SEO Meta Validation
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'meta_keywords' => 'nullable|string|max:500',
+            'canonical_url' => 'nullable|url|max:500',
+            'meta_author' => 'nullable|string|max:255',
+            'meta_robots' => 'nullable|string|max:100',
+            'meta_language' => 'nullable|string|max:20',
+            'geo_region' => 'nullable|string|max:50',
+            'geo_placename' => 'nullable|string|max:100',
+            'geo_position' => 'nullable|string|max:100',
+            'meta_rating' => 'nullable|string|max:50',
+            'meta_copyright' => 'nullable|string|max:255',
+            'og_title' => 'nullable|string|max:255',
+            'og_description' => 'nullable|string|max:500',
+            'og_image' => 'nullable|string|max:500',
+            'twitter_card' => 'nullable|string|max:50',
+            'schema_type' => 'nullable|string|max:50',
         ]);
 
         $imageId = $request->filled('image_id') ? $request->input('image_id') : $post->image_id;
@@ -219,7 +383,38 @@ class PostController extends Controller
             ? $request->excerpt
             : Str::limit(strip_tags($request->content), 150);
 
-        $status = $request->has('status') && ($request->status == '1' || $request->status == 'published' || $request->status == 'on');
+        // Status calculation
+        $postStatus = $request->input('post_status', $post->post_status ?? 'draft');
+        $publishedAt = $post->published_at;
+        $scheduledAt = $post->scheduled_at;
+
+        if ($postStatus === 'published') {
+            if (!$publishedAt) {
+                $publishedAt = Carbon::now();
+            }
+            $statusBool = true;
+        } elseif ($postStatus === 'scheduled') {
+            $scheduledAt = $request->filled('scheduled_at') ? Carbon::parse($request->scheduled_at) : ($scheduledAt ?? Carbon::now()->addHour());
+            $statusBool = false;
+        } else {
+            $postStatus = 'draft';
+            $statusBool = false;
+        }
+
+        $readingTime = max(1, (int) ceil(str_word_count(strip_tags($request->content)) / 200));
+
+        // FAQs parsing
+        $faqSchema = $post->faq_schema;
+        if ($request->has('faq_questions') && is_array($request->faq_questions)) {
+            $faqs = [];
+            foreach ($request->faq_questions as $idx => $question) {
+                $answer = $request->faq_answers[$idx] ?? '';
+                if (!empty(trim($question)) && !empty(trim($answer))) {
+                    $faqs[] = ['question' => trim($question), 'answer' => trim($answer)];
+                }
+            }
+            $faqSchema = !empty($faqs) ? $faqs : null;
+        }
 
         $post->update([
             'category_id' => $request->category_id,
@@ -230,10 +425,104 @@ class PostController extends Controller
             'slug' => $slug,
             'content' => $request->content,
             'excerpt' => $excerpt,
-            'status' => $status,
+            'status' => $statusBool,
+            'post_status' => $postStatus,
+            'published_at' => $publishedAt,
+            'scheduled_at' => $scheduledAt,
+            'is_sticky' => $request->boolean('is_sticky'),
+            'is_featured' => $request->boolean('is_featured'),
+            'visibility' => $request->input('visibility', 'public'),
+            'password' => $request->filled('password') ? $request->password : ($request->input('visibility') === 'password_protected' ? $post->password : null),
+            'reading_time' => $readingTime,
+            // SEO Meta
+            'meta_title' => $request->meta_title,
+            'meta_description' => $request->meta_description,
+            'meta_keywords' => $request->meta_keywords,
+            'canonical_url' => $request->canonical_url,
+            'meta_author' => $request->meta_author,
+            'meta_robots' => $request->input('meta_robots', 'index, follow'),
+            'meta_language' => $request->input('meta_language', 'en'),
+            'geo_region' => $request->geo_region,
+            'geo_placename' => $request->geo_placename,
+            'geo_position' => $request->geo_position,
+            'meta_rating' => $request->input('meta_rating', 'general'),
+            'meta_copyright' => $request->meta_copyright,
+            'og_title' => $request->og_title,
+            'og_description' => $request->og_description,
+            'og_image' => $request->og_image,
+            'twitter_card' => $request->input('twitter_card', 'summary_large_image'),
+            'schema_type' => $request->input('schema_type', 'Article'),
+            'faq_schema' => $faqSchema,
         ]);
 
+        // Process new Gallery Images
+        if ($request->hasFile('gallery_images')) {
+            $galleryDir = public_path('uploads/posts/gallery');
+            if (!file_exists($galleryDir)) {
+                mkdir($galleryDir, 0755, true);
+            }
+
+            $currentMaxSort = $post->images()->max('sort_order') ?? 0;
+            foreach ($request->file('gallery_images') as $idx => $galleryFile) {
+                $galleryName = time() . '_' . $idx . '_' . Str::slug(pathinfo($galleryFile->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $galleryFile->getClientOriginalExtension();
+                $galleryFile->move($galleryDir, $galleryName);
+
+                $post->images()->create([
+                    'image_path' => 'uploads/posts/gallery/' . $galleryName,
+                    'caption' => pathinfo($galleryFile->getClientOriginalName(), PATHINFO_FILENAME),
+                    'alt_text' => $post->title,
+                    'sort_order' => $currentMaxSort + $idx + 1,
+                ]);
+            }
+        }
+
+        // Update existing captions if present
+        if ($request->has('gallery_captions') && is_array($request->gallery_captions)) {
+            foreach ($request->gallery_captions as $imgId => $caption) {
+                $post->images()->where('id', $imgId)->update(['caption' => $caption]);
+            }
+        }
+
         return redirect()->route('admin.posts.index')->with('success', 'Article updated successfully!');
+    }
+
+    /**
+     * Deep-Clone a post.
+     */
+    public function clone(Post $post): RedirectResponse
+    {
+        $clone = $post->clonePost();
+
+        return redirect()->route('admin.posts.edit', $clone->id)
+            ->with('success', 'Article cloned successfully as a draft! You are now editing the clone.');
+    }
+
+    /**
+     * Preview a post.
+     */
+    public function preview(Post $post): RedirectResponse
+    {
+        return redirect()->to(url('/blog/' . $post->slug . '?preview=1'));
+    }
+
+    /**
+     * Delete an individual gallery image.
+     */
+    public function deleteGalleryImage(Post $post, PostImage $image): JsonResponse|RedirectResponse
+    {
+        if ($image->post_id === $post->id) {
+            $filePath = public_path($image->image_path);
+            if (File::exists($filePath)) {
+                @unlink($filePath);
+            }
+            $image->delete();
+        }
+
+        if (request()->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('success', 'Gallery image removed successfully.');
     }
 
     /**
@@ -266,42 +555,26 @@ class PostController extends Controller
         $post = Post::withTrashed()->findOrFail($id);
         $title = $post->title;
 
-        // Permanently remove related comments
+        // Permanently remove related comments and gallery images
         $post->comments()->forceDelete();
+        foreach ($post->images as $img) {
+            $filePath = public_path($img->image_path);
+            if (File::exists($filePath)) {
+                @unlink($filePath);
+            }
+        }
+        $post->images()->delete();
         $post->forceDelete();
 
         return redirect()->route('admin.posts.index', ['status' => 'trash'])->with('success', 'Article "' . $title . '" permanently deleted.');
     }
 
     /**
-     * Duplicate a post into a new draft.
+     * Duplicate a post into a new draft (alias for clone).
      */
     public function duplicate(Post $post): RedirectResponse
     {
-        $baseTitle = $post->title . ' (Copy)';
-        $baseSlug = Str::slug($baseTitle);
-        $slug = $baseSlug;
-        $counter = 1;
-
-        while (Post::withTrashed()->where('slug', $slug)->exists()) {
-            $slug = $baseSlug . '-' . $counter;
-            $counter++;
-        }
-
-        $newPost = Post::create([
-            'user_id' => auth()->id() ?? $post->user_id,
-            'category_id' => $post->category_id,
-            'tag_id' => $post->tag_id,
-            'image_id' => $post->image_id,
-            'author_id' => $post->author_id,
-            'title' => $baseTitle,
-            'slug' => $slug,
-            'content' => $post->content,
-            'excerpt' => $post->excerpt,
-            'status' => false, // draft by default
-        ]);
-
-        return redirect()->route('admin.posts.edit', $newPost->id)->with('success', 'Article duplicated successfully as draft! You are now editing the duplicate.');
+        return $this->clone($post);
     }
 
     /**
@@ -332,19 +605,21 @@ class PostController extends Controller
             'slug' => $slug,
             'content' => $request->content,
             'excerpt' => Str::limit(strip_tags($request->content), 120),
-            'status' => false, // draft
+            'status' => false,
+            'post_status' => 'draft',
+            'visibility' => 'public',
         ]);
 
         return redirect()->route('admin.dashboard')->with('success', 'Quick draft saved successfully!');
     }
 
     /**
-     * Bulk actions for posts (publish, draft, delete, restore, force-delete).
+     * Bulk actions for posts.
      */
     public function bulkAction(Request $request): RedirectResponse
     {
         $request->validate([
-            'action' => 'required|in:publish,draft,delete,restore,force_delete',
+            'action' => 'required|in:publish,draft,delete,restore,force_delete,sticky,featured',
             'ids' => 'required|array',
             'ids.*' => 'integer',
         ]);
@@ -357,11 +632,24 @@ class PostController extends Controller
         }
 
         if ($action === 'publish') {
-            Post::whereIn('id', $ids)->update(['status' => true]);
+            Post::whereIn('id', $ids)->update([
+                'status' => true,
+                'post_status' => 'published',
+                'published_at' => Carbon::now(),
+            ]);
             return back()->with('success', count($ids) . ' article(s) published successfully!');
         } elseif ($action === 'draft') {
-            Post::whereIn('id', $ids)->update(['status' => false]);
+            Post::whereIn('id', $ids)->update([
+                'status' => false,
+                'post_status' => 'draft',
+            ]);
             return back()->with('success', count($ids) . ' article(s) set to draft!');
+        } elseif ($action === 'sticky') {
+            Post::whereIn('id', $ids)->update(['is_sticky' => true]);
+            return back()->with('success', count($ids) . ' article(s) marked as sticky!');
+        } elseif ($action === 'featured') {
+            Post::whereIn('id', $ids)->update(['is_featured' => true]);
+            return back()->with('success', count($ids) . ' article(s) marked as featured!');
         } elseif ($action === 'delete') {
             Post::whereIn('id', $ids)->delete();
             return back()->with('success', count($ids) . ' article(s) moved to trash!');
@@ -373,6 +661,7 @@ class PostController extends Controller
                 $p = Post::onlyTrashed()->find($id);
                 if ($p) {
                     $p->comments()->forceDelete();
+                    $p->images()->delete();
                     $p->forceDelete();
                 }
             }

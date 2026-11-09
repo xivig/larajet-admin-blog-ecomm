@@ -55,6 +55,8 @@ Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog-list', [BlogController::class, 'index'])->name('blog.list');
 Route::get('/blog-post', static fn() => redirect()->route('blog.list'));
 Route::get('/blog/{slug}', [BlogController::class, 'singlePost'])->name('single-post');
+Route::get('/post/{slug}', [BlogController::class, 'singlePost'])->name('blog.single');
+Route::post('/blog/{slug}/unlock', [BlogController::class, 'unlock'])->name('blog.unlock');
 Route::get('/single-post/{slug}', [BlogController::class, 'singlePost']);
 
 // Comments & replies
@@ -109,6 +111,9 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     // Posts Management
     Route::post('posts/bulk', [AdminPostController::class, 'bulkAction'])->name('admin.posts.bulk');
     Route::post('posts/quick-draft', [AdminPostController::class, 'quickDraft'])->name('admin.posts.quick-draft');
+    Route::post('posts/{post}/clone', [AdminPostController::class, 'clone'])->name('admin.posts.clone');
+    Route::get('posts/{post}/preview', [AdminPostController::class, 'preview'])->name('admin.posts.preview');
+    Route::delete('posts/{post}/gallery/{image}', [AdminPostController::class, 'deleteGalleryImage'])->name('admin.posts.gallery.delete');
     Route::post('posts/{post}/duplicate', [AdminPostController::class, 'duplicate'])->name('admin.posts.duplicate');
     Route::post('posts/{id}/restore', [AdminPostController::class, 'restore'])->name('admin.posts.restore');
     Route::delete('posts/{id}/force-delete', [AdminPostController::class, 'forceDelete'])->name('admin.posts.force-delete');

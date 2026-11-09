@@ -29,10 +29,17 @@ Artisan::command('inspire', function () {
  */
 Artisan::command('cms:publish-scheduled', function () {
     $now = Carbon::now();
-    $duePosts = Post::where('status', false)
-        ->whereNotNull('published_at')
-        ->where('published_at', '<=', $now)
-        ->get();
+    $duePosts = Post::where(function ($q) use ($now) {
+        $q->where('post_status', 'scheduled')
+          ->where(function ($sub) use ($now) {
+              $sub->where('scheduled_at', '<=', $now)
+                  ->orWhere('published_at', '<=', $now);
+          });
+    })->orWhere(function ($q) use ($now) {
+        $q->where('status', false)
+          ->whereNotNull('published_at')
+          ->where('published_at', '<=', $now);
+    })->get();
 
     if ($duePosts->isEmpty()) {
         $this->info("No scheduled posts currently due for publication (at {$now->toDateTimeString()}).");
@@ -41,7 +48,11 @@ Artisan::command('cms:publish-scheduled', function () {
 
     $count = 0;
     foreach ($duePosts as $post) {
-        $post->update(['status' => true]);
+        $post->update([
+            'status' => true,
+            'post_status' => 'published',
+            'published_at' => $post->scheduled_at ?? $now,
+        ]);
         $count++;
     }
 
