@@ -25,6 +25,10 @@ return Application::configure(basePath: dirname(__DIR__))
             }
             return route('dashboard');
         });
+
+        $middleware->web(append: [
+            \App\Http\Middleware\CheckSiteMaintenance::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

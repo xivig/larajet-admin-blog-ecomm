@@ -2,6 +2,149 @@
 
 @section('title', 'File Manager - XivigAdmin PRO')
 
+@push('styles')
+<style>
+  /* Toolbar styling matching template design */
+  .fm-view-toggle {
+    display: inline-flex;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 3px;
+    gap: 2px;
+  }
+  [data-bs-theme="dark"] .fm-view-toggle {
+    background: #1e293b;
+    border-color: #334155;
+  }
+  .fm-view-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #64748b;
+    transition: all 0.2s ease;
+  }
+  .fm-view-btn:hover {
+    color: #0f172a;
+  }
+  .fm-view-btn.active {
+    background: #ffffff;
+    color: #6366f1;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  [data-bs-theme="dark"] .fm-view-btn.active {
+    background: #334155;
+    color: #818cf8;
+  }
+
+  .fm-sort-btn {
+    background-color: #cbd5e1;
+    color: #1e293b;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border-radius: 10px;
+    padding: 6px 14px;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 38px;
+    transition: all 0.2s ease;
+  }
+  .fm-sort-btn:hover, .fm-sort-btn:focus, .fm-sort-btn[aria-expanded="true"] {
+    background-color: #94a3b8;
+    color: #0f172a;
+  }
+  [data-bs-theme="dark"] .fm-sort-btn {
+    background-color: #334155;
+    color: #f1f5f9;
+  }
+  [data-bs-theme="dark"] .fm-sort-btn:hover {
+    background-color: #475569;
+  }
+
+  .fm-sort-menu {
+    min-width: 185px;
+    border-radius: 14px !important;
+    box-shadow: 0 12px 30px -10px rgba(0,0,0,0.15);
+    background-color: #ffffff;
+    padding: 6px;
+  }
+  [data-bs-theme="dark"] .fm-sort-menu {
+    background-color: #1e293b;
+    border-color: #334155;
+  }
+  .fm-sort-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    font-size: 0.875rem;
+    color: #334155;
+    border-radius: 8px;
+    font-weight: 400;
+    transition: background-color 0.15s ease;
+  }
+  .fm-sort-item:hover {
+    background-color: #f8fafc;
+    color: #0f172a;
+  }
+  .fm-sort-item.active {
+    background-color: #eef2ff !important;
+    color: #6366f1 !important;
+    font-weight: 600;
+  }
+  [data-bs-theme="dark"] .fm-sort-item {
+    color: #cbd5e1;
+  }
+  [data-bs-theme="dark"] .fm-sort-item:hover {
+    background-color: #334155;
+  }
+  [data-bs-theme="dark"] .fm-sort-item.active {
+    background-color: rgba(99, 102, 241, 0.2) !important;
+    color: #a5b4fc !important;
+  }
+  .fm-sort-check {
+    color: #6366f1;
+    font-size: 1.1rem;
+    line-height: 1;
+    width: 18px;
+  }
+  [data-bs-theme="dark"] .fm-sort-check {
+    color: #a5b4fc;
+  }
+
+  .fm-new-folder-btn {
+    background-color: #6366f1;
+    border-color: #6366f1;
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border-radius: 10px;
+    padding: 6px 16px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 6px rgba(99, 102, 241, 0.25);
+    transition: all 0.2s ease;
+  }
+  .fm-new-folder-btn:hover {
+    background-color: #4f46e5;
+    border-color: #4f46e5;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(99, 102, 241, 0.35);
+  }
+</style>
+@endpush
+
 @section('content')
 <div class="page-file-manager">
 
@@ -91,20 +234,58 @@
           @endif
         </div>
 
-        <div class="fm-actions">
+        <div class="fm-actions d-flex flex-wrap align-items-center gap-2">
           <div class="fm-search">
             <i class="bi bi-search fm-search-icon"></i>
             <input type="text" id="fileFilterInput" class="form-control" placeholder="Search files...">
           </div>
 
           <div class="fm-view-toggle">
-            <button class="fm-view-btn active" id="btnGridView" data-view="grid" title="Grid View">
-              <i class="bi bi-grid-3x3-gap"></i>
+            <button type="button" class="fm-view-btn active" id="btnGridView" data-view="grid" title="Grid View">
+              <i class="bi bi-grid-3x3-gap-fill"></i>
             </button>
-            <button class="fm-view-btn" id="btnListView" data-view="list" title="List View">
+            <button type="button" class="fm-view-btn" id="btnListView" data-view="list" title="List View">
               <i class="bi bi-list-ul"></i>
             </button>
           </div>
+
+          <div class="dropdown fm-sort-dropdown">
+            <button class="btn fm-sort-btn dropdown-toggle" type="button" id="fmSortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-filter"></i>
+              <span>Sort</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 py-2 fm-sort-menu" aria-labelledby="fmSortDropdown">
+              <li>
+                <a class="dropdown-item fm-sort-item {{ ($sort ?? 'name') === 'name' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sort' => 'name']) }}" data-sort="name">
+                  <i class="bi bi-check2 fm-sort-check {{ ($sort ?? 'name') === 'name' ? '' : 'invisible' }}"></i>
+                  <span>Name</span>
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item fm-sort-item {{ ($sort ?? 'date') === 'date' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sort' => 'date']) }}" data-sort="date">
+                  <i class="bi bi-check2 fm-sort-check {{ ($sort ?? 'date') === 'date' ? '' : 'invisible' }}"></i>
+                  <span>Date Modified</span>
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item fm-sort-item {{ ($sort ?? 'size') === 'size' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sort' => 'size']) }}" data-sort="size">
+                  <i class="bi bi-check2 fm-sort-check {{ ($sort ?? 'size') === 'size' ? '' : 'invisible' }}"></i>
+                  <span>Size</span>
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item fm-sort-item {{ ($sort ?? 'type') === 'type' ? 'active' : '' }}" href="{{ request()->fullUrlWithQuery(['sort' => 'type']) }}" data-sort="type">
+                  <i class="bi bi-check2 fm-sort-check {{ ($sort ?? 'type') === 'type' ? '' : 'invisible' }}"></i>
+                  <span>Type</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <button type="button" class="btn btn-primary fm-new-folder-btn" data-bs-toggle="modal" data-bs-target="#newFolderModal">
+            <i class="bi bi-folder-plus"></i>
+            <span>New Folder</span>
+          </button>
 
           @if ($currentFolder === 'uploads/trash' && $totalFiles > 0)
             <form id="emptyBinForm" action="{{ route('admin.file-manager.empty-trash') }}" method="POST" class="d-inline">
@@ -146,7 +327,7 @@
           <!-- Grid View Container -->
           <div class="fm-grid active" id="filesGrid">
             @forelse ($files as $file)
-              <div class="fm-item" data-filename="{{ strtolower($file['name']) }}" data-type="{{ $file['is_image'] ? 'image' : 'document' }}">
+              <div class="fm-item" data-filename="{{ strtolower($file['name']) }}" data-name="{{ strtolower($file['name']) }}" data-date="{{ $file['raw_modified'] }}" data-size="{{ $file['raw_size'] }}" data-type="{{ strtolower($file['extension']) }}">
                 <input type="checkbox" name="paths[]" value="{{ $file['path'] }}" class="form-check-input fm-item-checkbox fm-file-check">
 
                 @if ($file['is_image'])
@@ -208,7 +389,7 @@
               </thead>
               <tbody>
                 @forelse ($files as $file)
-                  <tr class="fm-list-row" data-filename="{{ strtolower($file['name']) }}">
+                  <tr class="fm-list-row" data-filename="{{ strtolower($file['name']) }}" data-name="{{ strtolower($file['name']) }}" data-date="{{ $file['raw_modified'] }}" data-size="{{ $file['raw_size'] }}" data-type="{{ strtolower($file['extension']) }}">
                     <td class="text-center">
                       <input type="checkbox" name="paths[]" value="{{ $file['path'] }}" class="form-check-input fm-file-check">
                     </td>
@@ -332,6 +513,40 @@
   </div>
 </div>
 
+<!-- New Folder Modal -->
+<div class="modal fade" id="newFolderModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow rounded-4">
+      <form action="{{ route('admin.file-manager.create-folder') }}" method="POST">
+        @csrf
+        <div class="modal-header border-0 pb-0">
+          <div class="d-flex align-items-center gap-2">
+            <div class="rounded-3 p-2 d-flex align-items-center justify-content-center" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
+              <i class="bi bi-folder-plus fs-5"></i>
+            </div>
+            <h5 class="modal-title fw-bold mb-0">Create New Folder</h5>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body py-3">
+          <p class="text-muted small mb-3">Folders will be created inside <code class="text-primary">public/uploads/</code> and automatically indexed in your storage navigation.</p>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Folder Name</label>
+            <input type="text" name="folder_name" class="form-control rounded-3" placeholder="e.g. Marketing, Documents, Banners" required autofocus pattern="[a-zA-Z0-9_\-\s]+" title="Only alphanumeric characters, spaces, dashes and underscores allowed">
+            <small class="text-muted">Allowed characters: letters, numbers, spaces, dashes, and underscores.</small>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary rounded-pill px-4" style="background-color: #6366f1; border-color: #6366f1;">
+            <i class="bi bi-folder-plus me-1"></i> Create Folder
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 @push('scripts')
 <script>
   // Copy link helper
@@ -402,27 +617,111 @@
   }
 
   document.addEventListener('DOMContentLoaded', function() {
-    // 1. Grid vs List View Toggle
+    // 1. Grid vs List View Toggle with Persistence
     const btnGridView = document.getElementById('btnGridView');
     const btnListView = document.getElementById('btnListView');
     const filesGrid = document.getElementById('filesGrid');
     const filesList = document.getElementById('filesList');
 
-    if (btnGridView && btnListView && filesGrid && filesList) {
-      btnGridView.addEventListener('click', function() {
-        btnGridView.classList.add('active');
-        btnListView.classList.remove('active');
-        filesGrid.classList.add('active');
-        filesList.classList.remove('active');
-      });
+    function setViewMode(mode) {
+      if (mode === 'list') {
+        if (btnListView) btnListView.classList.add('active');
+        if (btnGridView) btnGridView.classList.remove('active');
+        if (filesGrid) filesGrid.classList.remove('active');
+        if (filesList) filesList.classList.add('active');
+        localStorage.setItem('xivig_fm_view', 'list');
+      } else {
+        if (btnGridView) btnGridView.classList.add('active');
+        if (btnListView) btnListView.classList.remove('active');
+        if (filesGrid) filesGrid.classList.add('active');
+        if (filesList) filesList.classList.remove('active');
+        localStorage.setItem('xivig_fm_view', 'grid');
+      }
+    }
 
-      btnListView.addEventListener('click', function() {
-        btnListView.classList.add('active');
-        btnGridView.classList.remove('active');
-        filesGrid.classList.remove('active');
-        filesList.classList.add('active');
+    const savedView = localStorage.getItem('xivig_fm_view');
+    if (savedView) {
+      setViewMode(savedView);
+    }
+
+    if (btnGridView) {
+      btnGridView.addEventListener('click', function() {
+        setViewMode('grid');
       });
     }
+
+    if (btnListView) {
+      btnListView.addEventListener('click', function() {
+        setViewMode('list');
+      });
+    }
+
+    // 2. Client-side Instant Sorting with URL sync
+    function applySort(criteria) {
+      if (filesGrid) {
+        const items = Array.from(filesGrid.querySelectorAll('.fm-item'));
+        items.sort(function(a, b) {
+          return compareFiles(a, b, criteria);
+        });
+        items.forEach(function(item) {
+          filesGrid.appendChild(item);
+        });
+      }
+
+      const listTbody = document.querySelector('#filesList tbody');
+      if (listTbody) {
+        const rows = Array.from(listTbody.querySelectorAll('.fm-list-row'));
+        rows.sort(function(a, b) {
+          return compareFiles(a, b, criteria);
+        });
+        rows.forEach(function(row) {
+          listTbody.appendChild(row);
+        });
+      }
+
+      document.querySelectorAll('.fm-sort-item').forEach(function(el) {
+        const isCurrent = el.getAttribute('data-sort') === criteria;
+        el.classList.toggle('active', isCurrent);
+        const checkIcon = el.querySelector('.fm-sort-check');
+        if (checkIcon) {
+          checkIcon.classList.toggle('invisible', !isCurrent);
+        }
+      });
+
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('sort', criteria);
+        window.history.replaceState({}, '', url.toString());
+      } catch (e) {}
+    }
+
+    function compareFiles(a, b, criteria) {
+      if (criteria === 'date') {
+        const dateA = parseInt(a.getAttribute('data-date') || 0, 10);
+        const dateB = parseInt(b.getAttribute('data-date') || 0, 10);
+        return dateB - dateA;
+      } else if (criteria === 'size') {
+        const sizeA = parseInt(a.getAttribute('data-size') || 0, 10);
+        const sizeB = parseInt(b.getAttribute('data-size') || 0, 10);
+        return sizeB - sizeA;
+      } else if (criteria === 'type') {
+        const typeA = (a.getAttribute('data-type') || '').toLowerCase();
+        const typeB = (b.getAttribute('data-type') || '').toLowerCase();
+        return typeA.localeCompare(typeB);
+      } else {
+        const nameA = (a.getAttribute('data-name') || '').toLowerCase();
+        const nameB = (b.getAttribute('data-name') || '').toLowerCase();
+        return nameA.localeCompare(nameB);
+      }
+    }
+
+    document.querySelectorAll('.fm-sort-item').forEach(function(item) {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        const sortCriteria = this.getAttribute('data-sort');
+        applySort(sortCriteria);
+      });
+    });
 
     // 2. Real-time Search Filter
     const filterInput = document.getElementById('fileFilterInput');

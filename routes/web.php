@@ -137,6 +137,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
     // File Manager App
     Route::get('file-manager', [AdminFileManagerController::class, 'index'])->name('admin.file-manager.index');
+    Route::post('file-manager/create-folder', [AdminFileManagerController::class, 'createFolder'])->name('admin.file-manager.create-folder');
     Route::post('file-manager/upload', [AdminFileManagerController::class, 'upload'])->name('admin.file-manager.upload');
     Route::post('file-manager/duplicate', [AdminFileManagerController::class, 'duplicate'])->name('admin.file-manager.duplicate');
     Route::post('file-manager/restore', [AdminFileManagerController::class, 'restore'])->name('admin.file-manager.restore');

@@ -16,17 +16,32 @@ class FileManagerController extends Controller
      */
     protected function getAllowedFolders(): array
     {
-        return [
+        $folders = [
             'uploads/posts' => 'Post Images',
             'uploads/avatars' => 'User Avatars',
             'uploads/chat' => 'Chat Attachments',
+            'uploads/email-attachments' => 'Email Attachments',
             'admin-dist/img' => 'Template Visuals',
             'uploads/trash' => 'Recycle Bin / Trash',
         ];
+
+        // Dynamically discover custom subfolders inside public/uploads
+        $uploadsDir = public_path('uploads');
+        if (File::exists($uploadsDir)) {
+            foreach (File::directories($uploadsDir) as $dir) {
+                $base = basename($dir);
+                $rel = 'uploads/' . $base;
+                if (!isset($folders[$rel]) && $base !== 'trash') {
+                    $folders[$rel] = ucwords(str_replace(['-', '_'], ' ', $base));
+                }
+            }
+        }
+
+        return $folders;
     }
 
     /**
-     * Display the file manager.
+     * Display the file manager with sorting and view support.
      */
     public function index(Request $request): View
     {
@@ -53,10 +68,29 @@ class FileManagerController extends Controller
                 'path' => $currentFolder . '/' . $file->getFilename(),
                 'size' => round($file->getSize() / 1024, 1) . ' KB',
                 'raw_size' => $file->getSize(),
+                'raw_modified' => $file->getMTime(),
                 'extension' => $ext,
                 'is_image' => $isImg,
                 'modified' => date('M d, Y h:i A', $file->getMTime()),
             ];
+        }
+
+        // Apply Sorting
+        $sort = $request->input('sort', 'name');
+        switch ($sort) {
+            case 'date':
+                usort($files, fn($a, $b) => $b['raw_modified'] <=> $a['raw_modified']);
+                break;
+            case 'size':
+                usort($files, fn($a, $b) => $b['raw_size'] <=> $a['raw_size']);
+                break;
+            case 'type':
+                usort($files, fn($a, $b) => strcasecmp($a['extension'], $b['extension']));
+                break;
+            case 'name':
+            default:
+                usort($files, fn($a, $b) => strcasecmp($a['name'], $b['name']));
+                break;
         }
 
         // Stats across all files in current directory
@@ -74,8 +108,36 @@ class FileManagerController extends Controller
             'currentFolder',
             'totalFiles',
             'totalSizeFormatted',
-            'trashCount'
+            'trashCount',
+            'sort'
         ));
+    }
+
+    /**
+     * Create a new folder inside uploads directory.
+     */
+    public function createFolder(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'folder_name' => 'required|string|max:50|regex:/^[a-zA-Z0-9_\-\s]+$/',
+        ]);
+
+        $folderSlug = Str::slug($request->folder_name);
+        if (empty($folderSlug)) {
+            return back()->with('error', 'Invalid folder name specified.');
+        }
+
+        $newRelPath = 'uploads/' . $folderSlug;
+        $targetDir = public_path($newRelPath);
+
+        if (File::exists($targetDir)) {
+            return back()->with('error', 'A folder with this name already exists.');
+        }
+
+        File::makeDirectory($targetDir, 0755, true);
+
+        return redirect()->route('admin.file-manager.index', ['folder' => $newRelPath])
+            ->with('success', 'Folder "' . $request->folder_name . '" created successfully!');
     }
 
     /**
@@ -89,8 +151,8 @@ class FileManagerController extends Controller
         ]);
 
         $folder = $request->folder;
-        $allowedFolders = ['uploads/posts', 'uploads/avatars', 'uploads/chat', 'admin-dist/img'];
-        if (!in_array($folder, $allowedFolders)) {
+        $allowedFolders = array_keys($this->getAllowedFolders());
+        if (!in_array($folder, $allowedFolders) || $folder === 'uploads/trash') {
             $folder = 'uploads/posts';
         }
 
@@ -144,11 +206,11 @@ class FileManagerController extends Controller
 
         File::copy($fullPath, $targetPath);
 
-        return back()->with('success', 'File duplicated successfully as "' . basename($targetPath) . '"!');
+        return back()->with('success', 'File duplicated as "' . basename($targetPath) . '"!');
     }
 
     /**
-     * Soft delete a file (Move to Recycle Bin) or permanently delete if already in trash.
+     * Soft delete / move a file to Recycle Bin.
      */
     public function destroy(Request $request): RedirectResponse
     {
@@ -158,47 +220,30 @@ class FileManagerController extends Controller
 
         $relPath = $request->path;
         if (str_contains($relPath, '..') || str_starts_with($relPath, '/') || str_starts_with($relPath, '\\')) {
-            return back()->with('error', 'Invalid file path specified.');
+            return back()->with('error', 'Invalid file path.');
         }
 
         $fullPath = public_path($relPath);
         if (!File::exists($fullPath) || !is_file($fullPath)) {
-            return back()->with('error', 'File not found or already deleted.');
+            return back()->with('error', 'File does not exist.');
         }
 
-        $fileName = basename($fullPath);
-        $dirName = dirname($relPath);
-
-        // If already in trash, permanently delete
-        if ($dirName === 'uploads/trash') {
-            File::delete($fullPath);
-            return back()->with('success', 'File permanently deleted from Recycle Bin.');
-        }
-
-        // Move to uploads/trash with origin folder encoded
         $trashDir = public_path('uploads/trash');
         if (!File::exists($trashDir)) {
             File::makeDirectory($trashDir, 0755, true);
         }
 
-        // Prefix with origin folder identifier: e.g. "origin_uploads_posts___filename.ext"
-        $originSlug = str_replace(['/', '\\'], '_', $dirName);
-        $trashFileName = $originSlug . '___' . $fileName;
-        $trashPath = $trashDir . DIRECTORY_SEPARATOR . $trashFileName;
-
-        // If file with same trash name exists, prepend timestamp
-        if (File::exists($trashPath)) {
-            $trashFileName = $originSlug . '___' . time() . '_' . $fileName;
-            $trashPath = $trashDir . DIRECTORY_SEPARATOR . $trashFileName;
-        }
+        $dirSlug = str_replace(['/', '\\'], '_', dirname($relPath));
+        $trashName = $dirSlug . '___' . basename($fullPath);
+        $trashPath = $trashDir . DIRECTORY_SEPARATOR . $trashName;
 
         File::move($fullPath, $trashPath);
 
-        return back()->with('success', 'File "' . $fileName . '" moved to Recycle Bin / Trash.');
+        return back()->with('success', 'File moved to Recycle Bin.');
     }
 
     /**
-     * Restore a file from Recycle Bin back to its original directory.
+     * Restore a file from Recycle Bin.
      */
     public function restore(Request $request): RedirectResponse
     {
@@ -207,8 +252,8 @@ class FileManagerController extends Controller
         ]);
 
         $relPath = $request->path;
-        if (str_contains($relPath, '..')) {
-            return back()->with('error', 'Invalid file path.');
+        if (!str_starts_with($relPath, 'uploads/trash/')) {
+            return back()->with('error', 'Only trashed files can be restored.');
         }
 
         $fullPath = public_path($relPath);
@@ -218,7 +263,6 @@ class FileManagerController extends Controller
 
         $fileName = basename($fullPath);
 
-        // Extract original folder from prefix: "origin_uploads_posts___filename.ext"
         $destFolder = 'uploads/posts';
         $realName = $fileName;
 
