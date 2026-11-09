@@ -1,356 +1,424 @@
 @extends('layouts.admin')
 
-@section('title', 'Inbox & Communications - XivigAdmin PRO')
+@section('title', 'Mail Center & Communications - XivigAdmin PRO')
 
 @section('content')
 <div class="page-email">
 
-  <!-- Header -->
+  <!-- Page Header -->
   <div class="page-header d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
     <div>
-      <h1 class="page-title mb-1">Communications &amp; Inbox</h1>
+      <h1 class="page-title mb-1">Mail Center &amp; Communications</h1>
       <nav class="breadcrumb mb-0">
-        <a href="{{ route('admin.dashboard') }}" class="breadcrumb-item">Dashboard</a>
-        <span class="breadcrumb-item active">Email Dispatch</span>
+        <a href="{{ route('admin.dashboard') }}" class="breadcrumb-item">Home</a>
+        <a href="#" class="breadcrumb-item">Apps</a>
+        <span class="breadcrumb-item active">Email</span>
       </nav>
     </div>
-    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#composeEmailModal">
-      <i class="bi bi-pencil-fill me-1"></i> Compose Email
-    </button>
+    <div class="d-flex align-items-center gap-2">
+      <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#composeEmailModal">
+        <i class="bi bi-pencil-square"></i>
+        <span>Compose Message</span>
+      </button>
+    </div>
   </div>
 
-  <div class="row g-4">
+  <!-- Email App Container -->
+  <div class="email-container">
+    <!-- Mobile Sidebar Overlay -->
+    <div class="email-sidebar-overlay" id="emailSidebarOverlay"></div>
 
-    <!-- Email Folders Sidebar -->
-    <div class="col-lg-3">
-      <div class="d-grid mb-3">
-        <button type="button" class="btn btn-primary py-2.5 fw-semibold" data-bs-toggle="modal" data-bs-target="#composeEmailModal">
-          <i class="bi bi-plus-lg me-1"></i> New Message
+    <!-- Email Sidebar -->
+    <div class="email-sidebar" id="emailSidebar">
+      <!-- Mobile Close Button -->
+      <button class="email-sidebar-close" id="emailSidebarClose" aria-label="Close sidebar">
+        <i class="bi bi-x-lg"></i>
+      </button>
+
+      <div class="email-sidebar-header">
+        <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2" data-bs-toggle="modal" data-bs-target="#composeEmailModal">
+          <i class="bi bi-pencil-square"></i>
+          <span>Compose</span>
         </button>
       </div>
 
-      <div class="card mb-4">
-        <div class="list-group list-group-flush">
-          <a href="{{ route('admin.email.index', ['folder' => 'inbox']) }}" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between {{ $folder === 'inbox' && !request('starred') ? 'active' : '' }}">
-            <div class="d-flex align-items-center gap-2.5">
-              <i class="bi bi-inbox fs-5"></i>
-              <span>Inbox</span>
-            </div>
-            @if ($counts['unread'] > 0)
-              <span id="sidebar-unread-count" class="badge {{ $folder === 'inbox' && !request('starred') ? 'bg-white text-primary' : 'bg-primary' }} rounded-pill">{{ $counts['unread'] }}</span>
-            @endif
-          </a>
+      <!-- Navigation Folders -->
+      <nav class="email-nav">
+        <ul class="email-nav-list list-unstyled mb-0">
+          <li class="email-nav-item {{ ($folder === 'inbox' && !request('starred')) ? 'active' : '' }}">
+            <a href="{{ route('admin.email.index', ['folder' => 'inbox']) }}" class="d-flex align-items-center justify-content-between text-decoration-none text-reset w-100">
+              <span class="d-flex align-items-center gap-2">
+                <i class="bi bi-inbox"></i>
+                <span>Inbox</span>
+              </span>
+              @if ($counts['unread'] > 0)
+                <span class="email-nav-badge">{{ $counts['unread'] }}</span>
+              @endif
+            </a>
+          </li>
 
-          <a href="{{ route('admin.email.index', ['starred' => '1']) }}" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between {{ request('starred') ? 'active' : '' }}">
-            <div class="d-flex align-items-center gap-2.5">
-              <i class="bi bi-star-fill text-warning fs-5"></i>
-              <span>Starred</span>
-            </div>
-            <span class="badge bg-secondary-subtle text-secondary rounded-pill">{{ $counts['starred'] }}</span>
-          </a>
+          <li class="email-nav-item {{ request('starred') ? 'active' : '' }}">
+            <a href="{{ route('admin.email.index', ['starred' => '1']) }}" class="d-flex align-items-center justify-content-between text-decoration-none text-reset w-100">
+              <span class="d-flex align-items-center gap-2">
+                <i class="bi bi-star"></i>
+                <span>Starred</span>
+              </span>
+              @if ($counts['starred'] > 0)
+                <span class="badge bg-secondary-subtle text-secondary rounded-pill">{{ $counts['starred'] }}</span>
+              @endif
+            </a>
+          </li>
 
-          <a href="{{ route('admin.email.index', ['folder' => 'sent']) }}" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between {{ $folder === 'sent' && !request('starred') ? 'active' : '' }}">
-            <div class="d-flex align-items-center gap-2.5">
-              <i class="bi bi-send fs-5"></i>
-              <span>Sent Dispatches</span>
-            </div>
-            <span class="badge bg-secondary-subtle text-secondary rounded-pill">{{ $counts['sent'] }}</span>
-          </a>
+          <li class="email-nav-item {{ ($folder === 'sent' && !request('starred')) ? 'active' : '' }}">
+            <a href="{{ route('admin.email.index', ['folder' => 'sent']) }}" class="d-flex align-items-center justify-content-between text-decoration-none text-reset w-100">
+              <span class="d-flex align-items-center gap-2">
+                <i class="bi bi-send"></i>
+                <span>Sent</span>
+              </span>
+              @if ($counts['sent'] > 0)
+                <span class="badge bg-secondary-subtle text-secondary rounded-pill">{{ $counts['sent'] }}</span>
+              @endif
+            </a>
+          </li>
 
-          <a href="{{ route('admin.email.index', ['folder' => 'draft']) }}" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between {{ $folder === 'draft' && !request('starred') ? 'active' : '' }}">
-            <div class="d-flex align-items-center gap-2.5">
-              <i class="bi bi-file-earmark-text fs-5"></i>
-              <span>Drafts</span>
-            </div>
-            <span class="badge bg-secondary-subtle text-secondary rounded-pill">{{ $counts['draft'] }}</span>
-          </a>
+          <li class="email-nav-item {{ ($folder === 'draft' && !request('starred')) ? 'active' : '' }}">
+            <a href="{{ route('admin.email.index', ['folder' => 'draft']) }}" class="d-flex align-items-center justify-content-between text-decoration-none text-reset w-100">
+              <span class="d-flex align-items-center gap-2">
+                <i class="bi bi-file-earmark"></i>
+                <span>Drafts</span>
+              </span>
+              @if ($counts['draft'] > 0)
+                <span class="email-nav-badge">{{ $counts['draft'] }}</span>
+              @endif
+            </a>
+          </li>
 
-          <a href="{{ route('admin.email.index', ['folder' => 'trash']) }}" class="list-group-item list-group-item-action d-flex align-items-center justify-content-between {{ $folder === 'trash' && !request('starred') ? 'active' : '' }}">
-            <div class="d-flex align-items-center gap-2.5">
-              <i class="bi bi-trash3 fs-5"></i>
-              <span>Trash</span>
-            </div>
-            <span class="badge bg-secondary-subtle text-secondary rounded-pill">{{ $counts['trash'] }}</span>
-          </a>
+          <li class="email-nav-item {{ ($folder === 'trash' && !request('starred')) ? 'active' : '' }}">
+            <a href="{{ route('admin.email.index', ['folder' => 'trash']) }}" class="d-flex align-items-center justify-content-between text-decoration-none text-reset w-100">
+              <span class="d-flex align-items-center gap-2">
+                <i class="bi bi-trash"></i>
+                <span>Trash</span>
+              </span>
+              @if ($counts['trash'] > 0)
+                <span class="badge bg-danger-subtle text-danger rounded-pill">{{ $counts['trash'] }}</span>
+              @endif
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Labels Section -->
+      <div class="email-labels mt-4">
+        <div class="email-labels-header d-flex align-items-center justify-content-between px-3 py-2 text-muted small text-uppercase fw-semibold">
+          <span>Categories</span>
+        </div>
+        <ul class="email-labels-list list-unstyled mb-0">
+          <li class="email-label-item px-3 py-1.5 d-flex align-items-center gap-2 small">
+            <span class="email-label-dot" style="background: var(--bs-success, #198754);"></span>
+            <span>Editorial &amp; Content</span>
+          </li>
+          <li class="email-label-item px-3 py-1.5 d-flex align-items-center gap-2 small">
+            <span class="email-label-dot" style="background: var(--bs-danger, #dc3545);"></span>
+            <span>Security &amp; Alerts</span>
+          </li>
+          <li class="email-label-item px-3 py-1.5 d-flex align-items-center gap-2 small">
+            <span class="email-label-dot" style="background: var(--bs-info, #0dcaf0);"></span>
+            <span>Community Discussions</span>
+          </li>
+          <li class="email-label-item px-3 py-1.5 d-flex align-items-center gap-2 small">
+            <span class="email-label-dot" style="background: var(--bs-warning, #ffc107);"></span>
+            <span>Operations &amp; System</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Storage Widget -->
+      <div class="email-storage mt-auto p-3">
+        <div class="email-storage-info d-flex justify-content-between small text-muted mb-1">
+          <span>Mailbox Capacity</span>
+          <span>{{ $emails->total() }} msgs</span>
+        </div>
+        <div class="progress" style="height: 5px;">
+          <div class="progress-bar bg-primary" role="progressbar" style="width: 35%;" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
       </div>
     </div>
 
-    <!-- Email List Card -->
-    <div class="col-lg-9">
-      <div class="card">
-        <div class="card-header py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
-          <div class="d-flex align-items-center gap-2">
-            <h5 class="card-title mb-0 text-capitalize">{{ request('starred') ? 'Starred Messages' : $folder }}</h5>
-            <span class="badge bg-secondary-subtle text-secondary small">{{ $emails->total() }} conversations</span>
+    <!-- Email Main Workspace -->
+    <div class="email-main" id="emailMain">
+
+      <!-- Email List View -->
+      <div class="email-list-view" id="emailListView" style="{{ $viewEmail ? 'display: none;' : '' }}">
+        <!-- Header Toolbar -->
+        <div class="email-list-header">
+          <!-- Mobile Sidebar Toggle -->
+          <button class="email-sidebar-toggle" id="emailSidebarToggle" aria-label="Open folders">
+            <i class="bi bi-folder2-open"></i>
+          </button>
+
+          <div class="email-list-actions">
+            <div class="form-check mb-0">
+              <input class="form-check-input" type="checkbox" id="selectAllEmails" title="Select All">
+            </div>
+            <a href="{{ request()->fullUrl() }}" class="email-action-btn" title="Refresh">
+              <i class="bi bi-arrow-clockwise"></i>
+            </a>
           </div>
 
-          <form action="{{ route('admin.email.index') }}" method="GET" class="d-flex gap-2">
+          <!-- Email Search -->
+          <form action="{{ route('admin.email.index') }}" method="GET" class="email-search ms-auto me-3">
             <input type="hidden" name="folder" value="{{ $folder }}">
             @if(request('starred'))
               <input type="hidden" name="starred" value="1">
             @endif
-            <input type="text" name="search" class="form-control form-control-sm" placeholder="Search emails..." value="{{ request('search') }}" style="max-width: 220px;">
-            <button type="submit" class="btn btn-sm btn-outline-primary"><i class="bi bi-search"></i></button>
+            <i class="bi bi-search email-search-icon"></i>
+            <input type="text" name="search" class="form-control" placeholder="Search conversations..." value="{{ request('search') }}">
           </form>
-        </div>
 
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-              <tbody>
-                @forelse ($emails as $email)
-                  <tr id="email-row-{{ $email->id }}" class="{{ !$email->is_read ? 'table-light fw-bold' : '' }}">
-                    <td style="width: 40px;" class="text-center">
-                      <form action="{{ route('admin.email.star', $email->id) }}" method="POST" class="d-inline">
-                        @csrf
-                        <button type="submit" class="btn btn-sm p-0 border-0 bg-transparent" title="{{ $email->is_starred ? 'Unstar' : 'Star' }}">
-                          <i class="bi {{ $email->is_starred ? 'bi-star-fill text-warning' : 'bi-star text-muted' }}"></i>
-                        </button>
-                      </form>
-                    </td>
+          <div class="email-list-pagination">
+            <span class="email-pagination-info">{{ $emails->firstItem() ?? 0 }}-{{ $emails->lastItem() ?? 0 }} of {{ $emails->total() }}</span>
+            @if($emails->onFirstPage())
+              <button class="email-pagination-btn" disabled><i class="bi bi-chevron-left"></i></button>
+            @else
+              <a href="{{ $emails->previousPageUrl() }}" class="email-pagination-btn"><i class="bi bi-chevron-left"></i></a>
+            @endif
 
-                    <td style="width: 200px;">
-                      <a href="javascript:void(0)" onclick="openEmailModal({{ $email->id }})" class="text-reset text-decoration-none d-block text-truncate" style="max-width: 190px;" title="Click to read email">
-                        {{ $email->folder === 'sent' ? 'To: ' . $email->recipient_email : ($email->sender_name ?: $email->sender_email) }}
-                      </a>
-                    </td>
-
-                    <td>
-                      <a href="javascript:void(0)" onclick="openEmailModal({{ $email->id }})" class="text-reset text-decoration-none d-block text-truncate" style="max-width: 450px;" title="Click to read email">
-                        <span class="fw-semibold">{{ $email->subject }}</span>
-                        <span class="text-muted fw-normal ms-1">— {{ Str::limit(strip_tags($email->body), 80) }}</span>
-                      </a>
-                    </td>
-
-                    <td style="width: 110px;" class="text-end text-muted small">
-                      {{ $email->created_at ? $email->created_at->format('M d') : '' }}
-                    </td>
-
-                    <td style="width: 90px;" class="text-end">
-                      <div class="btn-group btn-group-sm">
-                        <button type="button" class="btn btn-outline-secondary" onclick="openEmailModal({{ $email->id }})" title="Read Email">
-                          <i class="bi bi-envelope-open"></i>
-                        </button>
-
-                        @if ($email->folder !== 'trash')
-                          <button type="submit" form="move-email-trash-{{ $email->id }}" class="btn btn-outline-danger" title="Move to Trash">
-                            <i class="bi bi-trash"></i>
-                          </button>
-                        @else
-                          <button type="button" class="btn btn-outline-danger" title="Purge Permanently" onclick="confirmPurgeEmail(document.getElementById('destroy-email-{{ $email->id }}'))">
-                            <i class="bi bi-x-circle"></i>
-                          </button>
-                        @endif
-                      </div>
-
-                      @if ($email->folder !== 'trash')
-                        <form id="move-email-trash-{{ $email->id }}" action="{{ route('admin.email.move', $email->id) }}" method="POST" class="d-none">
-                          @csrf
-                          <input type="hidden" name="folder" value="trash">
-                        </form>
-                      @else
-                        <form id="destroy-email-{{ $email->id }}" action="{{ route('admin.email.destroy', $email->id) }}" method="POST" class="d-none">
-                          @csrf
-                          @method('DELETE')
-                        </form>
-                      @endif
-                    </td>
-                  </tr>
-                @empty
-                  <tr>
-                    <td colspan="5" class="text-center py-5 text-muted">
-                      <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                      No emails found in {{ $folder }}.
-                    </td>
-                  </tr>
-                @endforelse
-              </tbody>
-            </table>
-          </div>
-
-          @if ($emails->hasPages())
-            <div class="p-3 border-top d-flex justify-content-end">
-              {{ $emails->links() }}
-            </div>
-          @endif
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-</div>
-
-<!-- Compose Email Modal -->
-<div class="modal fade" id="composeEmailModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <form action="{{ route('admin.email.store') }}" method="POST">
-        @csrf
-        <div class="modal-header">
-          <h5 class="modal-title"><i class="bi bi-pencil-square me-2 text-primary"></i> Compose Message</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Recipient Email <span class="text-danger">*</span></label>
-            <input type="email" name="recipient_email" id="composeRecipient" class="form-control" placeholder="user@company.com" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Subject <span class="text-danger">*</span></label>
-            <input type="text" name="subject" id="composeSubject" class="form-control" placeholder="Brief subject line..." required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Message Body</label>
-            <textarea name="body" class="form-control" rows="8" placeholder="Type your message here..." required></textarea>
-          </div>
-        </div>
-        <div class="modal-footer d-flex justify-content-between">
-          <button type="submit" name="is_draft" value="1" class="btn btn-outline-secondary">
-            <i class="bi bi-file-earmark me-1"></i> Save Draft
-          </button>
-          <div class="d-flex gap-2">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            <button type="submit" class="btn btn-primary px-4">
-              <i class="bi bi-send-fill me-1"></i> Send Dispatch
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<!-- View Email Modals -->
-@php
-  $modalEmails = collect($emails->items());
-  if (isset($viewEmail) && !$modalEmails->contains('id', $viewEmail->id)) {
-      $modalEmails->push($viewEmail);
-  }
-@endphp
-@foreach ($modalEmails as $email)
-  <div class="modal fade" id="viewEmailModal-{{ $email->id }}" tabindex="-1" aria-labelledby="viewEmailModalLabel-{{ $email->id }}" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content border-0 shadow-lg">
-        <div class="modal-header bg-light">
-          <div>
-            <h5 class="modal-title fw-bold mb-1" id="viewEmailModalLabel-{{ $email->id }}">{{ $email->subject }}</h5>
-            <small class="text-muted">From: <strong>{{ $email->sender_name ?: $email->sender_email }}</strong> &lt;{{ $email->sender_email }}&gt;</small>
-          </div>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body p-4">
-          <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom text-muted small">
-            <span>To: <strong class="text-body">{{ $email->recipient_email }}</strong></span>
-            <span><i class="bi bi-clock me-1"></i> {{ $email->created_at ? $email->created_at->format('M d, Y h:i A') : '' }}</span>
-          </div>
-          <div class="p-3 bg-light-subtle rounded border" style="white-space: pre-wrap; line-height: 1.7; font-size: 0.95rem;">{{ $email->body }}</div>
-        </div>
-        <div class="modal-footer d-flex justify-content-between">
-          <div>
-            @if ($email->folder !== 'trash')
-              <form action="{{ route('admin.email.move', $email->id) }}" method="POST" class="d-inline">
-                @csrf
-                <input type="hidden" name="folder" value="trash">
-                <button type="submit" class="btn btn-outline-danger btn-sm">
-                  <i class="bi bi-trash me-1"></i> Move to Trash
-                </button>
-              </form>
+            @if($emails->hasMorePages())
+              <a href="{{ $emails->nextPageUrl() }}" class="email-pagination-btn"><i class="bi bi-chevron-right"></i></a>
+            @else
+              <button class="email-pagination-btn" disabled><i class="bi bi-chevron-right"></i></button>
             @endif
           </div>
-          <div class="d-flex gap-2">
-            <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary btn-sm px-3" onclick="replyToEmail('{{ addslashes($email->sender_email) }}', 'Re: {{ addslashes($email->subject) }}', {{ $email->id }})">
-              <i class="bi bi-reply-fill me-1"></i> Reply
+        </div>
+
+        <!-- Email Item List -->
+        <div class="email-list">
+          @forelse ($emails as $email)
+            <div class="email-item {{ !$email->is_read ? 'unread' : '' }}" 
+                 data-email-id="{{ $email->id }}"
+                 onclick="openEmailDetails('{{ $email->id }}', '{{ addslashes($email->subject) }}', '{{ addslashes($email->sender_name) }}', '{{ addslashes($email->sender_email) }}', '{{ addslashes($email->created_at->format('M d, Y h:i A')) }}', '{{ addslashes(nl2br(e($email->body))) }}')">
+              
+              <div class="email-item-select" onclick="event.stopPropagation();">
+                <input class="form-check-input email-checkbox" type="checkbox" value="{{ $email->id }}">
+              </div>
+
+              <button type="button" class="email-item-star {{ $email->is_starred ? 'starred' : '' }}" onclick="toggleStar(event, '{{ $email->id }}', this)">
+                <i class="bi {{ $email->is_starred ? 'bi-star-fill text-warning' : 'bi-star' }}"></i>
+              </button>
+
+              <div class="email-item-avatar">
+                <div class="avatar-circle rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px; font-size: 14px;">
+                  {{ strtoupper(substr($email->sender_name ?: $email->sender_email, 0, 1)) }}
+                </div>
+              </div>
+
+              <div class="email-item-content">
+                <div class="email-item-header">
+                  <span class="email-item-sender fw-semibold">{{ $email->sender_name ?: $email->sender_email }}</span>
+                  <span class="email-item-time text-muted small">{{ $email->created_at->diffForHumans() }}</span>
+                </div>
+                <div class="email-item-subject fw-medium text-truncate">{{ $email->subject }}</div>
+                <div class="email-item-preview text-muted small text-truncate">{{ Str::limit(strip_tags($email->body), 110) }}</div>
+              </div>
+
+              <div class="email-item-actions" onclick="event.stopPropagation();">
+                <form action="{{ route('admin.email.destroy', $email->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Move conversation to trash?');">
+                  @csrf
+                  @method('DELETE')
+                  <button type="submit" class="btn btn-sm text-danger p-1" title="Delete">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+          @empty
+            <div class="py-5 text-center text-muted">
+              <i class="bi bi-inbox display-4 d-block mb-3 text-secondary"></i>
+              <h5 class="fw-bold">No messages in {{ request('starred') ? 'Starred' : ucfirst($folder) }}</h5>
+              <p class="small text-muted mb-0">Conversations sent or received in this folder will appear here.</p>
+            </div>
+          @endforelse
+        </div>
+      </div>
+
+      <!-- Email Detail View -->
+      <div class="email-detail-view" id="emailDetailView" style="{{ $viewEmail ? 'display: flex;' : 'display: none;' }}">
+        <div class="email-detail-header d-flex align-items-center justify-content-between p-3 border-bottom">
+          <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" id="emailBackBtn">
+              <i class="bi bi-arrow-left me-1"></i> Back to List
             </button>
+            <span class="badge bg-primary-subtle text-primary rounded-pill px-2.5 py-1" id="detailFolderBadge">Conversation</span>
+          </div>
+
+          <div class="d-flex align-items-center gap-2" id="detailActions">
+            <!-- Delete action injected via JS -->
+          </div>
+        </div>
+
+        <div class="email-detail-content p-4 flex-grow-1 overflow-auto">
+          <div class="d-flex align-items-start justify-content-between mb-4 pb-3 border-bottom">
+            <div class="d-flex align-items-center gap-3">
+              <div class="avatar-circle rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold fs-5" id="detailAvatar" style="width: 48px; height: 48px;">
+                M
+              </div>
+              <div>
+                <h4 class="mb-1 fw-bold text-body" id="detailSubject">Select a message</h4>
+                <div class="small text-muted">
+                  From: <strong class="text-body" id="detailSenderName">Sender</strong> 
+                  &lt;<span id="detailSenderEmail">email@domain.com</span>&gt;
+                </div>
+              </div>
+            </div>
+            <div class="text-muted small" id="detailDate">
+              Date
+            </div>
+          </div>
+
+          <div class="email-body-text fs-6 lh-lg text-body mb-4" id="detailBody" style="white-space: pre-line;">
+            Email body content...
           </div>
         </div>
       </div>
+
     </div>
   </div>
-@endforeach
+
+  <!-- Compose Email Modal -->
+  <div class="modal fade" id="composeEmailModal" tabindex="-1" aria-labelledby="composeEmailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow-lg">
+        <form action="{{ route('admin.email.store') }}" method="POST">
+          @csrf
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title" id="composeEmailModalLabel">
+              <i class="bi bi-pencil-square me-2"></i>New Message Dispatch
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="mb-3">
+              <label for="recipient_email" class="form-label fw-semibold">To (Recipient Email)</label>
+              <input type="email" class="form-control" id="recipient_email" name="recipient_email" placeholder="editorial@xivig.com" required>
+            </div>
+            <div class="mb-3">
+              <label for="subject" class="form-label fw-semibold">Subject Line</label>
+              <input type="text" class="form-control" id="subject" name="subject" placeholder="Editorial dispatch update..." required>
+            </div>
+            <div class="mb-3">
+              <label for="body" class="form-label fw-semibold">Message Body</label>
+              <textarea class="form-control font-monospace" id="body" name="body" rows="8" placeholder="Compose your communication..." required></textarea>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="is_draft" value="1" id="is_draft">
+              <label class="form-check-label text-muted small" for="is_draft">
+                Save as draft instead of sending immediately
+              </label>
+            </div>
+          </div>
+          <div class="modal-footer bg-light-subtle">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary px-4">
+              <i class="bi bi-send me-1"></i> Send Dispatch
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
 
 @push('scripts')
 <script>
-  // Open Email Modal helper
-  window.openEmailModal = function(id) {
-    const modalEl = document.getElementById('viewEmailModal-' + id);
-    if (modalEl) {
-      const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-      modal.show();
+  // Mobile drawer toggle for Email Sidebar
+  const emailSidebar = document.getElementById('emailSidebar');
+  const emailSidebarOverlay = document.getElementById('emailSidebarOverlay');
+  const emailSidebarToggle = document.getElementById('emailSidebarToggle');
+  const emailSidebarClose = document.getElementById('emailSidebarClose');
 
-      // Mark row as read visually in table
-      const row = document.getElementById('email-row-' + id);
-      if (row) {
-        row.classList.remove('table-light', 'fw-bold');
+  if (emailSidebarToggle && emailSidebar) {
+    emailSidebarToggle.addEventListener('click', () => {
+      emailSidebar.classList.add('open');
+      if (emailSidebarOverlay) emailSidebarOverlay.classList.add('show');
+    });
+  }
+
+  if (emailSidebarClose && emailSidebar) {
+    emailSidebarClose.addEventListener('click', () => {
+      emailSidebar.classList.remove('open');
+      if (emailSidebarOverlay) emailSidebarOverlay.classList.remove('show');
+    });
+  }
+
+  if (emailSidebarOverlay && emailSidebar) {
+    emailSidebarOverlay.addEventListener('click', () => {
+      emailSidebar.classList.remove('open');
+      emailSidebarOverlay.classList.remove('show');
+    });
+  }
+
+  // Toggle Email Star
+  function toggleStar(event, emailId, btn) {
+    event.stopPropagation();
+    btn.classList.toggle('starred');
+    const icon = btn.querySelector('i');
+
+    fetch(`/admin/email/${emailId}/star`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
       }
+    }).then(res => res.json()).then(data => {
+      if (data.is_starred) {
+        icon.className = 'bi bi-star-fill text-warning';
+      } else {
+        icon.className = 'bi bi-star';
+      }
+    }).catch(err => {
+      console.error('Star toggle failed', err);
+    });
+  }
 
-      // Mark email as read on server
-      fetch('{{ url("admin/email") }}/' + id + '/mark-read', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.unread_count !== undefined) {
-          const badge = document.getElementById('sidebar-unread-count');
-          if (badge) {
-            badge.textContent = data.unread_count;
-            if (data.unread_count === 0) {
-              badge.style.display = 'none';
-            }
-          }
-        }
-      })
-      .catch(err => console.error('Error marking email as read:', err));
-    }
-  };
+  // Detail View Display
+  const emailListView = document.getElementById('emailListView');
+  const emailDetailView = document.getElementById('emailDetailView');
+  const emailBackBtn = document.getElementById('emailBackBtn');
 
-  // Reply helper: closes view modal and opens compose modal with prefilled data
-  window.replyToEmail = function(recipient, subject, viewModalId) {
-    if (viewModalId) {
-      const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewEmailModal-' + viewModalId));
-      if (viewModal) viewModal.hide();
-    }
-    const composeRecipient = document.getElementById('composeRecipient');
-    const composeSubject = document.getElementById('composeSubject');
-    if (composeRecipient) composeRecipient.value = recipient;
-    if (composeSubject) composeSubject.value = subject;
+  function openEmailDetails(id, subject, senderName, senderEmail, date, body) {
+    document.getElementById('detailSubject').innerText = subject;
+    document.getElementById('detailSenderName').innerText = senderName;
+    document.getElementById('detailSenderEmail').innerText = senderEmail;
+    document.getElementById('detailDate').innerText = date;
+    document.getElementById('detailAvatar').innerText = (senderName || senderEmail).charAt(0).toUpperCase();
+    document.getElementById('detailBody').innerHTML = body;
 
-    const composeModal = bootstrap.Modal.getOrCreateInstance(document.getElementById('composeEmailModal'));
-    composeModal.show();
-  };
+    // Inject delete form
+    document.getElementById('detailActions').innerHTML = `
+      <form action="/admin/email/${id}" method="POST" onsubmit="return confirm('Delete message?');">
+        <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}">
+        <input type="hidden" name="_method" value="DELETE">
+        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill">
+          <i class="bi bi-trash me-1"></i> Delete
+        </button>
+      </form>
+    `;
 
-  // Automatically open modal if 'view' query param is in URL
-  document.addEventListener('DOMContentLoaded', function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const viewId = urlParams.get('view');
-    if (viewId) {
-      setTimeout(() => {
-        openEmailModal(viewId);
-      }, 150);
-    }
-  });
+    // Mark as read visually
+    const item = document.querySelector(`[data-email-id="${id}"]`);
+    if (item) item.classList.remove('unread');
 
-  function confirmPurgeEmail(form) {
-    if (!form) return;
-    if (window.showConfirmDialog) {
-      window.showConfirmDialog({
-        title: 'Purge Email Permanently?',
-        text: 'This email will be removed permanently from your trash mailbox.',
-        icon: 'error',
-        confirmButtonText: 'Yes, purge email'
-      }, function() {
-        form.submit();
-      });
-    } else if (confirm('Purge email permanently?')) {
-      form.submit();
-    }
+    // Switch views
+    emailListView.style.display = 'none';
+    emailDetailView.style.display = 'flex';
+  }
+
+  if (emailBackBtn) {
+    emailBackBtn.addEventListener('click', () => {
+      emailDetailView.style.display = 'none';
+      emailListView.style.display = 'flex';
+    });
   }
 </script>
 @endpush

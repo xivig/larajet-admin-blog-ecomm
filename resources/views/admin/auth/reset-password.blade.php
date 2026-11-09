@@ -1,251 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Xivig Enterprise Admin Portal - Reset Password">
-    <title>Set New Password - Xivig Control Center</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Set New Password - XivigAdmin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('xivig-blog/plugins/bootstrap-icons/bootstrap-icons.min.css') }}">
+  <!-- Favicons -->
+  <link rel="icon" type="image/x-icon" href="{{ asset('admin-dist/img/favicon-DgHNGhkV.ico') }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('admin-dist/img/favicon-32x32-ChisqE3Y.png') }}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('admin-dist/img/favicon-16x16-BokJ4EXI.png') }}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('admin-dist/img/apple-touch-icon-D_uz1V6f.png') }}">
 
-    <style>
-        :root {
-            --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-            --font-heading: 'Outfit', system-ui, -apple-system, sans-serif;
-            --color-primary: #6366f1;
-            --color-secondary: #ec4899;
-            --color-dark: #070a12;
-            --color-surface: rgba(15, 23, 42, 0.82);
-            --color-border: rgba(255, 255, 255, 0.08);
-            --gradient-accent: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
-        }
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+  <!-- Core CSS Files -->
+  <link rel="stylesheet" href="{{ asset('admin-dist/vendor/bootstrap-icons/bootstrap-icons.css') }}">
+  <link rel="stylesheet" href="{{ asset('admin-dist/css/main-BBIlupvD.css') }}">
 
-        body {
-            font-family: var(--font-sans);
-            background-color: var(--color-dark);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.18) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.14) 0px, transparent 50%),
-                radial-gradient(at 50% 50%, rgba(168, 85, 247, 0.08) 0px, transparent 60%);
-            background-attachment: fixed;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px 16px;
-            color: #e2e8f0;
-        }
-
-        .auth-container {
-            width: 100%;
-            max-width: 460px;
-            position: relative;
-        }
-
-        .auth-card {
-            background: var(--color-surface);
-            backdrop-filter: blur(28px);
-            -webkit-backdrop-filter: blur(28px);
-            border: 1px solid var(--color-border);
-            border-radius: 24px;
-            padding: 40px 36px;
-            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .auth-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
-            background: var(--gradient-accent);
-        }
-
-        .brand-header {
-            text-align: center;
-            margin-bottom: 28px;
-        }
-
-        .brand-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 14px;
-            background: rgba(99, 102, 241, 0.15);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: #818cf8;
-            font-size: 1.5rem;
-            margin-bottom: 16px;
-        }
-
-        .brand-title {
-            font-family: var(--font-heading);
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 6px;
-        }
-
-        .brand-subtitle {
-            font-size: 0.9rem;
-            color: #94a3b8;
-            line-height: 1.5;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #cbd5e1;
-            margin-bottom: 8px;
-        }
-
-        .input-wrap {
-            position: relative;
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #64748b;
-            font-size: 1.1rem;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 14px 12px 42px;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            color: #ffffff;
-            font-size: 0.95rem;
-            transition: all 0.2s;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--color-primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 13px;
-            border: none;
-            border-radius: 12px;
-            background: var(--gradient-accent);
-            color: #ffffff;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 8px;
-        }
-
-        .btn-submit:hover {
-            opacity: 0.92;
-            transform: translateY(-1px);
-        }
-
-        .back-link {
-            display: block;
-            text-align: center;
-            margin-top: 24px;
-            color: #94a3b8;
-            font-size: 0.88rem;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .back-link:hover {
-            color: #ffffff;
-        }
-
-        .alert-box {
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 0.88rem;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-
-        .alert-danger {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #fca5a5;
-        }
-    </style>
+  <!-- Theme Controller Pre-loader -->
+  <script>
+    (function() {
+      const saved = localStorage.getItem('xivig_admin_theme') || localStorage.getItem('xivig-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-bs-theme', saved);
+      document.documentElement.setAttribute('data-theme', saved);
+    })();
+  </script>
 </head>
-<body>
-    <div class="auth-container">
-        <div class="auth-card">
-            <div class="brand-header">
-                <div class="brand-icon">
-                    <i class="bi bi-shield-lock-fill"></i>
-                </div>
-                <h1 class="brand-title">Set New Password</h1>
-                <p class="brand-subtitle">Choose a robust, high-entropy password for administrative access.</p>
-            </div>
 
-            @if($errors->any())
-                <div class="alert-box alert-danger">
-                    <i class="bi bi-exclamation-circle-fill me-1"></i> {{ $errors->first() }}
-                </div>
-            @endif
+<body class="fauth-page">
+  <!-- Elite Ambient Background Canvas & Glowing Mesh -->
+  <div class="fauth-ambient-canvas" aria-hidden="true">
+    <div class="fauth-glow fauth-glow-indigo"></div>
+    <div class="fauth-glow fauth-glow-rose"></div>
+    <div class="fauth-glow fauth-glow-emerald"></div>
+    <div class="fauth-grid-overlay"></div>
+  </div>
 
-            <form action="{{ route('admin.password.update') }}" method="POST">
-                @csrf
-                <input type="hidden" name="token" value="{{ $token }}">
+  <!-- Quick Theme Switcher Button -->
+  <div class="fauth-topbar">
+    <button type="button" class="fauth-theme-btn theme-toggle" aria-label="Toggle color theme" title="Toggle color theme" onclick="toggleTheme()">
+      <i class="bi bi-moon-stars theme-icon-dark"></i>
+      <i class="bi bi-sun theme-icon-light"></i>
+    </button>
+  </div>
 
-                <div class="form-group">
-                    <label class="form-label" for="email">Administrator Email</label>
-                    <div class="input-wrap">
-                        <i class="bi bi-envelope input-icon"></i>
-                        <input type="email" id="email" name="email" class="form-control" value="{{ old('email', $email) }}" required>
-                    </div>
-                </div>
+  <!-- Center Container -->
+  <div class="fauth-container">
+    <main class="fauth-main">
+      <div class="fauth-brand-center">
+        <a href="{{ url('/') }}" class="fauth-brand" aria-label="XivigAdmin home">
+          <span class="fauth-brand-logo">
+            <img src="{{ asset('admin-dist/img/xivig-logo-CDpcaf-E.png') }}" alt="XivigAdmin" class="brand-logo-img">
+          </span>
+          <span class="fauth-brand-text">
+            <strong class="brand-title">Xivig<span class="brand-gradient">Admin</span></strong>
+            <span class="badge-elite">PRO</span>
+          </span>
+        </a>
+      </div>
 
-                <div class="form-group">
-                    <label class="form-label" for="password">New Password</label>
-                    <div class="input-wrap">
-                        <i class="bi bi-lock input-icon"></i>
-                        <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required autofocus>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" for="password_confirmation">Confirm New Password</label>
-                    <div class="input-wrap">
-                        <i class="bi bi-lock-fill input-icon"></i>
-                        <input type="password" id="password_confirmation" name="password_confirmation" class="form-control" placeholder="••••••••" required>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-submit">
-                    <i class="bi bi-check-lg me-1"></i> Update Password & Sign In
-                </button>
-            </form>
-
-            <a href="{{ route('admin.login') }}" class="back-link">
-                <i class="bi bi-arrow-left me-1"></i> Back to Admin Sign In
-            </a>
+      <div class="fauth-card">
+        <div class="fauth-card-head">
+          <span class="fauth-kicker"><i class="bi bi-shield-lock"></i> Secure Password Change</span>
+          <h1 class="fauth-title">Create new password</h1>
+          <p class="fauth-subtitle">Choose a robust, unique password to secure your admin account.</p>
         </div>
-    </div>
+
+        @if ($errors->any())
+          <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <div class="d-flex align-items-center mb-1 fw-bold">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i> Password Error
+            </div>
+            <ul class="mb-0 ps-3 small">
+              @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+              @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        @endif
+
+        <form class="fauth-form" method="POST" action="{{ route('admin.password.update') }}" novalidate>
+          @csrf
+          <input type="hidden" name="token" value="{{ $token }}">
+
+          <div class="fauth-field">
+            <label for="email" class="form-label">Email address</label>
+            <div class="fauth-input-wrap">
+              <i class="bi bi-envelope fauth-input-icon"></i>
+              <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ $email ?? old('email') }}" required readonly autocomplete="email">
+            </div>
+          </div>
+
+          <div class="fauth-field">
+            <label for="password" class="form-label">New Password</label>
+            <div class="fauth-input-wrap">
+              <i class="bi bi-lock fauth-input-icon"></i>
+              <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" placeholder="At least 8 characters" required autofocus autocomplete="new-password">
+            </div>
+          </div>
+
+          <div class="fauth-field">
+            <label for="password_confirmation" class="form-label">Confirm New Password</label>
+            <div class="fauth-input-wrap">
+              <i class="bi bi-shield-check fauth-input-icon"></i>
+              <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="Repeat new password" required autocomplete="new-password">
+            </div>
+          </div>
+
+          <button type="submit" class="btn fauth-btn-primary">
+            <span>Update Password &amp; Sign In</span>
+            <i class="bi bi-arrow-right"></i>
+          </button>
+        </form>
+
+        <p class="fauth-foot-text">
+          Remembered your credentials? <a href="{{ route('admin.login') }}" class="fauth-link fw-semibold">Return to sign in</a>
+        </p>
+      </div>
+    </main>
+
+    <footer class="fauth-footer">
+      <div class="fauth-footer-copy">
+        &copy; {{ date('Y') }} <a href="{{ url('/') }}" class="fw-semibold">XivigAdmin</a>. Crafted for elite digital enterprises.
+        <span class="badge-elite-sm">v2.0.0 Pro</span>
+      </div>
+      <div class="fauth-footer-links">
+        <a href="{{ url('/blog') }}" target="_blank">Blog Journal</a>
+        <span class="sep">&bull;</span>
+        <a href="{{ url('/') }}" target="_blank">Public Site</a>
+        <span class="sep">&bull;</span>
+        <a href="mailto:support@xivig.com">Support Desk</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="{{ asset('admin-dist/js/main-FIhSewOI.js') }}"></script>
+  <script>
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-bs-theme', current);
+      document.documentElement.setAttribute('data-theme', current);
+      localStorage.setItem('xivig_admin_theme', current);
+    }
+  </script>
 </body>
+
 </html>

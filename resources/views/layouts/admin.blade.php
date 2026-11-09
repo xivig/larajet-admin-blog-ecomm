@@ -64,7 +64,7 @@
   </script>
 
   <!-- Template Main JS File -->
-  <script src="{{ asset('admin-dist/js/main-4QRCOyTp.js') }}"></script>
+  <script src="{{ asset('admin-dist/js/main-FIhSewOI.js') }}"></script>
 
   <!-- SweetAlert2 Helper Suite & Theme Toggle Script -->
   <script>

@@ -36,7 +36,7 @@
   </script>
 
   <!-- Template Main CSS File (Compiled SCSS + Bootstrap 5 + Dark/Light Mode) -->
-  <link rel="stylesheet" href="{{ asset('admin-dist/css/main-DjChhAQn.css') }}">
+  <link rel="stylesheet" href="{{ asset('admin-dist/css/main-BBIlupvD.css') }}">
 
   <!-- Theme Controller Pre-loader & Extension Error Guard -->
   <script>
