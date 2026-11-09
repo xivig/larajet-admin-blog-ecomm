@@ -160,15 +160,20 @@
                                     @php
                                         $moduleIcons = [
                                             'posts' => 'bi-file-earmark-post',
+                                            'pages' => 'bi-file-earmark-text',
                                             'categories' => 'bi-folder',
-                                            'tags' => 'bi-tags',
-                                            'comments' => 'bi-chat-dots',
+                                            'media' => 'bi-image',
+                                            'seo' => 'bi-globe',
                                             'users' => 'bi-people',
+                                            'comments' => 'bi-chat-dots',
+                                            'settings' => 'bi-gear',
+                                            'menu' => 'bi-list-nested',
+                                            'newsletter' => 'bi-envelope-paper',
+                                            'tags' => 'bi-tags',
                                             'roles' => 'bi-shield-lock',
                                             'chat' => 'bi-chat-text',
                                             'email' => 'bi-envelope',
                                             'files' => 'bi-folder2-open',
-                                            'settings' => 'bi-gear',
                                         ];
                                     @endphp
                                     @forelse($permissions as $module => $modulePermissions)

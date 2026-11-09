@@ -12,7 +12,11 @@ class CommentPolicy
 
     public function before(User $user, string $ability): ?bool
     {
-        if ($user->role === 'admin') {
+        if (method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin()) {
+            return true;
+        }
+
+        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) {
             return true;
         }
 
@@ -29,6 +33,16 @@ class CommentPolicy
         return true;
     }
 
+    public function moderate(User $user): bool
+    {
+        return $user->hasPermission('comments.moderate');
+    }
+
+    public function reply(User $user): bool
+    {
+        return $user->hasPermission('comments.reply');
+    }
+
     public function update(User $user, Comment $comment): bool
     {
         return $user->id === $comment->user_id;
@@ -36,6 +50,6 @@ class CommentPolicy
 
     public function delete(User $user, Comment $comment): bool
     {
-        return $user->id === $comment->user_id || $user->role === 'admin';
+        return $user->id === $comment->user_id || $user->hasPermission('comments.delete');
     }
 }

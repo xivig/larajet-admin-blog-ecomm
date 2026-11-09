@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasRolesAndPermissions;
 use Database\Factories\AdminFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,6 +18,7 @@ class Admin extends Authenticatable implements MustVerifyEmail
     use HasFactory;
     use HasApiTokens;
     use HasProfilePhoto;
+    use HasRolesAndPermissions;
     use Notifiable;
     use TwoFactorAuthenticatable;
 

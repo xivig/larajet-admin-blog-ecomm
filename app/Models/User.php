@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\HasRolesAndPermissions;
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -19,6 +20,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /** @use HasFactory<UserFactory> */
     use HasFactory;
     use HasProfilePhoto;
+    use HasRolesAndPermissions;
     use Notifiable;
     use SoftDeletes;
     use TwoFactorAuthenticatable;
@@ -82,15 +84,5 @@ class User extends Authenticatable implements MustVerifyEmail
     public function comments(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Comment::class);
-    }
-
-    public function roles(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
-    {
-        return $this->belongsToMany(Role::class, 'role_user');
-    }
-
-    public function hasRole(string $slug): bool
-    {
-        return $this->roles->contains('slug', $slug);
     }
 }

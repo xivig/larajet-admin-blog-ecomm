@@ -15,7 +15,11 @@ class PostPolicy
      */
     public function before(User $user, string $ability): ?bool
     {
-        if ($user->role === 'admin') {
+        if (method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin()) {
+            return true;
+        }
+
+        if (method_exists($user, 'hasRole') && $user->hasRole('admin')) {
             return true;
         }
 
@@ -35,7 +39,11 @@ class PostPolicy
      */
     public function view(?User $user, Post $post): bool
     {
-        return $post->status || ($user && ($user->id === $post->user_id || $user->role === 'admin'));
+        if ($post->status) {
+            return true;
+        }
+
+        return $user && ($user->id === $post->user_id || $user->hasPermission('posts.view'));
     }
 
     /**
@@ -43,7 +51,7 @@ class PostPolicy
      */
     public function create(User $user): bool
     {
-        return in_array($user->role, ['admin', 'author', 'editor'], true);
+        return $user->hasPermission('posts.create');
     }
 
     /**
@@ -51,7 +59,7 @@ class PostPolicy
      */
     public function update(User $user, Post $post): bool
     {
-        return $user->id === $post->user_id || in_array($user->role, ['admin', 'editor'], true);
+        return $user->hasPermission('posts.edit') || ($user->id === $post->user_id && $user->hasPermission('posts.create'));
     }
 
     /**
@@ -59,6 +67,14 @@ class PostPolicy
      */
     public function delete(User $user, Post $post): bool
     {
-        return $user->id === $post->user_id || $user->role === 'admin';
+        return $user->hasPermission('posts.delete');
+    }
+
+    /**
+     * Determine whether the user can publish the model.
+     */
+    public function publish(User $user): bool
+    {
+        return $user->hasPermission('posts.publish');
     }
 }

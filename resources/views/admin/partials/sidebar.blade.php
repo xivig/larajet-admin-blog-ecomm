@@ -40,6 +40,14 @@
           </ul>
         </li>
 
+        <!-- Static Pages -->
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.pages.*') ? 'active' : '' }}" href="{{ route('admin.pages.index') }}">
+            <span class="nav-icon"><i class="ph-light ph-file-text"></i></span>
+            <span class="nav-text">Pages</span>
+          </a>
+        </li>
+
         <!-- Categories -->
         <li class="nav-item">
           <a class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}" href="{{ route('admin.categories.index') }}">
@@ -61,6 +69,22 @@
           <a class="nav-link {{ request()->routeIs('admin.comments.*') ? 'active' : '' }}" href="{{ route('admin.comments.index') }}">
             <span class="nav-icon"><i class="ph-light ph-chat-centered-text"></i></span>
             <span class="nav-text">Comments</span>
+          </a>
+        </li>
+
+        <!-- Navigation Menu Builder -->
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.menu.*') ? 'active' : '' }}" href="{{ route('admin.menu.index') }}">
+            <span class="nav-icon"><i class="ph-light ph-list-dashes"></i></span>
+            <span class="nav-text">Navigation Menu</span>
+          </a>
+        </li>
+
+        <!-- Newsletter Audience -->
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.newsletter.*') ? 'active' : '' }}" href="{{ route('admin.newsletter.index') }}">
+            <span class="nav-icon"><i class="ph-light ph-paper-plane-tilt"></i></span>
+            <span class="nav-text">Newsletter</span>
           </a>
         </li>
 

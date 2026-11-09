@@ -39,6 +39,20 @@ class AppServiceProvider extends ServiceProvider
             \App\Listeners\RecordLoginHistory::class,
         );
 
+        // Permission-Based Access Control Gates
+        \Illuminate\Support\Facades\Gate::before(function ($user, string $ability) {
+            if (method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin()) {
+                return true;
+            }
+        });
+
+        \Illuminate\Support\Facades\Gate::after(function ($user, string $ability) {
+            if (method_exists($user, 'hasPermission')) {
+                return $user->hasPermission($ability);
+            }
+            return false;
+        });
+
         // Apply dynamically configured system timezone globally
         try {
             $configuredTz = \App\Models\Setting::get('system_timezone');

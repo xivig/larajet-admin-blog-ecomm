@@ -13,7 +13,10 @@ use App\Http\Controllers\Admin\GalleryController as AdminGalleryController;
 use App\Http\Controllers\Admin\ImageCropperController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
+use App\Http\Controllers\Admin\MenuController as AdminMenuController;
+use App\Http\Controllers\Admin\NewsletterController as AdminNewsletterController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
+use App\Http\Controllers\Admin\PageController as AdminPageController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\RegisterController;
@@ -57,6 +60,9 @@ Route::get('/single-post/{slug}', [BlogController::class, 'singlePost']);
 // Comments & replies
 Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
 Route::post('/comment-replies', [CommentReplyController::class, 'store'])->name('comment-replies.store');
+
+// Newsletter subscription
+Route::post('/newsletter/subscribe', [AdminNewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 
 // General previews
 Route::get('/user', static fn() => view('user'));
@@ -107,6 +113,22 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('posts/{id}/restore', [AdminPostController::class, 'restore'])->name('admin.posts.restore');
     Route::delete('posts/{id}/force-delete', [AdminPostController::class, 'forceDelete'])->name('admin.posts.force-delete');
     Route::resource('posts', AdminPostController::class)->names('admin.posts');
+
+    // Static Pages Management
+    Route::resource('pages', AdminPageController::class)->names('admin.pages');
+
+    // Navigation Menu Builder
+    Route::get('menu', [AdminMenuController::class, 'index'])->name('admin.menu.index');
+    Route::post('menu', [AdminMenuController::class, 'store'])->name('admin.menu.store');
+    Route::delete('menu/{menu}', [AdminMenuController::class, 'destroy'])->name('admin.menu.destroy');
+    Route::post('menu/{menu}/items', [AdminMenuController::class, 'addItem'])->name('admin.menu.items.add');
+    Route::delete('menu/items/{item}', [AdminMenuController::class, 'deleteItem'])->name('admin.menu.items.delete');
+
+    // Newsletter Subscribers & Broadcasts
+    Route::get('newsletter', [AdminNewsletterController::class, 'index'])->name('admin.newsletter.index');
+    Route::post('newsletter/send', [AdminNewsletterController::class, 'send'])->name('admin.newsletter.send');
+    Route::get('newsletter/export', [AdminNewsletterController::class, 'export'])->name('admin.newsletter.export');
+    Route::delete('newsletter/{subscriber}', [AdminNewsletterController::class, 'destroy'])->name('admin.newsletter.destroy');
 
     // Categories Management
     Route::post('categories/bulk', [AdminCategoryController::class, 'bulkAction'])->name('admin.categories.bulk');
