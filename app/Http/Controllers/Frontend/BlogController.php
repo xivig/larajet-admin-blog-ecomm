@@ -336,4 +336,273 @@ class BlogController extends Controller
 
         return view('blog.video', compact('mainVideo', 'moreVideos'));
     }
+
+    /**
+     * Magazine Plus / Elite News Portal Home.
+     */
+    public function magazine(Request $request): View
+    {
+        $tickerPosts = Post::published()->latest('published_at')->take(5)->get();
+
+        // Hero carousel & stack items
+        $heroFeatured = Post::published()
+            ->where('is_featured', 1)
+            ->with(['category', 'image', 'author.user'])
+            ->latest('published_at')
+            ->take(6)
+            ->get();
+
+        if ($heroFeatured->count() < 6) {
+            $fallback = Post::published()
+                ->whereNotIn('id', $heroFeatured->pluck('id'))
+                ->with(['category', 'image', 'author.user'])
+                ->latest('published_at')
+                ->take(6 - $heroFeatured->count())
+                ->get();
+            $heroFeatured = $heroFeatured->concat($fallback);
+        }
+
+        $heroLeft = $heroFeatured->slice(0, 2);
+        $heroCenter = $heroFeatured->slice(2, 2);
+        $heroRight = $heroFeatured->slice(4, 2);
+
+        // Popular Stories (4-column grid)
+        $popularStories = Post::published()
+            ->with(['category', 'image', 'author.user'])
+            ->orderByDesc('views_count')
+            ->take(4)
+            ->get();
+
+        // Recent Stories (4-column grid)
+        $recentStories = Post::published()
+            ->with(['category', 'image', 'author.user'])
+            ->latest('published_at')
+            ->take(4)
+            ->get();
+
+        // Block Posts (2x2)
+        $blockPosts = Post::published()
+            ->with(['category', 'image', 'author.user'])
+            ->latest('published_at')
+            ->skip(4)
+            ->take(2)
+            ->get();
+
+        // Matrix & Grid Posts
+        $matrixPosts = Post::published()
+            ->with(['category', 'image'])
+            ->latest('published_at')
+            ->skip(6)
+            ->take(2)
+            ->get();
+
+        $gridHero = Post::published()
+            ->with(['category', 'image', 'author.user'])
+            ->where('is_sticky', 1)
+            ->first() ?? Post::published()->first();
+
+        $gridStack = Post::published()
+            ->with(['category', 'image'])
+            ->where('id', '!=', $gridHero ? $gridHero->id : 0)
+            ->latest('published_at')
+            ->skip(8)
+            ->take(4)
+            ->get();
+
+        // Category showcases
+        $techPosts = Post::published()
+            ->with(['category', 'image'])
+            ->latest('published_at')
+            ->take(6)
+            ->get();
+
+        $businessPosts = Post::published()
+            ->with(['category', 'image'])
+            ->latest('published_at')
+            ->skip(2)
+            ->take(6)
+            ->get();
+
+        $sidebarCategories = Category::withCount('posts')->orderByDesc('posts_count')->take(10)->get();
+        $sidebarTags = Tag::withCount('posts')->orderByDesc('posts_count')->take(25)->get();
+
+        return view('blog.magazine', compact(
+            'tickerPosts',
+            'heroLeft',
+            'heroCenter',
+            'heroRight',
+            'popularStories',
+            'recentStories',
+            'blockPosts',
+            'matrixPosts',
+            'gridHero',
+            'gridStack',
+            'techPosts',
+            'businessPosts',
+            'sidebarCategories',
+            'sidebarTags'
+        ));
+    }
+
+    /**
+     * Display a single blog post using the Magazine Single layout.
+     */
+    public function singleMagazine(Request $request, ?string $slug = null): View
+    {
+        if ($slug) {
+            $post = Post::where('slug', $slug)
+                ->with(['category', 'author.user', 'image', 'user', 'tag', 'images', 'comments.user', 'comments.replies.user'])
+                ->firstOrFail();
+        } else {
+            $post = Post::published()
+                ->with(['category', 'author.user', 'image', 'user', 'tag', 'images', 'comments.user', 'comments.replies.user'])
+                ->latest('published_at')
+                ->firstOrFail();
+        }
+
+        $user = auth()->user();
+        $isPreview = $request->boolean('preview');
+        $isPublished = ($post->post_status === 'published' || $post->status) && (!$post->published_at || $post->published_at <= now());
+        if (!$isPublished && !$isPreview && (!$user || !$user->hasRole(['super-admin', 'admin', 'editor', 'author']))) {
+            abort(404, 'Article is not available for public viewing.');
+        }
+
+        if ($isPublished && !$isPreview) {
+            $post->increment('views_count');
+        }
+
+        $isLocked = $post->isLockedForUser($user);
+        $tableOfContents = $post->table_of_contents;
+        $contentWithAnchors = $post->content_with_anchors;
+        $relatedPosts = $post->getRelatedPosts(8);
+        $previousPost = $post->previousPost();
+        $nextPost = $post->nextPost();
+        $galleryImages = $post->images;
+
+        $tickerPosts = Post::published()->latest('published_at')->take(5)->get();
+        $sidebarCategories = Category::withCount('posts')->orderByDesc('posts_count')->take(10)->get();
+        $sidebarTags = Tag::withCount('posts')->orderByDesc('posts_count')->take(25)->get();
+
+        return view('blog.single-magazine', compact(
+            'post',
+            'isLocked',
+            'isPreview',
+            'tableOfContents',
+            'contentWithAnchors',
+            'relatedPosts',
+            'previousPost',
+            'nextPost',
+            'galleryImages',
+            'tickerPosts',
+            'sidebarCategories',
+            'sidebarTags'
+        ));
+    }
+
+    /**
+     * Full-screen Hero Image Post Format.
+     */
+    public function formatImage(Request $request, ?string $slug = null): View
+    {
+        if ($slug) {
+            $post = Post::where('slug', $slug)
+                ->with(['category', 'author.user', 'image', 'user', 'tag'])
+                ->firstOrFail();
+        } else {
+            $post = Post::published()
+                ->whereNotNull('image_id')
+                ->with(['category', 'author.user', 'image', 'user', 'tag'])
+                ->latest('published_at')
+                ->first() ?? Post::published()->with(['category', 'author.user', 'image'])->firstOrFail();
+        }
+
+        $relatedPosts = $post->getRelatedPosts(8);
+        $sidebarCategories = Category::withCount('posts')->orderByDesc('posts_count')->take(10)->get();
+        $sidebarTags = Tag::withCount('posts')->orderByDesc('posts_count')->take(25)->get();
+
+        return view('blog.formats.image', compact('post', 'relatedPosts', 'sidebarCategories', 'sidebarTags'));
+    }
+
+    /**
+     * External Bookmark / Link Post Format.
+     */
+    public function formatLink(Request $request, ?string $slug = null): View
+    {
+        if ($slug) {
+            $post = Post::where('slug', $slug)
+                ->with(['category', 'author.user', 'image', 'user', 'tag'])
+                ->firstOrFail();
+        } else {
+            $post = Post::published()
+                ->with(['category', 'author.user', 'image', 'user', 'tag'])
+                ->latest('published_at')
+                ->firstOrFail();
+        }
+
+        $relatedPosts = $post->getRelatedPosts(6);
+        $sidebarCategories = Category::withCount('posts')->orderByDesc('posts_count')->take(10)->get();
+        $sidebarTags = Tag::withCount('posts')->orderByDesc('posts_count')->take(25)->get();
+
+        return view('blog.formats.link', compact('post', 'relatedPosts', 'sidebarCategories', 'sidebarTags'));
+    }
+
+    /**
+     * Category archive view.
+     */
+    public function category(Request $request, string $id): View
+    {
+        $category = Category::where('id', $id)
+            ->orWhere('name', $id)
+            ->first();
+
+        if (!$category) {
+            $category = Category::where('name', 'like', "%{$id}%")->first();
+        }
+
+        if (!$category) {
+            // Pick first category as fallback
+            $category = Category::firstOrFail();
+        }
+
+        $posts = Post::published()
+            ->where('category_id', $category->id)
+            ->with(['category', 'image', 'author.user', 'tag'])
+            ->latest('published_at')
+            ->paginate(8)
+            ->withQueryString();
+
+        $sidebarCategories = Category::withCount('posts')->orderByDesc('posts_count')->take(10)->get();
+        $sidebarTags = Tag::withCount('posts')->orderByDesc('posts_count')->take(25)->get();
+
+        return view('blog.category', compact('category', 'posts', 'sidebarCategories', 'sidebarTags'));
+    }
+
+    /**
+     * Full tags directory and index cloud.
+     */
+    public function tags(Request $request): View
+    {
+        $allTags = Tag::withCount(['posts' => function ($q) {
+                $q->published();
+            }])
+            ->orderBy('name')
+            ->get();
+
+        $topTags = Tag::withCount(['posts' => function ($q) {
+                $q->published();
+            }])
+            ->orderByDesc('posts_count')
+            ->take(16)
+            ->get();
+
+        $groupedTags = $allTags->groupBy(function ($tag) {
+            return strtoupper(substr($tag->name, 0, 1));
+        })->sortKeys();
+
+        $totalTagsCount = $allTags->count();
+        $sidebarCategories = Category::withCount('posts')->orderByDesc('posts_count')->take(10)->get();
+        $sidebarTags = Tag::withCount('posts')->orderByDesc('posts_count')->take(25)->get();
+
+        return view('blog.tags', compact('allTags', 'topTags', 'groupedTags', 'totalTagsCount', 'sidebarCategories', 'sidebarTags'));
+    }
 }

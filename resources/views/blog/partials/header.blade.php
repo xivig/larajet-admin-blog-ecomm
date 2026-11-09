@@ -108,12 +108,124 @@
                                        data-bs-toggle="dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         Blog <i class="bi bi-chevron-down small ms-1 ml-1"></i>
                                     </a>
-                                    <ul class="dropdown-menu" aria-labelledby="dropdownBlog">
-                                        <li><a class="dropdown-item" href="{{ url('/blog-list') }}"><i class="fas fa-th-large mr-2 text-primary"></i> 4-Column Catalog</a></li>
-                                        <li><a class="dropdown-item" href="{{ url('/blog/feed') }}"><i class="fas fa-rss mr-2 text-warning"></i> Live Feed Stream</a></li>
-                                        <li><a class="dropdown-item" href="{{ url('/blog/gallery') }}"><i class="fas fa-images mr-2 text-info"></i> Visual Gallery</a></li>
-                                        <li><a class="dropdown-item" href="{{ url('/blog/videos') }}"><i class="fas fa-video mr-2 text-danger"></i> Video Insights</a></li>
-                                        <li><a class="dropdown-item" href="{{ url('/blog/authors') }}"><i class="fas fa-users mr-2 text-success"></i> Authors Directory</a></li>
+                                    <ul class="dropdown-menu dropdown-menu-elite shadow-lg" aria-labelledby="dropdownBlog" style="min-width: 320px; border-radius: 16px; padding: 12px; border: 1px solid rgba(0,0,0,0.08);">
+                                        <!-- Group: Portals & Catalogs -->
+                                        <li class="dropdown-header text-uppercase font-weight-bold px-3 pt-2 pb-1" style="font-size: 10.5px; letter-spacing: 1px; color: #6366f1;">
+                                            <i class="fas fa-newspaper mr-1"></i> Portals & Catalogs
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center" href="{{ route('blog.magazine') }}">
+                                                <i class="fas fa-bolt text-danger mr-3 me-3" style="font-size: 14px; width: 20px;"></i>
+                                                <div>
+                                                    <span class="d-block font-weight-bold" style="font-size: 13.5px;">Magazine Portal</span>
+                                                    <small class="text-muted" style="font-size: 11px;">Elite editorial & breaking ticker</small>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center" href="{{ url('/blog-list') }}">
+                                                <i class="fas fa-th-large text-primary mr-3 me-3" style="font-size: 14px; width: 20px;"></i>
+                                                <div>
+                                                    <span class="d-block font-weight-bold" style="font-size: 13.5px;">4-Column Catalog</span>
+                                                    <small class="text-muted" style="font-size: 11px;">Grid view with quick filters</small>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center" href="{{ route('blog.feed') }}">
+                                                <i class="fas fa-rss text-warning mr-3 me-3" style="font-size: 14px; width: 20px;"></i>
+                                                <div>
+                                                    <span class="d-block font-weight-bold" style="font-size: 13.5px;">Live Feed Stream</span>
+                                                    <small class="text-muted" style="font-size: 11px;">Continuous chronologic stories</small>
+                                                </div>
+                                            </a>
+                                        </li>
+
+                                        <li><hr class="dropdown-divider my-2"></li>
+
+                                        <!-- Group: Media & Formats -->
+                                        <li class="dropdown-header text-uppercase font-weight-bold px-3 pt-1 pb-1" style="font-size: 10.5px; letter-spacing: 1px; color: #10b981;">
+                                            <i class="fas fa-photo-video mr-1"></i> Visual & Media Formats
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center" href="{{ route('blog.gallery') }}">
+                                                <i class="fas fa-images text-info mr-3 me-3" style="font-size: 14px; width: 20px;"></i>
+                                                <div>
+                                                    <span class="d-block font-weight-bold" style="font-size: 13.5px;">Visual Living Gallery</span>
+                                                    <small class="text-muted" style="font-size: 11px;">Masonry tiles & full lightbox</small>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center" href="{{ route('blog.videos') }}">
+                                                <i class="fas fa-play-circle text-danger mr-3 me-3" style="font-size: 14px; width: 20px;"></i>
+                                                <div>
+                                                    <span class="d-block font-weight-bold" style="font-size: 13.5px;">Video Insights</span>
+                                                    <small class="text-muted" style="font-size: 11px;">Cinema player & tech playlist</small>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center" href="{{ route('blog.single-magazine') }}">
+                                                <i class="fas fa-file-alt text-primary mr-3 me-3" style="font-size: 14px; width: 20px;"></i>
+                                                <div>
+                                                    <span class="d-block font-weight-bold" style="font-size: 13.5px;">Magazine Article Single</span>
+                                                    <small class="text-muted" style="font-size: 11px;">Full editorial single post layout</small>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center" href="{{ route('blog.format.image') }}">
+                                                <i class="fas fa-image mr-3 me-3" style="font-size: 14px; width: 20px; color: #8b5cf6;"></i>
+                                                <div>
+                                                    <span class="d-block font-weight-bold" style="font-size: 13.5px;">Immersive Hero Post</span>
+                                                    <small class="text-muted" style="font-size: 11px;">Fullscreen visual presentation</small>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center" href="{{ route('blog.format.link') }}">
+                                                <i class="fas fa-bookmark text-danger mr-3 me-3" style="font-size: 14px; width: 20px;"></i>
+                                                <div>
+                                                    <span class="d-block font-weight-bold" style="font-size: 13.5px;">Curated Bookmark Post</span>
+                                                    <small class="text-muted" style="font-size: 11px;">External dispatch & citations</small>
+                                                </div>
+                                            </a>
+                                        </li>
+
+                                        <li><hr class="dropdown-divider my-2"></li>
+
+                                        <!-- Group: Taxonomies & Directory -->
+                                        <li class="dropdown-header text-uppercase font-weight-bold px-3 pt-1 pb-1" style="font-size: 10.5px; letter-spacing: 1px; color: #f59e0b;">
+                                            <i class="fas fa-sitemap mr-1"></i> Taxonomies & Directory
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center" href="{{ url('/blog/category/technology') }}">
+                                                <i class="fas fa-folder-open text-warning mr-3 me-3" style="font-size: 14px; width: 20px;"></i>
+                                                <div>
+                                                    <span class="d-block font-weight-bold" style="font-size: 13.5px;">Category Archives</span>
+                                                    <small class="text-muted" style="font-size: 11px;">Tech, Business, Politics & more</small>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center" href="{{ route('blog.tags') }}">
+                                                <i class="fas fa-tags text-success mr-3 me-3" style="font-size: 14px; width: 20px;"></i>
+                                                <div>
+                                                    <span class="d-block font-weight-bold" style="font-size: 13.5px;">All Tags Directory</span>
+                                                    <small class="text-muted" style="font-size: 11px;">A-Z topic index & clouds</small>
+                                                </div>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item py-2 px-3 rounded-3 d-flex align-items-center" href="{{ route('blog.authors') }}">
+                                                <i class="fas fa-users text-primary mr-3 me-3" style="font-size: 14px; width: 20px;"></i>
+                                                <div>
+                                                    <span class="d-block font-weight-bold" style="font-size: 13.5px;">Authors Directory</span>
+                                                    <small class="text-muted" style="font-size: 11px;">Writers & engineers roster</small>
+                                                </div>
+                                            </a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item {{ request()->is('ecomm') ? 'active' : '' }}">

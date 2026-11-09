@@ -55,7 +55,16 @@ Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog-list', [BlogController::class, 'index'])->name('blog.list');
 Route::get('/blog-post', static fn() => redirect()->route('blog.list'));
 
-// Dist-front extensions: Feed, Gallery, Videos, Authors, Tags
+// Dist-front extensions: Magazine, Feed, Gallery, Videos, Formats, Authors, Tags, Categories
+Route::get('/blog/magazine', [BlogController::class, 'magazine'])->name('blog.magazine');
+Route::get('/magazine', [BlogController::class, 'magazine']);
+
+Route::get('/blog/magazine-post/{slug?}', [BlogController::class, 'singleMagazine'])->name('blog.single-magazine');
+Route::get('/post-magazine/{slug?}', [BlogController::class, 'singleMagazine']);
+
+Route::get('/blog/format/image/{slug?}', [BlogController::class, 'formatImage'])->name('blog.format.image');
+Route::get('/blog/format/link/{slug?}', [BlogController::class, 'formatLink'])->name('blog.format.link');
+
 Route::get('/blog/feed', [BlogController::class, 'feed'])->name('blog.feed');
 Route::get('/feed', [BlogController::class, 'feed']);
 
@@ -70,8 +79,12 @@ Route::get('/blog/authors', [BlogController::class, 'authors'])->name('blog.auth
 Route::get('/blog/author/{id}', [BlogController::class, 'author'])->name('blog.author');
 Route::get('/author/{id}', [BlogController::class, 'author']);
 
+Route::get('/blog/tags', [BlogController::class, 'tags'])->name('blog.tags');
 Route::get('/blog/tag/{id}', [BlogController::class, 'tag'])->name('blog.tag');
 Route::get('/tag/{id}', [BlogController::class, 'tag']);
+
+Route::get('/blog/category/{id}', [BlogController::class, 'category'])->name('blog.category');
+Route::get('/category/{id}', [BlogController::class, 'category']);
 
 Route::get('/blog/{slug}', [BlogController::class, 'singlePost'])->name('single-post');
 Route::get('/post/{slug}', [BlogController::class, 'singlePost'])->name('blog.single');
