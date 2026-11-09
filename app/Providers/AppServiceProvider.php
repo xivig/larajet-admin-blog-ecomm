@@ -13,7 +13,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        if (file_exists(app_path('Helpers/helpers.php'))) {
+            require_once app_path('Helpers/helpers.php');
+        }
+
+        $this->app->register(\App\Providers\RepositoryServiceProvider::class);
     }
 
     /**
@@ -23,6 +27,11 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
         Paginator::useBootstrap();
+
+        // Model Observers
+        \App\Models\Post::observe(\App\Observers\PostObserver::class);
+        \App\Models\Setting::observe(\App\Observers\SettingObserver::class);
+        \App\Models\Comment::observe(\App\Observers\CommentObserver::class);
 
         // Apply dynamically configured system timezone globally
         try {
