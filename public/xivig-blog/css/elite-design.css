@@ -3084,3 +3084,243 @@ textarea.form-control-elite {
   color: #ffffff !important;
   border-color: transparent !important;
 }
+
+
+/* ==========================================================================
+   FRONT PAGE & POST DETAILS REFINEMENTS:
+   1. Share Buttons Suite (True Circles & Brand Palettes)
+   2. Protected Content Unlock Form (Unified Pill Bar)
+   ========================================================================== */
+
+/* 1. Share Buttons Suite */
+.share-circle-btn {
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  max-width: 38px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  border: 1.5px solid transparent !important;
+  text-decoration: none !important;
+  line-height: 1 !important;
+  box-sizing: border-box !important;
+}
+
+.share-circle-btn i,
+.share-circle-btn svg {
+  line-height: 1 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: inline-block !important;
+  vertical-align: middle !important;
+}
+
+.share-circle-btn.share-facebook {
+  color: #1877f2 !important;
+  background: rgba(24, 119, 242, 0.08) !important;
+  border-color: rgba(24, 119, 242, 0.3) !important;
+}
+
+.share-circle-btn.share-facebook:hover {
+  background: #1877f2 !important;
+  color: #ffffff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(24, 119, 242, 0.35);
+}
+
+.share-circle-btn.share-twitter {
+  color: #0f172a !important;
+  background: rgba(15, 23, 42, 0.06) !important;
+  border-color: rgba(15, 23, 42, 0.3) !important;
+}
+
+.share-circle-btn.share-twitter:hover {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.35);
+}
+
+.share-circle-btn.share-linkedin {
+  color: #0a66c2 !important;
+  background: rgba(10, 102, 194, 0.08) !important;
+  border-color: rgba(10, 102, 194, 0.3) !important;
+}
+
+.share-circle-btn.share-linkedin:hover {
+  background: #0a66c2 !important;
+  color: #ffffff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(10, 102, 194, 0.35);
+}
+
+.share-circle-btn.share-whatsapp {
+  color: #16a34a !important;
+  background: rgba(22, 163, 74, 0.08) !important;
+  border-color: rgba(22, 163, 74, 0.3) !important;
+}
+
+.share-circle-btn.share-whatsapp:hover {
+  background: #16a34a !important;
+  color: #ffffff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35);
+}
+
+.share-circle-btn.share-telegram {
+  color: #0284c7 !important;
+  background: rgba(2, 132, 199, 0.08) !important;
+  border-color: rgba(2, 132, 199, 0.3) !important;
+}
+
+.share-circle-btn.share-telegram:hover {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+}
+
+.share-copy-btn {
+  height: 38px !important;
+  padding: 0 16px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em !important;
+  color: #475569 !important;
+  background: #f8fafc !important;
+  border: 1.5px solid #cbd5e1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  cursor: pointer !important;
+  transition: all 0.25s ease !important;
+  text-transform: uppercase !important;
+  line-height: 1 !important;
+  box-sizing: border-box !important;
+}
+
+.share-copy-btn:hover {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #0f172a !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.2);
+}
+
+.share-copy-btn.copied {
+  background: #10b981 !important;
+  color: #ffffff !important;
+  border-color: #10b981 !important;
+}
+
+/* 2. Protected Content Unlock Form */
+.unlock-box-elite {
+  display: flex !important;
+  align-items: center !important;
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 999px !important;
+  padding: 4px 5px 4px 16px !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06) !important;
+  transition: all 0.25s ease !important;
+}
+
+.unlock-box-elite:focus-within {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15) !important;
+}
+
+.unlock-icon-slot {
+  color: #94a3b8 !important;
+  font-size: 14px !important;
+  margin-right: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.unlock-field-elite {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  flex-grow: 1 !important;
+  font-size: 14.5px !important;
+  color: #0f172a !important;
+  height: 44px !important;
+  padding: 0 !important;
+  line-height: 44px !important;
+}
+
+.unlock-field-elite:focus {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.unlock-btn-elite {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 999px !important;
+  padding: 0 24px !important;
+  height: 44px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  cursor: pointer !important;
+  transition: all 0.25s ease !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+.unlock-btn-elite:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.5) !important;
+  color: #ffffff !important;
+}
+
+/* Dark Mode Overrides */
+[data-bs-theme="dark"] .share-circle-btn.share-twitter,
+[data-theme="dark"] .share-circle-btn.share-twitter {
+  color: #f8fafc !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-bs-theme="dark"] .share-copy-btn,
+[data-theme="dark"] .share-copy-btn {
+  background: #1e293b !important;
+  color: #cbd5e1 !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+[data-bs-theme="dark"] .share-copy-btn:hover,
+[data-theme="dark"] .share-copy-btn:hover {
+  background: #334155 !important;
+  color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .unlock-box-elite,
+[data-theme="dark"] .unlock-box-elite {
+  background: #1e293b !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+[data-bs-theme="dark"] .unlock-field-elite,
+[data-theme="dark"] .unlock-field-elite {
+  color: #f8fafc !important;
+}

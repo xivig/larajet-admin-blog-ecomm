@@ -116,15 +116,16 @@
                                         </div>
                                     @endif
 
-                                    <form action="{{ route('blog.unlock', $post->slug) }}" method="POST" class="mx-auto w-100" style="max-width: 420px;">
+                                    <form action="{{ route('blog.unlock', $post->slug) }}" method="POST" class="mx-auto w-100" style="max-width: 440px;">
                                         @csrf
-                                        <div class="input-group mb-3">
-                                            <input type="password" name="password" class="form-control form-control-elite" placeholder="Enter passphrase..." required autofocus>
-                                            <div class="input-group-append">
-                                                <button class="btn btn-primary font-weight-bold px-4" type="submit">
-                                                    <i class="fas fa-key mr-1"></i> Unlock
-                                                </button>
-                                            </div>
+                                        <div class="unlock-box-elite">
+                                            <span class="unlock-icon-slot">
+                                                <i class="fas fa-lock"></i>
+                                            </span>
+                                            <input type="password" name="password" class="unlock-field-elite" placeholder="Enter passphrase..." required autofocus>
+                                            <button class="unlock-btn-elite" type="submit">
+                                                <i class="fas fa-key mr-1"></i> Unlock
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
