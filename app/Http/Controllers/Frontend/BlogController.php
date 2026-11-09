@@ -3,13 +3,17 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Author;
 use App\Models\Category;
+use App\Models\Comment;
 use App\Models\Picture;
 use App\Models\Post;
+use App\Models\PostImage;
 use App\Models\Tag;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class BlogController extends Controller
 {
@@ -147,5 +151,189 @@ class BlogController extends Controller
         }
 
         return redirect()->route('single-post', $slug)->with('error', 'Incorrect password. Access denied.');
+    }
+
+    /**
+     * Continuous technical feed stream.
+     */
+    public function feed(Request $request): View
+    {
+        $featuredPosts = Post::published()
+            ->where('is_featured', 1)
+            ->with(['category', 'image', 'author.user'])
+            ->latest('published_at')
+            ->take(4)
+            ->get();
+
+        if ($featuredPosts->count() < 4) {
+            $fallback = Post::published()
+                ->whereNotIn('id', $featuredPosts->pluck('id'))
+                ->with(['category', 'image', 'author.user'])
+                ->latest('published_at')
+                ->take(4 - $featuredPosts->count())
+                ->get();
+            $featuredPosts = $featuredPosts->concat($fallback);
+        }
+
+        $blockHero = Post::published()
+            ->where('is_sticky', 1)
+            ->with(['category', 'image', 'author.user'])
+            ->first() ?? $featuredPosts->first();
+
+        $blockSub = Post::published()
+            ->where('id', '!=', $blockHero ? $blockHero->id : 0)
+            ->with(['category', 'image', 'author.user'])
+            ->latest('published_at')
+            ->take(2)
+            ->get();
+
+        $feedPosts = Post::published()
+            ->with(['category', 'image', 'author.user', 'tag'])
+            ->latest('published_at')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('blog.feed', compact('featuredPosts', 'blockHero', 'blockSub', 'feedPosts'));
+    }
+
+    /**
+     * Author profile and publications archive.
+     */
+    public function author(Request $request, $id): View
+    {
+        $author = Author::with(['user'])->where('id', $id)->orWhere('nickname', $id)->first();
+        if (!$author && is_numeric($id)) {
+            $author = Author::with('user')->find($id);
+        }
+        if (!$author) {
+            $author = Author::where('user_id', $id)->first();
+        }
+        if (!$author) {
+            abort(404, 'Author profile not found.');
+        }
+
+        $posts = Post::published()
+            ->where('author_id', $author->id)
+            ->with(['category', 'image', 'author.user', 'tag'])
+            ->latest('published_at')
+            ->paginate(8)
+            ->withQueryString();
+
+        $totalViews = Post::published()->where('author_id', $author->id)->sum('views_count');
+
+        return view('blog.author', compact('author', 'posts', 'totalViews'));
+    }
+
+    /**
+     * Authors and engineering contributors directory.
+     */
+    public function authors(Request $request): View
+    {
+        $authors = Author::with(['user'])
+            ->withCount(['posts' => function ($q) {
+                $q->published();
+            }])
+            ->orderByDesc('posts_count')
+            ->get();
+
+        return view('blog.authors', compact('authors'));
+    }
+
+    /**
+     * Tag topic archive.
+     */
+    public function tag(Request $request, $id): View
+    {
+        $tag = Tag::where('id', $id)->orWhere('name', $id)->firstOrFail();
+
+        $posts = Post::published()
+            ->where('tag_id', $tag->id)
+            ->with(['category', 'image', 'author.user', 'tag'])
+            ->latest('published_at')
+            ->paginate(8)
+            ->withQueryString();
+
+        return view('blog.tag', compact('tag', 'posts'));
+    }
+
+    /**
+     * Living image gallery.
+     */
+    public function gallery(Request $request): View
+    {
+        $postImages = PostImage::with('post')->latest()->take(30)->get();
+        $galleryItems = [];
+
+        foreach ($postImages as $pi) {
+            if ($pi->url) {
+                $galleryItems[] = [
+                    'url' => $pi->url,
+                    'caption' => $pi->caption ?: ($pi->post->title ?? 'Architectural Visual'),
+                    'post_title' => $pi->post->title ?? null,
+                    'post_slug' => $pi->post->slug ?? null,
+                ];
+            }
+        }
+
+        if (count($galleryItems) < 12) {
+            $pictures = Picture::take(20)->get();
+            foreach ($pictures as $pic) {
+                $link = $pic->link;
+                $url = Str::startsWith($link, ['http://', 'https://']) ? $link : asset($link);
+                $galleryItems[] = [
+                    'url' => $url,
+                    'caption' => $pic->name ?? 'System Blueprint',
+                    'post_title' => null,
+                    'post_slug' => null,
+                ];
+            }
+        }
+
+        $categories = Category::withCount('posts')->get();
+
+        return view('blog.gallery', compact('galleryItems', 'categories'));
+    }
+
+    /**
+     * Video insights gallery & primary video player.
+     */
+    public function videos(Request $request): View
+    {
+        $mainVideo = Post::published()
+            ->whereNotNull('video_url')
+            ->with(['category', 'image', 'author.user'])
+            ->first();
+
+        if (!$mainVideo) {
+            $mainVideo = Post::published()->with(['category', 'image', 'author.user'])->first();
+        }
+
+        $moreVideos = Post::published()
+            ->where('id', '!=', $mainVideo ? $mainVideo->id : 0)
+            ->with(['category', 'image', 'author.user'])
+            ->latest('published_at')
+            ->take(6)
+            ->get();
+
+        return view('blog.video', compact('mainVideo', 'moreVideos'));
+    }
+
+    /**
+     * Single video insight post.
+     */
+    public function singleVideo(Request $request, string $slug): View
+    {
+        $mainVideo = Post::where('slug', $slug)
+            ->with(['category', 'image', 'author.user'])
+            ->firstOrFail();
+
+        $moreVideos = Post::published()
+            ->where('id', '!=', $mainVideo->id)
+            ->with(['category', 'image', 'author.user'])
+            ->latest('published_at')
+            ->take(6)
+            ->get();
+
+        return view('blog.video', compact('mainVideo', 'moreVideos'));
     }
 }

@@ -54,6 +54,25 @@ Route::get('/ecomm', static fn() => view('ecomm'))->name('ecomm');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog-list', [BlogController::class, 'index'])->name('blog.list');
 Route::get('/blog-post', static fn() => redirect()->route('blog.list'));
+
+// Dist-front extensions: Feed, Gallery, Videos, Authors, Tags
+Route::get('/blog/feed', [BlogController::class, 'feed'])->name('blog.feed');
+Route::get('/feed', [BlogController::class, 'feed']);
+
+Route::get('/blog/gallery', [BlogController::class, 'gallery'])->name('blog.gallery');
+Route::get('/gallery', [BlogController::class, 'gallery']);
+
+Route::get('/blog/videos', [BlogController::class, 'videos'])->name('blog.videos');
+Route::get('/videos', [BlogController::class, 'videos']);
+Route::get('/blog/video/{slug}', [BlogController::class, 'singleVideo'])->name('blog.video');
+
+Route::get('/blog/authors', [BlogController::class, 'authors'])->name('blog.authors');
+Route::get('/blog/author/{id}', [BlogController::class, 'author'])->name('blog.author');
+Route::get('/author/{id}', [BlogController::class, 'author']);
+
+Route::get('/blog/tag/{id}', [BlogController::class, 'tag'])->name('blog.tag');
+Route::get('/tag/{id}', [BlogController::class, 'tag']);
+
 Route::get('/blog/{slug}', [BlogController::class, 'singlePost'])->name('single-post');
 Route::get('/post/{slug}', [BlogController::class, 'singlePost'])->name('blog.single');
 Route::post('/blog/{slug}/unlock', [BlogController::class, 'unlock'])->name('blog.unlock');

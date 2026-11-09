@@ -109,8 +109,11 @@
                                         Blog <i class="bi bi-chevron-down small ms-1 ml-1"></i>
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownBlog">
-                                        <li><a class="dropdown-item" href="{{ url('/blog-list') }}">Blog Magazine</a></li>
-                                        <li><a class="dropdown-item" href="{{ url('/blog') }}">All Articles</a></li>
+                                        <li><a class="dropdown-item" href="{{ url('/blog-list') }}"><i class="fas fa-th-large mr-2 text-primary"></i> 4-Column Catalog</a></li>
+                                        <li><a class="dropdown-item" href="{{ url('/blog/feed') }}"><i class="fas fa-rss mr-2 text-warning"></i> Live Feed Stream</a></li>
+                                        <li><a class="dropdown-item" href="{{ url('/blog/gallery') }}"><i class="fas fa-images mr-2 text-info"></i> Visual Gallery</a></li>
+                                        <li><a class="dropdown-item" href="{{ url('/blog/videos') }}"><i class="fas fa-video mr-2 text-danger"></i> Video Insights</a></li>
+                                        <li><a class="dropdown-item" href="{{ url('/blog/authors') }}"><i class="fas fa-users mr-2 text-success"></i> Authors Directory</a></li>
                                     </ul>
                                 </li>
                                 <li class="nav-item {{ request()->is('ecomm') ? 'active' : '' }}">

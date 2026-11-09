@@ -381,53 +381,7 @@
 
             <!-- Sidebar Column -->
             <div class="col-lg-4">
-                <!-- Search Widget -->
-                <div class="sidebar-widget">
-                    <h5 class="sidebar-widget-title"><i class="bi bi-search text-primary me-2 mr-2"></i> Search Insights</h5>
-                    <form action="{{ url('/blog-list') }}" method="GET" class="position-relative w-100">
-                        <input type="text" name="search" class="form-control form-control-elite pr-5" style="border-radius: 999px; padding-right: 50px; height: 44px;" placeholder="Search architecture, 2FA, APIs...">
-                        <button type="submit" class="btn-elite btn-elite-primary btn-sm position-absolute" style="top: 50%; right: 5px; transform: translateY(-50%); border-radius: 999px; height: 34px; width: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; z-index: 5;" title="Search">
-                            <i class="bi bi-search"></i>
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Categories Widget -->
-                <div class="sidebar-widget">
-                    <h5 class="sidebar-widget-title"><i class="bi bi-folder text-primary me-2 mr-2"></i> Categories</h5>
-                    <ul class="list-unstyled mb-0">
-                        @foreach($categories->take(8) as $cat)
-                            <li class="d-flex justify-content-between align-items-center py-2 border-bottom">
-                                <a href="{{ url('/blog-list?category=' . $cat->id) }}" class="text-body text-decoration-none small">
-                                    {{ $cat->name }}
-                                </a>
-                                <span class="badge badge-light text-primary font-weight-bold">{{ $cat->posts_count }}</span>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-
-                <!-- Recent Insights Widget -->
-                <div class="sidebar-widget">
-                    <h5 class="sidebar-widget-title"><i class="bi bi-clock-history text-primary me-2 mr-2"></i> Recent Insights</h5>
-                    @foreach($recentPosts as $recent)
-                        <div class="d-flex align-items-center mb-3">
-                            @if($recent->image)
-                                @php
-                                    $recLink = $recent->image->link;
-                                    $recHero = Str::startsWith($recLink, ['http://', 'https://']) ? $recLink : asset($recLink);
-                                @endphp
-                                <img src="{{ $recHero }}" alt="{{ $recent->title }}" class="rounded mr-3" style="width: 56px; height: 56px; object-fit: cover;" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
-                            @endif
-                            <div>
-                                <h6 class="mb-1 font-weight-bold" style="font-size: 14px;">
-                                    <a href="{{ route('single-post', $recent->slug) }}" class="text-body text-decoration-none">{{ Str::limit($recent->title, 42) }}</a>
-                                </h6>
-                                <small class="text-muted">{{ ($recent->published_at ?? $recent->created_at)->format('M d, Y') }}</small>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
+                @include('blog.partials.sidebar')
             </div>
         </div>
     </div>
