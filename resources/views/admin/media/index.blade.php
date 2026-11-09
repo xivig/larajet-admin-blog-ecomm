@@ -281,7 +281,7 @@
                         <!-- Asset Image Thumbnail / File Representation -->
                         <div class="media-thumb-wrap position-relative cursor-pointer" onclick="openInspectorModal({{ $pic->id }})" style="height: 195px; background: rgba(0,0,0,0.04); overflow: hidden; display: flex; align-items: center; justify-content: center;">
                             @if($pic->is_image)
-                                <img src="{{ $pic->url }}" alt="{{ $pic->alt_text }}" id="asset-card-img-{{ $pic->id }}" class="w-100 h-100 object-fit-cover transition-transform" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                                <img src="{{ $pic->url }}" alt="{{ $pic->alt_text }}" id="asset-card-img-{{ $pic->id }}" class="w-100 h-100 object-fit-cover transition-transform" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                             @else
                                 <div class="text-center p-3 text-secondary">
                                     <i class="bi bi-file-earmark-pdf display-4 text-danger d-block mb-1"></i>
@@ -385,7 +385,7 @@
                                     <td>
                                         <div class="rounded overflow-hidden cursor-pointer" onclick="openInspectorModal({{ $pic->id }})" style="width: 54px; height: 54px; background: rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center;">
                                             @if($pic->is_image)
-                                                <img src="{{ $pic->url }}" alt="{{ $pic->alt_text }}" id="asset-list-img-{{ $pic->id }}" class="w-100 h-100 object-fit-cover" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                                                <img src="{{ $pic->url }}" alt="{{ $pic->alt_text }}" id="asset-list-img-{{ $pic->id }}" class="w-100 h-100 object-fit-cover" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                                             @else
                                                 <i class="bi bi-file-earmark-pdf fs-3 text-danger"></i>
                                             @endif

@@ -274,7 +274,7 @@
             <div class="col-md-3 col-sm-4 col-6">
               <div class="card h-100 border text-center p-2 cursor-pointer media-picker-item" data-id="{{ $pic->id }}" data-name="{{ $pic->name ?? 'Image' }}" data-src="{{ Str::startsWith($pic->link, ['http', 'https', 'uploads/']) ? asset($pic->link) : asset('xivig-blog/images/blog/' . $pic->link) }}" onclick="selectMediaItem(this)">
                 <div class="ratio ratio-1x1 mb-2 bg-light rounded overflow-hidden">
-                  <img src="{{ Str::startsWith($pic->link, ['http', 'https', 'uploads/']) ? asset($pic->link) : asset('xivig-blog/images/blog/' . $pic->link) }}" alt="{{ $pic->name }}" class="object-fit-cover w-100 h-100" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                  <img src="{{ Str::startsWith($pic->link, ['http', 'https', 'uploads/']) ? asset($pic->link) : asset('xivig-blog/images/blog/' . $pic->link) }}" alt="{{ $pic->name }}" class="object-fit-cover w-100 h-100" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                 </div>
                 <div class="small text-truncate fw-semibold">{{ $pic->name ?? 'ID: ' . $pic->id }}</div>
               </div>

@@ -90,7 +90,7 @@
                        alt="{{ $gallery->title }}" 
                        class="rounded-3 border object-fit-cover shadow-xs" 
                        style="width: 48px; height: 48px; min-width: 48px;"
-                       onerror="this.src='{{ asset('admin-dist/img/1-DZLDOIIi.jpg') }}'">
+                       onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/1-DZLDOIIi.jpg') }}'">
                   <div>
                     <div class="fw-bold text-body fs-6 mb-0.5">{{ $gallery->title }}</div>
                     <div class="text-muted small" style="font-size: 12px;">

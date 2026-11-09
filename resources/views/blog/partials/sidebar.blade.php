@@ -51,7 +51,7 @@
                         @endphp
                         <div class="sidebar-mini-article d-flex align-items-center">
                             <a href="{{ route('single-post', $pItem->slug) }}" class="flex-shrink-0 mr-3 me-3" style="width: 72px; height: 60px; border-radius: 10px; overflow: hidden; display: block;">
-                                <img src="{{ $pSrc }}" alt="{{ $pItem->title }}" class="w-100 h-100 object-fit-cover" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                                <img src="{{ $pSrc }}" alt="{{ $pItem->title }}" class="w-100 h-100 object-fit-cover" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                             </a>
                             <div class="flex-grow-1 min-w-0">
                                 <span class="badge badge-light text-primary small py-1 px-2 font-weight-bold" style="font-size: 11px;">
@@ -84,7 +84,7 @@
                         @endphp
                         <div class="sidebar-mini-article d-flex align-items-center">
                             <a href="{{ route('single-post', $rItem->slug) }}" class="flex-shrink-0 mr-3 me-3" style="width: 72px; height: 60px; border-radius: 10px; overflow: hidden; display: block;">
-                                <img src="{{ $rSrc }}" alt="{{ $rItem->title }}" class="w-100 h-100 object-fit-cover" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                                <img src="{{ $rSrc }}" alt="{{ $rItem->title }}" class="w-100 h-100 object-fit-cover" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                             </a>
                             <div class="flex-grow-1 min-w-0">
                                 <h6 class="mb-1 font-weight-bold" style="font-size: 13.5px; line-height: 1.35;">

@@ -31,10 +31,11 @@
                 <div class="card p-4 p-md-5 mb-5 shadow-sm border rounded-xl text-center bg-white" style="border-radius: 20px;">
                     <div class="mb-3 position-relative d-inline-block mx-auto">
                         @php
+                            $defaultAvatar = asset('admin-dist/img/avatars/avatar-' . (($author->id % 9) + 1) . '.webp');
                             $userPhoto = $author->user->profile_photo_path ?? null;
-                            $avatarSrc = $userPhoto ? (Str::startsWith($userPhoto, ['http://', 'https://']) ? $userPhoto : asset($userPhoto)) : asset('admin-dist/img/avatar.png');
+                            $avatarSrc = $userPhoto ? (Str::startsWith($userPhoto, ['http://', 'https://']) ? $userPhoto : asset($userPhoto)) : $defaultAvatar;
                         @endphp
-                        <img src="{{ $avatarSrc }}" alt="{{ $author->nickname ?? $author->user->name }}" class="rounded-circle shadow-sm" style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #ffffff; box-shadow: 0 8px 24px rgba(99, 102, 241, 0.2);" onerror="this.src='{{ asset('admin-dist/img/avatar.png') }}'">
+                        <img src="{{ $avatarSrc }}" alt="{{ $author->nickname ?? $author->user->name }}" class="rounded-circle shadow-sm" style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #ffffff; box-shadow: 0 8px 24px rgba(99, 102, 241, 0.2);" onerror="this.onerror=null; this.src='{{ $defaultAvatar }}'">
                         <span class="position-absolute bottom-0 end-0 bg-success rounded-circle" style="width: 18px; height: 18px; border: 3px solid #ffffff; right: 8px; bottom: 8px;" title="Verified Author"></span>
                     </div>
 
@@ -93,7 +94,7 @@
                                                 $postImg = $post->image->link ?? 'admin-dist/img/blog-1-PTDVKJDt.webp';
                                                 $imgSrc = Str::startsWith($postImg, ['http://', 'https://']) ? $postImg : asset($postImg);
                                             @endphp
-                                            <img loading="lazy" src="{{ $imgSrc }}" alt="{{ $post->title }}" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                                            <img loading="lazy" src="{{ $imgSrc }}" alt="{{ $post->title }}" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                                         </a>
 
                                         <div class="blog-card-badges">

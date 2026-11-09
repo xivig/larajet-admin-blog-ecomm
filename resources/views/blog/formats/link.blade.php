@@ -42,7 +42,7 @@
                     <div class="mag-card elite-card bookmark-card shadow-sm rounded-4 overflow-hidden bg-body border transition-hover mb-5 mt-4">
                         <!-- Image Area -->
                         <div class="card-img-wrapper position-relative overflow-hidden" style="height: 340px;">
-                            <img src="{{ $linkSrc }}" class="w-100 h-100 object-fit-cover transition-transform" alt="{{ $post->title }}" onerror="this.src='{{ asset('dist-front/images/highres-new-2.jpg') }}'">
+                            <img src="{{ $linkSrc }}" class="w-100 h-100 object-fit-cover transition-transform" alt="{{ $post->title }}" onerror="this.onerror=null; this.src='{{ asset('dist-front/images/highres-new-2.jpg') }}'">
                             <div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient-overlay opacity-50 z-1" style="background: rgba(0,0,0,0.4);"></div>
 
                             <!-- Overlay Icon -->

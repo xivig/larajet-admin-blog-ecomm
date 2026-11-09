@@ -18,7 +18,7 @@
                         $tSrc = Str::startsWith($tImg, ['http://', 'https://']) ? $tImg : asset($tImg);
                     @endphp
                     <span class="ticker-item d-inline-flex align-items-center" style="gap: 8px;">
-                        <img src="{{ $tSrc }}" alt="Thumbnail" class="rounded-circle" style="width: 24px; height: 24px; object-fit: cover;" onerror="this.src='{{ asset('dist-front/images/block-sub.jpg') }}'">
+                        <img src="{{ $tSrc }}" alt="Thumbnail" class="rounded-circle" style="width: 24px; height: 24px; object-fit: cover;" onerror="this.onerror=null; this.src='{{ asset('dist-front/images/block-sub.jpg') }}'">
                         <a href="{{ route('single-post', $tPost->slug) }}" class="text-reset text-decoration-none font-weight-bold">
                             {{ $tPost->title }}
                         </a>
@@ -86,7 +86,7 @@
                     $mainSrc = Str::startsWith($mainImg, ['http://', 'https://']) ? $mainImg : asset($mainImg);
                 @endphp
                 <div class="card-img-wrapper rounded-4 mb-5 shadow-sm overflow-hidden position-relative" style="max-height: 480px;">
-                    <img src="{{ $mainSrc }}" class="w-100 h-100 object-fit-cover" alt="{{ $post->title }}" onerror="this.src='{{ asset('dist-front/images/hero-image-1.jpg') }}'">
+                    <img src="{{ $mainSrc }}" class="w-100 h-100 object-fit-cover" alt="{{ $post->title }}" onerror="this.onerror=null; this.src='{{ asset('dist-front/images/hero-image-1.jpg') }}'">
                 </div>
 
                 <!-- Table of Contents -->
@@ -222,7 +222,7 @@
                                 <article class="mag-card elite-card h-100 shadow-sm rounded-4 overflow-hidden bg-body border-0 transition-hover">
                                     <div class="card-img-wrapper position-relative overflow-hidden" style="height: 160px;">
                                         <a href="{{ route('single-post', $rStory->slug) }}">
-                                            <img src="{{ $rSrc }}" class="w-100 h-100 object-fit-cover transition-transform" alt="{{ $rStory->title }}" onerror="this.src='{{ asset('dist-front/images/highres-new-1.jpg') }}'">
+                                            <img src="{{ $rSrc }}" class="w-100 h-100 object-fit-cover transition-transform" alt="{{ $rStory->title }}" onerror="this.onerror=null; this.src='{{ asset('dist-front/images/highres-new-1.jpg') }}'">
                                         </a>
                                         <span class="badge bg-dark position-absolute top-0 start-0 m-2 z-2" style="font-size: 10px;">
                                             {{ $rStory->category->name ?? 'Intel' }}

@@ -149,7 +149,7 @@
                         $cover = $post->image->link;
                         $src = Str::startsWith($cover, ['http', 'https', 'uploads/']) ? asset($cover) : asset('xivig-blog/images/blog/' . $cover);
                       @endphp
-                      <img src="{{ $src }}" alt="" class="rounded object-fit-cover shadow-sm" style="width: 48px; height: 48px;" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                      <img src="{{ $src }}" alt="" class="rounded object-fit-cover shadow-sm" style="width: 48px; height: 48px;" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                     @else
                       <img src="{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}" alt="" class="rounded object-fit-cover shadow-sm" style="width: 48px; height: 48px;">
                     @endif

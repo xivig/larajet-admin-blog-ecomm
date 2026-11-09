@@ -57,7 +57,7 @@
                                                 $fImg = $fPost->image->link ?? 'admin-dist/img/blog-1-PTDVKJDt.webp';
                                                 $fSrc = Str::startsWith($fImg, ['http://', 'https://']) ? $fImg : asset($fImg);
                                             @endphp
-                                            <img loading="lazy" src="{{ $fSrc }}" alt="{{ $fPost->title }}" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                                            <img loading="lazy" src="{{ $fSrc }}" alt="{{ $fPost->title }}" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                                         </a>
                                         <span class="badge-elite-category" style="position: absolute; top: 10px; right: 10px;">
                                             {{ $fPost->category->name ?? 'Architecture' }}
@@ -99,7 +99,7 @@
                                         $bSrc = Str::startsWith($bImg, ['http://', 'https://']) ? $bImg : asset($bImg);
                                     @endphp
                                     <a href="{{ route('single-post', $blockHero->slug) }}">
-                                        <img src="{{ $bSrc }}" alt="{{ $blockHero->title }}" class="w-100 h-100 object-fit-cover" style="min-height: 250px; max-height: 320px;" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                                        <img src="{{ $bSrc }}" alt="{{ $blockHero->title }}" class="w-100 h-100 object-fit-cover" style="min-height: 250px; max-height: 320px;" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                                     </a>
                                 </div>
                                 <div class="col-md-7 p-4 p-md-5">
@@ -136,7 +136,7 @@
                                             $sSrc = Str::startsWith($sImg, ['http://', 'https://']) ? $sImg : asset($sImg);
                                         @endphp
                                         <a href="{{ route('single-post', $sPost->slug) }}" class="flex-shrink-0 mr-3 me-3" style="width: 80px; height: 80px; border-radius: 12px; overflow: hidden; display: block;">
-                                            <img src="{{ $sSrc }}" alt="{{ $sPost->title }}" class="w-100 h-100 object-fit-cover" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                                            <img src="{{ $sSrc }}" alt="{{ $sPost->title }}" class="w-100 h-100 object-fit-cover" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                                         </a>
                                         <div>
                                             <span class="badge badge-light text-primary small py-0 px-2 font-weight-bold" style="font-size: 11px;">
@@ -174,7 +174,7 @@
                                             $eSrc = Str::startsWith($eImg, ['http://', 'https://']) ? $eImg : asset($eImg);
                                         @endphp
                                         <a href="{{ route('single-post', $entry->slug) }}" class="d-block rounded overflow-hidden" style="height: 110px;">
-                                            <img src="{{ $eSrc }}" alt="{{ $entry->title }}" class="w-100 h-100 object-fit-cover" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                                            <img src="{{ $eSrc }}" alt="{{ $entry->title }}" class="w-100 h-100 object-fit-cover" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                                         </a>
                                     </div>
                                     <div class="col-md-9 col-sm-8">

@@ -54,7 +54,7 @@
                                 <article class="mag-card shadow-sm border-0 rounded-4 overflow-hidden h-100 transition-hover">
                                     <div class="card-img-wrapper position-relative" style="height: 200px;">
                                         <a href="{{ route('single-post', $post->slug) }}">
-                                            <img src="{{ $imgSrc }}" class="img-aspect w-100 h-100 object-fit-cover transition-transform" alt="{{ $post->title }}" onerror="this.src='{{ asset('dist-front/images/business-1.jpg') }}'">
+                                            <img src="{{ $imgSrc }}" class="img-aspect w-100 h-100 object-fit-cover transition-transform" alt="{{ $post->title }}" onerror="this.onerror=null; this.src='{{ asset('dist-front/images/business-1.jpg') }}'">
                                         </a>
                                         @if($post->is_sticky)
                                             <span class="badge-elite-pinned position-absolute top-0 start-0 m-2 z-2"><i class="fas fa-thumbtack mr-1"></i> Pinned</span>

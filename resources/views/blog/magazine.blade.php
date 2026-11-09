@@ -18,7 +18,7 @@
                         $tSrc = Str::startsWith($tImg, ['http://', 'https://']) ? $tImg : asset($tImg);
                     @endphp
                     <span class="ticker-item d-inline-flex align-items-center" style="gap: 8px;">
-                        <img src="{{ $tSrc }}" alt="Thumbnail" class="rounded-circle" style="width: 24px; height: 24px; object-fit: cover;" onerror="this.src='{{ asset('dist-front/images/block-sub.jpg') }}'">
+                        <img src="{{ $tSrc }}" alt="Thumbnail" class="rounded-circle" style="width: 24px; height: 24px; object-fit: cover;" onerror="this.onerror=null; this.src='{{ asset('dist-front/images/block-sub.jpg') }}'">
                         <a href="{{ route('single-post', $tPost->slug) }}" class="text-reset text-decoration-none font-weight-bold">
                             {{ $tPost->title }}
                         </a>
@@ -46,7 +46,7 @@
                             <div class="card-img-wrapper position-relative" style="height: 180px;">
                                 <span class="badge-category">{{ $hlPost->category->name ?? 'Featured' }}</span>
                                 <a href="{{ route('single-post', $hlPost->slug) }}">
-                                    <img src="{{ $hlSrc }}" alt="{{ $hlPost->title }}" class="img-aspect w-100 h-100 object-fit-cover" onerror="this.src='{{ asset('dist-front/images/block-sub.jpg') }}'">
+                                    <img src="{{ $hlSrc }}" alt="{{ $hlPost->title }}" class="img-aspect w-100 h-100 object-fit-cover" onerror="this.onerror=null; this.src='{{ asset('dist-front/images/block-sub.jpg') }}'">
                                 </a>
                             </div>
                             <div class="card-body-custom p-3">
@@ -76,7 +76,7 @@
                             <div class="carousel-item {{ $idx === 0 ? 'active' : '' }} h-100">
                                 <article class="mag-card h-100 position-relative border-0" style="min-height: 440px;">
                                     <div class="card-img-wrapper w-100 h-100 position-absolute top-0 start-0">
-                                        <img src="{{ $hcSrc }}" alt="{{ $hcPost->title }}" class="w-100 h-100 object-fit-cover" onerror="this.src='{{ asset('dist-front/images/entrepreneurship.jpg') }}'">
+                                        <img src="{{ $hcSrc }}" alt="{{ $hcPost->title }}" class="w-100 h-100 object-fit-cover" onerror="this.onerror=null; this.src='{{ asset('dist-front/images/entrepreneurship.jpg') }}'">
                                         <div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient-overlay" style="background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.85) 100%);"></div>
                                         <span class="badge-category position-absolute top-0 start-0 m-3 z-2">
                                             {{ $hcPost->category->name ?? 'Spotlight' }}
@@ -122,7 +122,7 @@
                             <div class="card-img-wrapper position-relative" style="height: 180px;">
                                 <span class="badge-category bg-dark">{{ $hrPost->category->name ?? 'Trending' }}</span>
                                 <a href="{{ route('single-post', $hrPost->slug) }}">
-                                    <img src="{{ $hrSrc }}" alt="{{ $hrPost->title }}" class="img-aspect w-100 h-100 object-fit-cover" onerror="this.src='{{ asset('dist-front/images/lifestyle.jpg') }}'">
+                                    <img src="{{ $hrSrc }}" alt="{{ $hrPost->title }}" class="img-aspect w-100 h-100 object-fit-cover" onerror="this.onerror=null; this.src='{{ asset('dist-front/images/lifestyle.jpg') }}'">
                                 </a>
                             </div>
                             <div class="card-body-custom p-3">
@@ -164,7 +164,7 @@
                         <div class="card-img-wrapper position-relative" style="height: 190px;">
                             <span class="badge-category">{{ $popPost->category->name ?? 'General' }}</span>
                             <a href="{{ route('single-post', $popPost->slug) }}">
-                                <img src="{{ $popSrc }}" alt="{{ $popPost->title }}" class="img-aspect w-100 h-100 object-fit-cover" onerror="this.src='{{ asset('dist-front/images/image.jpg') }}'">
+                                <img src="{{ $popSrc }}" alt="{{ $popPost->title }}" class="img-aspect w-100 h-100 object-fit-cover" onerror="this.onerror=null; this.src='{{ asset('dist-front/images/image.jpg') }}'">
                             </a>
                         </div>
                         <div class="card-body-custom p-3 d-flex flex-column" style="min-height: 140px;">
@@ -204,7 +204,7 @@
                             <article class="mag-card shadow-sm border-0 rounded-4 overflow-hidden h-100 transition-hover">
                                 <div class="card-img-wrapper" style="height: 220px;">
                                     <a href="{{ route('single-post', $bPost->slug) }}">
-                                        <img src="{{ $bSrc }}" alt="{{ $bPost->title }}" class="img-aspect w-100 h-100 object-fit-cover" onerror="this.src='{{ asset('dist-front/images/architecture.jpg') }}'">
+                                        <img src="{{ $bSrc }}" alt="{{ $bPost->title }}" class="img-aspect w-100 h-100 object-fit-cover" onerror="this.onerror=null; this.src='{{ asset('dist-front/images/architecture.jpg') }}'">
                                     </a>
                                 </div>
                                 <div class="card-body-custom p-3">
@@ -242,7 +242,7 @@
                                     $mSrc = Str::startsWith($mImg, ['http://', 'https://']) ? $mImg : asset($mImg);
                                 @endphp
                                 <div class="list-widget-item d-flex align-items-center p-2 rounded-3 bg-light-subtle border border-light-subtle">
-                                    <img src="{{ $mSrc }}" class="img-thumb-aspect rounded-3 mr-3 me-3" style="width: 80px; height: 70px; object-fit: cover;" alt="" onerror="this.src='{{ asset('dist-front/images/image-2.jpg') }}'">
+                                    <img src="{{ $mSrc }}" class="img-thumb-aspect rounded-3 mr-3 me-3" style="width: 80px; height: 70px; object-fit: cover;" alt="" onerror="this.onerror=null; this.src='{{ asset('dist-front/images/image-2.jpg') }}'">
                                     <div>
                                         <h5 class="card-title-sm mb-1 font-weight-bold" style="font-size: 14px; line-height: 1.35;">
                                             <a href="{{ route('single-post', $mPost->slug) }}" class="text-body text-decoration-none">
@@ -294,7 +294,7 @@
                             <div class="card-img-wrapper position-relative" style="height: 240px;">
                                 <span class="badge-category">{{ $gridHero->category->name ?? 'Technology' }}</span>
                                 <a href="{{ route('single-post', $gridHero->slug) }}">
-                                    <img src="{{ $ghSrc }}" alt="{{ $gridHero->title }}" class="img-aspect w-100 h-100 object-fit-cover" onerror="this.src='{{ asset('dist-front/images/grid-large.jpg') }}'">
+                                    <img src="{{ $ghSrc }}" alt="{{ $gridHero->title }}" class="img-aspect w-100 h-100 object-fit-cover" onerror="this.onerror=null; this.src='{{ asset('dist-front/images/grid-large.jpg') }}'">
                                 </a>
                             </div>
                             <div class="card-body-custom p-3">
@@ -318,7 +318,7 @@
                                 $gsSrc = Str::startsWith($gsImg, ['http://', 'https://']) ? $gsImg : asset($gsImg);
                             @endphp
                             <div class="list-widget-item d-flex align-items-center p-2 rounded-3 bg-light-subtle border border-light-subtle">
-                                <img src="{{ $gsSrc }}" class="img-thumb-aspect rounded-3 mr-3 me-3" style="width: 72px; height: 60px; object-fit: cover;" alt="" onerror="this.src='{{ asset('dist-front/images/grid-small.jpg') }}'">
+                                <img src="{{ $gsSrc }}" class="img-thumb-aspect rounded-3 mr-3 me-3" style="width: 72px; height: 60px; object-fit: cover;" alt="" onerror="this.onerror=null; this.src='{{ asset('dist-front/images/grid-small.jpg') }}'">
                                 <div class="flex-grow-1 min-w-0">
                                     <h5 class="card-title-sm mb-1 font-weight-bold" style="font-size: 13.5px; line-height: 1.35;">
                                         <a href="{{ route('single-post', $gsPost->slug) }}" class="text-body text-decoration-none d-block text-truncate">
@@ -355,7 +355,7 @@
                             <article class="mag-card shadow-sm border-0 rounded-4 overflow-hidden h-100">
                                 <div class="card-img-wrapper" style="height: 190px;">
                                     <a href="{{ route('single-post', $tPost->slug) }}">
-                                        <img src="{{ $tSrc }}" alt="{{ $tPost->title }}" class="img-aspect w-100 h-100 object-fit-cover" onerror="this.src='{{ asset('dist-front/images/tech-news.jpg') }}'">
+                                        <img src="{{ $tSrc }}" alt="{{ $tPost->title }}" class="img-aspect w-100 h-100 object-fit-cover" onerror="this.onerror=null; this.src='{{ asset('dist-front/images/tech-news.jpg') }}'">
                                     </a>
                                 </div>
                                 <div class="card-body-custom p-3">

@@ -67,7 +67,7 @@
             <img src="{{ $item->url }}" 
                  alt="{{ $item->caption }}" 
                  class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover transition-transform"
-                 onerror="this.src='{{ asset('admin-dist/img/1-DZLDOIIi.jpg') }}'">
+                 onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/1-DZLDOIIi.jpg') }}'">
             
             @if ($gallery->cover_image === $item->image_path)
               <span class="position-absolute top-0 start-0 m-2 badge bg-primary shadow-sm rounded-pill px-2 py-1" style="font-size: 10px;">
@@ -176,7 +176,7 @@
               <div class="col-4 col-md-3 col-lg-2">
                 <label class="d-block position-relative border rounded-3 p-1 cursor-pointer media-select-card h-100">
                   <input type="checkbox" name="picture_ids[]" value="{{ $pic->id }}" class="position-absolute top-0 start-0 m-2 form-check-input">
-                  <img src="{{ asset($pic->link) }}" alt="{{ $pic->name }}" class="w-100 rounded-2 object-fit-cover" style="height: 80px;" onerror="this.src='{{ asset('admin-dist/img/1-DZLDOIIi.jpg') }}'">
+                  <img src="{{ asset($pic->link) }}" alt="{{ $pic->name }}" class="w-100 rounded-2 object-fit-cover" style="height: 80px;" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/1-DZLDOIIi.jpg') }}'">
                   <div class="text-truncate small mt-1 text-center" style="font-size: 10px;">{{ $pic->name }}</div>
                 </label>
               </div>

@@ -92,7 +92,7 @@
                             $coverLink = $post->image->link;
                             $resolvedHero = Str::startsWith($coverLink, ['http://', 'https://']) ? $coverLink : asset($coverLink);
                         @endphp
-                        <img loading="lazy" src="{{ $resolvedHero }}" alt="{{ $post->title }}" class="single-post-hero-img shadow-sm rounded-lg mb-4" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                        <img loading="lazy" src="{{ $resolvedHero }}" alt="{{ $post->title }}" class="single-post-hero-img shadow-sm rounded-lg mb-4" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                     @endif
 
                     <div class="single-blog-content">
@@ -266,7 +266,7 @@
                                                         $rLink = $rel->image->link;
                                                         $rHero = Str::startsWith($rLink, ['http://', 'https://']) ? $rLink : asset($rLink);
                                                     @endphp
-                                                    <img src="{{ $rHero }}" alt="{{ $rel->title }}" class="card-img-top" style="height: 140px; object-fit: cover;" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                                                    <img src="{{ $rHero }}" alt="{{ $rel->title }}" class="card-img-top" style="height: 140px; object-fit: cover;" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                                                 @endif
                                                 <div class="card-body p-3 d-flex flex-column">
                                                     <span class="badge badge-light text-primary small align-self-start mb-2">{{ $rel->category->name ?? 'Architecture' }}</span>

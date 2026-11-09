@@ -32,19 +32,20 @@
     <div class="container">
         <div class="row">
             @forelse($authors as $author)
+                @php
+                    $defaultAvatar = asset('admin-dist/img/avatars/avatar-' . (($author->id % 9) + 1) . '.webp');
+                    $userPhoto = $author->user->profile_photo_path ?? null;
+                    $avatarSrc = $userPhoto ? (Str::startsWith($userPhoto, ['http://', 'https://']) ? $userPhoto : asset($userPhoto)) : $defaultAvatar;
+                @endphp
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="card p-4 h-100 shadow-sm border text-center bg-white transition-all hover-translate" style="border-radius: 20px;">
                         <div class="mb-3 position-relative d-inline-block mx-auto">
-                            @php
-                                $userPhoto = $author->user->profile_photo_path ?? null;
-                                $avatarSrc = $userPhoto ? (Str::startsWith($userPhoto, ['http://', 'https://']) ? $userPhoto : asset($userPhoto)) : asset('admin-dist/img/avatar.png');
-                            @endphp
-                            <img src="{{ $avatarSrc }}" alt="{{ $author->nickname ?? $author->user->name }}" class="rounded-circle shadow-sm" style="width: 96px; height: 96px; object-fit: cover; border: 3px solid #6366f1;" onerror="this.src='{{ asset('admin-dist/img/avatar.png') }}'">
+                            <img src="{{ $avatarSrc }}" alt="{{ $author->nickname ?? ($author->user->name ?? 'Author') }}" class="rounded-circle shadow-sm" style="width: 96px; height: 96px; object-fit: cover; border: 3px solid #6366f1;" onerror="this.onerror=null; this.src='{{ $defaultAvatar }}'">
                         </div>
 
                         <h4 class="font-weight-bold mb-1 text-body">
                             <a href="{{ route('blog.author', $author->id) }}" class="text-body text-decoration-none">
-                                {{ $author->nickname ?? $author->user->name }}
+                                {{ $author->nickname ?? ($author->user->name ?? 'Author') }}
                             </a>
                         </h4>
                         <span class="badge badge-light text-primary font-weight-bold small py-1 px-3 mb-3 d-inline-block">

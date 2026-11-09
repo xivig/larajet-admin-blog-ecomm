@@ -54,7 +54,7 @@
                     @endphp
 
                     <div class="gallery-item {{ $sizeClass }}" onclick="openGalleryLightbox('{{ $imgUrl }}', '{{ addslashes($imgCaption) }}', '{{ addslashes($postTitle) }}', '{{ $postSlug ? route('single-post', $postSlug) : '' }}')">
-                        <img loading="lazy" src="{{ $imgUrl }}" class="lazy-img" alt="{{ $imgCaption }}" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                        <img loading="lazy" src="{{ $imgUrl }}" class="lazy-img" alt="{{ $imgCaption }}" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                         <div class="gallery-caption">
                             <h4>{{ $imgCaption }}</h4>
                             @if($postTitle)

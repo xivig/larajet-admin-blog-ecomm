@@ -33,7 +33,7 @@
       <div class="card mb-4">
         @if ($post->image && $post->image->link)
           <div style="max-height: 360px; overflow: hidden;">
-            <img src="{{ Str::startsWith($post->image->link, ['http', 'https', 'uploads/']) ? asset($post->image->link) : asset('xivig-blog/images/blog/' . $post->image->link) }}" alt="{{ $post->title }}" class="card-img-top" style="object-fit: cover; max-height: 360px;" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+            <img src="{{ Str::startsWith($post->image->link, ['http', 'https', 'uploads/']) ? asset($post->image->link) : asset('xivig-blog/images/blog/' . $post->image->link) }}" alt="{{ $post->title }}" class="card-img-top" style="object-fit: cover; max-height: 360px;" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
           </div>
         @endif
         <div class="card-body p-4">

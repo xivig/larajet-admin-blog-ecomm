@@ -76,6 +76,7 @@ Route::get('/videos', [BlogController::class, 'videos']);
 Route::get('/blog/video/{slug}', [BlogController::class, 'singleVideo'])->name('blog.video');
 
 Route::get('/blog/authors', [BlogController::class, 'authors'])->name('blog.authors');
+Route::get('/authors', [BlogController::class, 'authors']);
 Route::get('/blog/author/{id}', [BlogController::class, 'author'])->name('blog.author');
 Route::get('/author/{id}', [BlogController::class, 'author']);
 

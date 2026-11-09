@@ -301,6 +301,7 @@ class BlogController extends Controller
     {
         $mainVideo = Post::published()
             ->whereNotNull('video_url')
+            ->where('video_url', '!=', '')
             ->with(['category', 'image', 'author.user'])
             ->first();
 

@@ -27,6 +27,8 @@ class Post extends Model
         'title',
         'slug',
         'content',
+        'video_url',
+        'external_url',
         'excerpt',
         'status',
         'post_status',

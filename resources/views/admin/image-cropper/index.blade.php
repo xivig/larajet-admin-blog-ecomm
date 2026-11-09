@@ -145,7 +145,7 @@
                              style="width: 80px; height: 60px; cursor: pointer;"
                              onclick="switchCropperImage('{{ $rec->url }}', '{{ addslashes($rec->name) }}')"
                              title="{{ $rec->name }}">
-                            <img src="{{ $rec->url }}" alt="{{ $rec->name }}" class="w-100 h-100 object-fit-cover rounded" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                            <img src="{{ $rec->url }}" alt="{{ $rec->name }}" class="w-100 h-100 object-fit-cover rounded" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                         </div>
                     @endforeach
                 </div>

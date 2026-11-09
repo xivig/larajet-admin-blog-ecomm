@@ -84,7 +84,7 @@
                                         $postImg = $post->image->link ?? 'admin-dist/img/blog-1-PTDVKJDt.webp';
                                         $imgSrc = Str::startsWith($postImg, ['http://', 'https://']) ? $postImg : asset($postImg);
                                     @endphp
-                                    <img loading="lazy" src="{{ $imgSrc }}" alt="{{ $post->title }}" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                                    <img loading="lazy" src="{{ $imgSrc }}" alt="{{ $post->title }}" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                                 </a>
 
                                 <!-- Badges Overlay: Pinned/Featured Left, Category Right -->

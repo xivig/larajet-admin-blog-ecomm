@@ -29,22 +29,51 @@
                 @if($mainVideo)
                     <article class="card p-0 mb-5 shadow-sm border rounded-xl overflow-hidden bg-white" style="border-radius: 20px;">
                         <!-- 16:9 Video Embed Player -->
-                        <div class="ratio ratio-16x9 position-relative overflow-hidden" style="background: #000; min-height: 380px;">
-                            @php
-                                $vidUrl = $mainVideo->video_url ?? null;
-                                // Parse YouTube embed ID if youtube URL
+                        @php
+                            $vidUrl = trim($mainVideo->video_url ?? '');
+                            $postHeroImg = $mainVideo->image->link ?? 'dist-front/images/hero-image.jpg';
+                            $posterSrc = Str::startsWith($postHeroImg, ['http://', 'https://']) ? $postHeroImg : asset($postHeroImg);
+
+                            $isIframe = Str::startsWith($vidUrl, '<iframe');
+                            $isDirectVideo = preg_match('/\.(mp4|webm|ogg|m4v)(\?.*)?$/i', $vidUrl);
+                            $embedSrc = null;
+
+                            if (!$isIframe && !$isDirectVideo) {
                                 if ($vidUrl && (str_contains($vidUrl, 'youtube.com') || str_contains($vidUrl, 'youtu.be'))) {
                                     preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/ ]{11})%i', $vidUrl, $match);
-                                    $embedSrc = isset($match[1]) ? 'https://www.youtube.com/embed/' . $match[1] . '?autoplay=0' : $vidUrl;
+                                    $youtubeId = $match[1] ?? 'tgbNymZ7vqY';
+                                    $embedSrc = 'https://www.youtube-nocookie.com/embed/' . $youtubeId . '?rel=0&modestbranding=1&enablejsapi=1';
                                 } elseif ($vidUrl && str_contains($vidUrl, 'vimeo.com')) {
                                     preg_match('/vimeo\.com\/([0-9]{1,10})/', $vidUrl, $match);
-                                    $embedSrc = isset($match[1]) ? 'https://player.vimeo.com/video/' . $match[1] : $vidUrl;
+                                    $vimeoId = $match[1] ?? '76979871';
+                                    $embedSrc = 'https://player.vimeo.com/video/' . $vimeoId . '?dnt=1';
+                                } elseif (!empty($vidUrl) && Str::startsWith($vidUrl, ['http://', 'https://'])) {
+                                    $embedSrc = $vidUrl;
                                 } else {
-                                    // Default featured architectural demo video
-                                    $embedSrc = 'https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=0';
+                                    // Default embeddable demo video from dist-front/video.html
+                                    $embedSrc = 'https://www.youtube-nocookie.com/embed/tgbNymZ7vqY?rel=0&modestbranding=1&enablejsapi=1';
                                 }
-                            @endphp
-                            <iframe src="{{ $embedSrc }}" title="{{ $mainVideo->title }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="width: 100%; height: 100%; border: none;"></iframe>
+                            }
+                        @endphp
+
+                        <div class="ratio ratio-16x9 position-relative overflow-hidden rounded-top-4" style="background: #000; min-height: 400px; border-radius: 20px 20px 0 0;">
+                            @if($isIframe)
+                                {!! $vidUrl !!}
+                            @elseif($isDirectVideo)
+                                <video controls playsinline preload="metadata" class="w-100 h-100 object-fit-cover" poster="{{ $posterSrc }}">
+                                    <source src="{{ $vidUrl }}" type="video/mp4">
+                                    Your browser does not support HTML5 video streaming.
+                                </video>
+                            @else
+                                <iframe 
+                                    src="{{ $embedSrc }}" 
+                                    title="{{ $mainVideo->title }}" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                    allowfullscreen 
+                                    loading="lazy"
+                                    style="width: 100%; height: 100%; border: none;">
+                                </iframe>
+                            @endif
                         </div>
 
                         <!-- Video Metadata & Article Body -->
@@ -66,10 +95,11 @@
 
                             <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
                                 @php
+                                    $defaultAvatar = asset('admin-dist/img/avatars/avatar-' . ((($mainVideo->author_id ?? 1) % 9) + 1) . '.webp');
                                     $authorPhoto = $mainVideo->author->user->profile_photo_path ?? null;
-                                    $authorSrc = $authorPhoto ? (Str::startsWith($authorPhoto, ['http://', 'https://']) ? $authorPhoto : asset($authorPhoto)) : asset('admin-dist/img/avatar.png');
+                                    $authorSrc = $authorPhoto ? (Str::startsWith($authorPhoto, ['http://', 'https://']) ? $authorPhoto : asset($authorPhoto)) : $defaultAvatar;
                                 @endphp
-                                <img src="{{ $authorSrc }}" alt="{{ $mainVideo->author->nickname ?? ($mainVideo->user->name ?? 'Admin') }}" class="rounded-circle mr-3 me-3" style="width: 44px; height: 44px; object-fit: cover;" onerror="this.src='{{ asset('admin-dist/img/avatar.png') }}'">
+                                <img src="{{ $authorSrc }}" alt="{{ $mainVideo->author->nickname ?? ($mainVideo->user->name ?? 'Admin') }}" class="rounded-circle mr-3 me-3" style="width: 44px; height: 44px; object-fit: cover;" onerror="this.onerror=null; this.src='{{ $defaultAvatar }}'">
                                 <div>
                                     <h6 class="mb-0 font-weight-bold text-body">{{ $mainVideo->author->nickname ?? ($mainVideo->user->name ?? 'Admin') }}</h6>
                                     <small class="text-muted">Technical Presenter & Systems Architect</small>
@@ -105,7 +135,7 @@
                                             $vImg = $vid->image->link ?? 'admin-dist/img/blog-1-PTDVKJDt.webp';
                                             $vSrc = Str::startsWith($vImg, ['http://', 'https://']) ? $vImg : asset($vImg);
                                         @endphp
-                                        <img src="{{ $vSrc }}" alt="{{ $vid->title }}" class="w-100 h-100 object-fit-cover opacity-75" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                                        <img src="{{ $vSrc }}" alt="{{ $vid->title }}" class="w-100 h-100 object-fit-cover opacity-75" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                                         <a href="{{ route('blog.video', $vid->slug) }}" class="position-absolute top-50 start-50 translate-middle d-flex align-items-center justify-content-center bg-danger text-white rounded-circle shadow" style="width: 50px; height: 50px; transform: translate(-50%, -50%);" title="Watch Video">
                                             <i class="fas fa-play" style="font-size: 1.1rem; margin-left: 3px;"></i>
                                         </a>
