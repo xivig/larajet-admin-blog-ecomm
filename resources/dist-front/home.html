@@ -1,0 +1,1594 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Magazine Plus | Elite News Portal</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --bg-card: #ffffff;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #94a3b8;
+        --accent: #dc2626;
+        --accent-hover: #b91c1c;
+        --border-color: #e2e8f0;
+        --card-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+        --card-shadow-hover: 0 10px 30px rgba(15, 23, 42, 0.1);
+        --font-ui: "Inter", sans-serif;
+        --font-serif: "Playfair Display", serif;
+        --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      [data-theme="dark"] {
+        --bg-primary: #0f172a;
+        --bg-secondary: #020617;
+        --bg-card: #1e293b;
+        --text-primary: #f8fafc;
+        --text-secondary: #cbd5e1;
+        --text-muted: #64748b;
+        --border-color: #334155;
+        --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        --card-shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: var(--font-ui);
+        transition: var(--transition-smooth);
+        overflow-x: hidden;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      .font-serif {
+        font-family: var(--font-serif);
+        font-weight: 700;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+        transition: var(--transition-smooth);
+      }
+      a:hover {
+        color: var(--accent);
+      }
+
+      /* Utility Layouts */
+      .img-aspect {
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        width: 100%;
+        background-color: var(--bg-secondary);
+        transition: var(--transition-smooth);
+      }
+      .img-thumb-aspect {
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        width: 90px;
+        height: auto;
+        border-radius: 8px;
+        background-color: var(--bg-secondary);
+      }
+
+      /* Scroll Animation Wrapper */
+      .fade-in-section {
+        opacity: 0;
+        transform: translateY(20px);
+        transition:
+          opacity 0.6s ease-out,
+          transform 0.6s ease-out;
+        visibility: hidden;
+      }
+      .fade-in-section.is-visible {
+        opacity: 1;
+        transform: none;
+        visibility: visible;
+      }
+
+      /* News Ticker */
+      .ticker-wrap {
+        background: var(--bg-secondary);
+        border-bottom: 1px solid var(--border-color);
+        overflow: hidden;
+        height: 40px;
+        display: flex;
+        align-items: center;
+      }
+      .ticker-title {
+        background: var(--accent);
+        color: #ffffff;
+        padding: 0 20px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+        z-index: 2;
+      }
+      .ticker {
+        display: flex;
+        white-space: nowrap;
+        padding-left: 100%;
+        animation: ticker 25s linear infinite;
+      }
+      @keyframes ticker {
+        0% {
+          transform: translate3d(0, 0, 0);
+        }
+        100% {
+          transform: translate3d(-100%, 0, 0);
+        }
+      }
+      .ticker-item {
+        padding: 0 30px;
+        font-size: 14px;
+        color: var(--text-secondary);
+        font-weight: 500;
+      }
+
+      /* Header */
+      .main-header {
+        background: var(--bg-primary);
+        border-bottom: 1px solid var(--border-color);
+        transition: var(--transition-smooth);
+        z-index: 1020;
+      }
+      .sticky-header {
+        position: sticky;
+        top: 0;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+      }
+      .navbar-brand {
+        font-family: var(--font-serif);
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: var(--text-primary) !important;
+      }
+      .navbar-brand span {
+        color: var(--accent);
+      }
+      .nav-link {
+        font-family: var(--font-ui);
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--text-secondary) !important;
+        padding: 10px 16px !important;
+        border-radius: 6px;
+      }
+      .nav-link:hover,
+      .nav-link.active {
+        color: var(--accent) !important;
+        background-color: var(--bg-secondary);
+      }
+
+      /* Cards & Architecture */
+      .mag-card {
+        background: var(--bg-card);
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--card-shadow);
+        overflow: hidden;
+        transition: var(--transition-smooth);
+        height: 100%;
+        position: relative;
+      }
+      .mag-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--card-shadow-hover);
+      }
+      .mag-card:hover .img-aspect {
+        transform: scale(1.03);
+      }
+      .card-img-wrapper {
+        position: relative;
+        overflow: hidden;
+      }
+      .badge-category {
+        position: absolute;
+        top: 14px;
+        left: 14px;
+        background-color: var(--accent);
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        padding: 5px 12px;
+        border-radius: 4px;
+        letter-spacing: 0.5px;
+        z-index: 3;
+      }
+      .badge-secondary-category {
+        left: 85px;
+        background-color: var(--text-primary);
+      }
+      .card-body-custom {
+        padding: 24px;
+      }
+      .meta-text {
+        font-size: 12px;
+        color: var(--text-muted);
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .card-title-hero {
+        font-size: 28px;
+        line-height: 1.25;
+        margin-bottom: 12px;
+      }
+      .card-title-md {
+        font-size: 20px;
+        line-height: 1.3;
+        margin-bottom: 10px;
+      }
+      .card-title-sm {
+        font-size: 16px;
+        line-height: 1.4;
+        margin-bottom: 8px;
+      }
+      .excerpt-text {
+        color: var(--text-secondary);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      /* Dynamic Section Typography Rules */
+      .section-title {
+        font-family: var(--font-serif);
+        font-size: 24px;
+        font-weight: 700;
+        position: relative;
+        padding-bottom: 12px;
+        margin-bottom: 30px;
+        border-bottom: 2px solid var(--border-color);
+      }
+      .section-title::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -2px;
+        width: 60px;
+        height: 2px;
+        background-color: var(--accent);
+      }
+
+      /* Sidebar Widgets Styling */
+      .widget-box {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 30px;
+        box-shadow: var(--card-shadow);
+      }
+      .nav-tabs-custom {
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 20px;
+        gap: 5px;
+      }
+      .nav-tabs-custom .nav-link {
+        border: none !important;
+        background: none !important;
+        color: var(--text-muted) !important;
+        font-weight: 600;
+        padding: 8px 12px !important;
+        position: relative;
+      }
+      .nav-tabs-custom .nav-link.active {
+        color: var(--accent) !important;
+      }
+      .nav-tabs-custom .nav-link.active::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background-color: var(--accent);
+      }
+      .list-widget-item {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+        border-bottom: 1px dashed var(--border-color);
+      }
+      .list-widget-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+        margin-bottom: 0;
+      }
+
+      /* Categories List */
+      .category-list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-secondary);
+      }
+      .category-list-item:last-child {
+        border-bottom: none;
+      }
+      .category-count {
+        background: var(--bg-secondary);
+        color: var(--text-muted);
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-weight: 600;
+      }
+
+      /* Tag Cloud */
+      .tag-cloud {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .tag-item {
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: 500;
+        border: 1px solid var(--border-color);
+      }
+      .tag-item:hover {
+        background: var(--accent);
+        color: white !important;
+        border-color: var(--accent);
+      }
+
+      /* Footer */
+      .footer-elite {
+        background-color: #0f172a;
+        color: #94a3b8;
+        font-size: 14px;
+        border-top: 4px solid var(--accent);
+      }
+      .footer-elite h5 {
+        color: #ffffff;
+        font-size: 18px;
+        margin-bottom: 24px;
+        font-family: var(--font-serif);
+      }
+      .footer-elite a {
+        color: #94a3b8;
+      }
+      .footer-elite a:hover {
+        color: #ffffff;
+      }
+      .footer-border-bottom {
+        border-bottom: 1px solid #1e293b;
+      }
+      .footer-gallery {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+      .footer-gallery img {
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: cover;
+        border-radius: 6px;
+        transition: var(--transition-smooth);
+      }
+      .footer-gallery img:hover {
+        transform: scale(1.05);
+      }
+
+      /* System Action Buttons */
+      .theme-toggle-btn {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 18px;
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border-radius: 50%;
+        transition: var(--transition-smooth);
+      }
+      .theme-toggle-btn:hover {
+        background-color: var(--bg-secondary);
+        color: var(--accent);
+      }
+
+      /* Custom Responsive Adjustments */
+      @media (max-width: 991.98px) {
+        .card-title-hero {
+          font-size: 24px;
+        }
+        .sticky-header {
+          position: relative;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ticker-wrap">
+      <div class="ticker-title">BREAKING</div>
+      <div class="ticker" id="breakingTicker">
+        <span class="ticker-item"
+          ><i class="bi bi-dot text-danger"></i> AI power train launch by India
+          on this July.</span
+        >
+        <span class="ticker-item"
+          ><i class="bi bi-dot text-danger"></i> Global markets hitting fresh
+          record highs amidst technological surge.</span
+        >
+        <span class="ticker-item"
+          ><i class="bi bi-dot text-danger"></i> Quantum computing
+          infrastructure standards established for 2025 development.</span
+        >
+      </div>
+    </div>
+
+    <header class="main-header" id="mainHeader">
+      <div class="container">
+        <nav class="navbar navbar-expand-lg py-3 px-0">
+          <a class="navbar-brand" href="#">MAGAZINE<span>PLUS</span></a>
+
+          <div class="d-flex align-items-center d-lg-none ms-auto me-2">
+            <button
+              class="theme-toggle-btn me-2"
+              onclick="toggleTheme()"
+              aria-label="Toggle Dark Mode"
+            >
+              <i class="bi bi-moon-stars-fill" id="themeIconMobile"></i>
+            </button>
+            <a href="#" class="theme-toggle-btn" aria-label="Search"
+              ><i class="bi bi-search"></i
+            ></a>
+          </div>
+
+          <button
+            class="navbar-toggler border-0 shadow-none"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#mainNavbar"
+            aria-controls="mainNavbar"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <i class="bi bi-list fs-2 text-primary"></i>
+          </button>
+
+          <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" href="#">Home</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Business</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">International</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">National</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Politics</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Sports</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Technology</a>
+              </li>
+            </ul>
+            <div class="d-none d-lg-flex align-items-center gap-2">
+              <button
+                class="theme-toggle-btn"
+                onclick="toggleTheme()"
+                aria-label="Toggle Dark Mode"
+              >
+                <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+              </button>
+              <a href="#" class="theme-toggle-btn" aria-label="Search"
+                ><i class="bi bi-search"></i
+              ></a>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container my-5">
+      <div class="row g-4">
+        <div class="col-lg-8">
+          <section class="mb-5 fade-in-section">
+            <div class="row g-4">
+              <div class="col-md-6">
+                <article class="mag-card">
+                  <div class="card-img-wrapper">
+                    <span class="badge-category">Business</span>
+                    <img
+                      data-src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80"
+                      alt="Entrepreneurship"
+                      class="img-aspect lazy-img"
+                    />
+                  </div>
+                  <div class="card-body-custom">
+                    <div class="meta-text">
+                      <span><i class="bi bi-person"></i> Alex Mercer</span>
+                      <span><i class="bi bi-calendar3"></i> May 24, 2025</span>
+                    </div>
+                    <h2 class="card-title-hero">
+                      <a href="#">Dark side of entrepreneurship</a>
+                    </h2>
+                    <p class="excerpt-text mb-0">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Curabitur sed erat elementum, pretium ex sit amet,
+                      tristique magna. Class aptent taciti sociosqu ad litora
+                      torquent.
+                    </p>
+                  </div>
+                </article>
+              </div>
+
+              <div class="col-md-6">
+                <div class="row g-3">
+                  <div class="col-6">
+                    <article class="mag-card">
+                      <div class="card-img-wrapper">
+                        <span class="badge-category">Featured</span>
+                        <img
+                          data-src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=400&q=80"
+                          alt="Tech"
+                          class="img-aspect lazy-img"
+                        />
+                      </div>
+                      <div class="card-body-custom p-3">
+                        <h3 class="card-title-sm">
+                          <a href="#"
+                            >The expansion of global cloud ecosystems</a
+                          >
+                        </h3>
+                      </div>
+                    </article>
+                  </div>
+                  <div class="col-6">
+                    <article class="mag-card">
+                      <div class="card-img-wrapper">
+                        <span class="badge-category">Featured</span>
+                        <img
+                          data-src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=400&q=80"
+                          alt="Finance"
+                          class="img-aspect lazy-img"
+                        />
+                      </div>
+                      <div class="card-body-custom p-3">
+                        <h3 class="card-title-sm">
+                          <a href="#"
+                            >Decentralized banking models scrutinized</a
+                          >
+                        </h3>
+                      </div>
+                    </article>
+                  </div>
+                  <div class="col-6">
+                    <article class="mag-card">
+                      <div class="card-img-wrapper">
+                        <span class="badge-category">Most Read</span>
+                        <img
+                          data-src="https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=400&q=80"
+                          alt="Lifestyle"
+                          class="img-aspect lazy-img"
+                        />
+                      </div>
+                      <div class="card-body-custom p-3">
+                        <h3 class="card-title-sm">
+                          <a href="#"
+                            >Balancing fast pacing architecture designs</a
+                          >
+                        </h3>
+                      </div>
+                    </article>
+                  </div>
+                  <div class="col-6">
+                    <article class="mag-card">
+                      <div class="card-img-wrapper">
+                        <span class="badge-category">Most Read</span>
+                        <img
+                          data-src="https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&w=400&q=80"
+                          alt="Luxury"
+                          class="img-aspect lazy-img"
+                        />
+                      </div>
+                      <div class="card-body-custom p-3">
+                        <h3 class="card-title-sm">
+                          <a href="#"
+                            >Luxury trade corridors reinventing values</a
+                          >
+                        </h3>
+                      </div>
+                    </article>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="mb-5 fade-in-section">
+            <h4 class="section-title">Popular Stories</h4>
+            <div class="row g-3">
+              <div class="col-sm-6 col-md-3">
+                <article class="mag-card">
+                  <div class="card-img-wrapper">
+                    <span class="badge-category">Tech</span>
+                    <span class="badge-category badge-secondary-category"
+                      >AI</span
+                    >
+                    <img
+                      data-src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80"
+                      alt="AI art"
+                      class="img-aspect lazy-img"
+                    />
+                  </div>
+                  <div class="card-body-custom p-3">
+                    <h3 class="card-title-sm">
+                      <a href="#">Generative logic in fine art platforms</a>
+                    </h3>
+                    <div class="meta-text m-0">May 23, 2025</div>
+                  </div>
+                </article>
+              </div>
+              <div class="col-sm-6 col-md-3">
+                <article class="mag-card">
+                  <div class="card-img-wrapper">
+                    <span class="badge-category">Politics</span>
+                    <span class="badge-category badge-secondary-category"
+                      >Global</span
+                    >
+                    <img
+                      data-src="https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=400&q=80"
+                      alt="Summit"
+                      class="img-aspect lazy-img"
+                    />
+                  </div>
+                  <div class="card-body-custom p-3">
+                    <h3 class="card-title-sm">
+                      <a href="#">Sovereign climate pledges audited</a>
+                    </h3>
+                    <div class="meta-text m-0">May 22, 2025</div>
+                  </div>
+                </article>
+              </div>
+              <div class="col-sm-6 col-md-3">
+                <article class="mag-card">
+                  <div class="card-img-wrapper">
+                    <span class="badge-category">Sports</span>
+                    <span class="badge-category badge-secondary-category"
+                      >Data</span
+                    >
+                    <img
+                      data-src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=400&q=80"
+                      alt="Athlete"
+                      class="img-aspect lazy-img"
+                    />
+                  </div>
+                  <div class="card-body-custom p-3">
+                    <h3 class="card-title-sm">
+                      <a href="#">Predictive analytics tracks player safety</a>
+                    </h3>
+                    <div class="meta-text m-0">May 21, 2025</div>
+                  </div>
+                </article>
+              </div>
+              <div class="col-sm-6 col-md-3">
+                <article class="mag-card">
+                  <div class="card-img-wrapper">
+                    <span class="badge-category">Health</span>
+                    <span class="badge-category badge-secondary-category"
+                      >Bio</span
+                    >
+                    <img
+                      data-src="https://images.unsplash.com/photo-1530026405186-ed1ea0ac7a63?auto=format&fit=crop&w=400&q=80"
+                      alt="Medical"
+                      class="img-aspect lazy-img"
+                    />
+                  </div>
+                  <div class="card-body-custom p-3">
+                    <h3 class="card-title-sm">
+                      <a href="#">Biometric data privacy protocols adjusted</a>
+                    </h3>
+                    <div class="meta-text m-0">May 20, 2025</div>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section class="mb-5 fade-in-section">
+            <h4 class="section-title">Block Posts</h4>
+            <div class="row g-4">
+              <div class="col-md-6">
+                <article class="mag-card">
+                  <div class="card-img-wrapper">
+                    <img
+                      data-src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80"
+                      alt="Corporate Architecture"
+                      class="img-aspect lazy-img"
+                    />
+                  </div>
+                  <div class="card-body-custom">
+                    <div class="meta-text">
+                      <span><i class="bi bi-tag"></i> Real Estate</span>
+                      <span><i class="bi bi-clock"></i> May 19, 2025</span>
+                    </div>
+                    <h3 class="card-title-md">
+                      <a href="#">Urban infrastructure models redefined</a>
+                    </h3>
+                    <p class="excerpt-text">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Phasellus imperdiet, nulla et dictum interdum, nisi lorem
+                      egestas vitae.
+                    </p>
+                  </div>
+                </article>
+              </div>
+              <div class="col-md-6">
+                <article class="mag-card">
+                  <div class="card-img-wrapper">
+                    <img
+                      data-src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80"
+                      alt="Ecological tourism"
+                      class="img-aspect lazy-img"
+                    />
+                  </div>
+                  <div class="card-body-custom">
+                    <div class="meta-text">
+                      <span><i class="bi bi-tag"></i> Travel</span>
+                      <span><i class="bi bi-clock"></i> May 18, 2025</span>
+                    </div>
+                    <h3 class="card-title-md">
+                      <a href="#"
+                        >The paradigm shift in remote coastal ecology</a
+                      >
+                    </h3>
+                    <p class="excerpt-text">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Phasellus imperdiet, nulla et dictum interdum, nisi lorem
+                      egestas vitae.
+                    </p>
+                  </div>
+                </article>
+              </div>
+              <div class="col-md-6">
+                <article class="mag-card">
+                  <div class="card-img-wrapper">
+                    <img
+                      data-src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=600&q=80"
+                      alt="Development workflow"
+                      class="img-aspect lazy-img"
+                    />
+                  </div>
+                  <div class="card-body-custom">
+                    <div class="meta-text">
+                      <span><i class="bi bi-tag"></i> Code</span>
+                      <span><i class="bi bi-clock"></i> May 17, 2025</span>
+                    </div>
+                    <h3 class="card-title-md">
+                      <a href="#"
+                        >The architecture of micro-frontend structures</a
+                      >
+                    </h3>
+                    <p class="excerpt-text">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Phasellus imperdiet, nulla et dictum interdum, nisi lorem
+                      egestas vitae.
+                    </p>
+                  </div>
+                </article>
+              </div>
+              <div class="col-md-6">
+                <article class="mag-card">
+                  <div class="card-img-wrapper">
+                    <img
+                      data-src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80"
+                      alt="Consumer goods market"
+                      class="img-aspect lazy-img"
+                    />
+                  </div>
+                  <div class="card-body-custom">
+                    <div class="meta-text">
+                      <span><i class="bi bi-tag"></i> Retail</span>
+                      <span><i class="bi bi-clock"></i> May 16, 2025</span>
+                    </div>
+                    <h3 class="card-title-md">
+                      <a href="#"
+                        >Supply elasticity parameters shock consumer markets</a
+                      >
+                    </h3>
+                    <p class="excerpt-text">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Phasellus imperdiet, nulla et dictum interdum, nisi lorem
+                      egestas vitae.
+                    </p>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section class="mb-5 fade-in-section">
+            <div class="row g-4">
+              <div class="col-md-6">
+                <h4 class="section-title">Analysis Matrix</h4>
+                <div class="d-flex flex-column gap-3">
+                  <div class="list-widget-item">
+                    <img
+                      data-src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=150&q=80"
+                      alt="Consultancy"
+                      class="img-thumb-aspect lazy-img"
+                    />
+                    <div>
+                      <h5 class="card-title-sm mb-1">
+                        <a href="#"
+                          >Corporate consulting risks under machine
+                          optimization</a
+                        >
+                      </h5>
+                      <span class="meta-text m-0">May 15, 2025</span>
+                    </div>
+                  </div>
+                  <div class="list-widget-item">
+                    <img
+                      data-src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=150&q=80"
+                      alt="Audit"
+                      class="img-thumb-aspect lazy-img"
+                    />
+                    <div>
+                      <h5 class="card-title-sm mb-1">
+                        <a href="#"
+                          >Framework mechanics for multi-tier banking
+                          compliance</a
+                        >
+                      </h5>
+                      <span class="meta-text m-0">May 14, 2025</span>
+                    </div>
+                  </div>
+                  <div class="list-widget-item">
+                    <img
+                      data-src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=150&q=80"
+                      alt="Work space"
+                      class="img-thumb-aspect lazy-img"
+                    />
+                    <div>
+                      <h5 class="card-title-sm mb-1">
+                        <a href="#"
+                          >Spatial requirements of hybrid workplace
+                          operations</a
+                        >
+                      </h5>
+                      <span class="meta-text m-0">May 13, 2025</span>
+                    </div>
+                  </div>
+                  <div class="list-widget-item">
+                    <img
+                      data-src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=150&q=80"
+                      alt="Data streams"
+                      class="img-thumb-aspect lazy-img"
+                    />
+                    <div>
+                      <h5 class="card-title-sm mb-1">
+                        <a href="#"
+                          >Secure handshake metrics in complex networks</a
+                        >
+                      </h5>
+                      <span class="meta-text m-0">May 12, 2025</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <h4 class="section-title">Visual Briefs</h4>
+                <div class="row g-3">
+                  <div class="col-6">
+                    <div class="mag-card">
+                      <img
+                        data-src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=300&q=80"
+                        alt="Abstract gradient"
+                        class="img-aspect lazy-img"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="mag-card">
+                      <img
+                        data-src="https://images.unsplash.com/photo-1614741118887-7a4ee193a5fa?auto=format&fit=crop&w=300&q=80"
+                        alt="Code matrices"
+                        class="img-aspect lazy-img"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="mag-card">
+                      <img
+                        data-src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=300&q=80"
+                        alt="Cyber security node"
+                        class="img-aspect lazy-img"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="mag-card">
+                      <img
+                        data-src="https://images.unsplash.com/photo-1639322537228-f710d846310a?auto=format&fit=crop&w=300&q=80"
+                        alt="Blockchain node map"
+                        class="img-aspect lazy-img"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="mb-4 fade-in-section">
+            <h4 class="section-title">You Missed</h4>
+            <div class="row g-3">
+              <div class="col-sm-6 col-md-3">
+                <article class="mag-card">
+                  <img
+                    data-src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?auto=format&fit=crop&w=300&q=80"
+                    alt="Hardware chip"
+                    class="img-aspect lazy-img"
+                  />
+                  <div class="card-body-custom p-3">
+                    <h3 class="card-title-sm">
+                      <a href="#"
+                        >Architectural leaps in edge computing chips</a
+                      >
+                    </h3>
+                  </div>
+                </article>
+              </div>
+              <div class="col-sm-6 col-md-3">
+                <article class="mag-card">
+                  <img
+                    data-src="https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=300&q=80"
+                    alt="Editorial print"
+                    class="img-aspect lazy-img"
+                  />
+                  <div class="card-body-custom p-3">
+                    <h3 class="card-title-sm">
+                      <a href="#"
+                        >Print mediums adapting digital typography features</a
+                      >
+                    </h3>
+                  </div>
+                </article>
+              </div>
+              <div class="col-sm-6 col-md-3">
+                <article class="mag-card">
+                  <img
+                    data-src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=300&q=80"
+                    alt="Work culture"
+                    class="img-aspect lazy-img"
+                  />
+                  <div class="card-body-custom p-3">
+                    <h3 class="card-title-sm">
+                      <a href="#"
+                        >Sustaining engagement paradigms in decentralized
+                        squads</a
+                      >
+                    </h3>
+                  </div>
+                </article>
+              </div>
+              <div class="col-sm-6 col-md-3">
+                <article class="mag-card">
+                  <img
+                    data-src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=300&q=80"
+                    alt="Data metrics charts"
+                    class="img-aspect lazy-img"
+                  />
+                  <div class="card-body-custom p-3">
+                    <h3 class="card-title-sm">
+                      <a href="#"
+                        >Algorithmic tracking of asset distributions</a
+                      >
+                    </h3>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside class="col-lg-4">
+          <div class="widget-box fade-in-section">
+            <ul
+              class="nav nav-tabs nav-tabs-custom"
+              id="sidebarTabs"
+              role="tablist"
+            >
+              <li class="nav-item" role="presentation">
+                <button
+                  class="nav-link active"
+                  id="popular-tab"
+                  data-bs-toggle="tab"
+                  data-bs-target="#popular-content"
+                  type="button"
+                  role="tab"
+                  aria-controls="popular-content"
+                  aria-selected="true"
+                >
+                  Popular
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button
+                  class="nav-link"
+                  id="recent-tab"
+                  data-bs-toggle="tab"
+                  data-bs-target="#recent-content"
+                  type="button"
+                  role="tab"
+                  aria-controls="recent-content"
+                  aria-selected="false"
+                >
+                  Recent
+                </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button
+                  class="nav-link"
+                  id="comments-tab"
+                  data-bs-toggle="tab"
+                  data-bs-target="#comments-content"
+                  type="button"
+                  role="tab"
+                  aria-controls="comments-content"
+                  aria-selected="false"
+                >
+                  Comments
+                </button>
+              </li>
+            </ul>
+            <div class="tab-content" id="sidebarTabsContent">
+              <div
+                class="tab-pane fade show active"
+                id="popular-content"
+                role="tabpanel"
+                aria-labelledby="popular-tab"
+              >
+                <div class="list-widget-item">
+                  <img
+                    data-src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=120&q=80"
+                    alt="Tech grid"
+                    class="img-thumb-aspect lazy-img"
+                  />
+                  <a href="#" class="card-title-sm font-serif d-block"
+                    >Infrastructure updates mapped across dynamic sectors</a
+                  >
+                </div>
+                <div class="list-widget-item">
+                  <img
+                    data-src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=120&q=80"
+                    alt="Econ charts"
+                    class="img-thumb-aspect lazy-img"
+                  />
+                  <a href="#" class="card-title-sm font-serif d-block"
+                    >Macroeconomic implications of alternative currency bills</a
+                  >
+                </div>
+                <div class="list-widget-item">
+                  <img
+                    data-src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=120&q=80"
+                    alt="Team system"
+                    class="img-thumb-aspect lazy-img"
+                  />
+                  <a href="#" class="card-title-sm font-serif d-block"
+                    >Optimizing cross-functional communication architectures</a
+                  >
+                </div>
+              </div>
+              <div
+                class="tab-pane fade"
+                id="recent-content"
+                role="tabpanel"
+                aria-labelledby="recent-tab"
+              >
+                <div class="list-widget-item">
+                  <img
+                    data-src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=120&q=80"
+                    alt="Data"
+                    class="img-thumb-aspect lazy-img"
+                  />
+                  <a href="#" class="card-title-sm font-serif d-block"
+                    >New telemetry vectors discovered in deep systems</a
+                  >
+                </div>
+                <div class="list-widget-item">
+                  <img
+                    data-src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=120&q=80"
+                    alt="Vault"
+                    class="img-thumb-aspect lazy-img"
+                  />
+                  <a href="#" class="card-title-sm font-serif d-block"
+                    >Security profiles update inside regional ledgers</a
+                  >
+                </div>
+                <div class="list-widget-item">
+                  <img
+                    data-src="https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=120&q=80"
+                    alt="Stage"
+                    class="img-thumb-aspect lazy-img"
+                  />
+                  <a href="#" class="card-title-sm font-serif d-block"
+                    >Media performance standards shifting under user signals</a
+                  >
+                </div>
+              </div>
+              <div
+                class="tab-pane fade"
+                id="comments-content"
+                role="tabpanel"
+                aria-labelledby="comments-tab"
+              >
+                <div class="pb-2 mb-2 border-bottom border-light-subtle">
+                  <span class="fw-bold d-block text-secondary small"
+                    >User_9921:</span
+                  >
+                  <a href="#" class="small text-muted italic"
+                    >"This model accurately maps visual telemetry assets..."</a
+                  >
+                </div>
+                <div class="pb-2 mb-2 border-bottom border-light-subtle">
+                  <span class="fw-bold d-block text-secondary small"
+                    >Dev_Core:</span
+                  >
+                  <a href="#" class="small text-muted italic"
+                    >"Micro-frontends present structural state challenges..."</a
+                  >
+                </div>
+                <div>
+                  <span class="fw-bold d-block text-secondary small"
+                    >Alpha_Lead:</span
+                  >
+                  <a href="#" class="small text-muted italic"
+                    >"Climate targets need real independent metric
+                    verification..."</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="widget-box fade-in-section">
+            <h5 class="section-title mb-3" style="font-size: 18px">
+              Categories
+            </h5>
+            <div class="d-flex flex-column">
+              <a href="#" class="category-list-item"
+                >Business <span class="category-count">12</span></a
+              >
+              <a href="#" class="category-list-item"
+                >Technology <span class="category-count">24</span></a
+              >
+              <a href="#" class="category-list-item"
+                >Fashion <span class="category-count">8</span></a
+              >
+              <a href="#" class="category-list-item"
+                >Politics <span class="category-count">15</span></a
+              >
+              <a href="#" class="category-list-item"
+                >Sports <span class="category-count">11</span></a
+              >
+              <a href="#" class="category-list-item"
+                >Health <span class="category-count">6</span></a
+              >
+            </div>
+          </div>
+
+          <div class="widget-box fade-in-section">
+            <h5 class="section-title mb-3" style="font-size: 18px">
+              Tag Cloud
+            </h5>
+            <div class="tag-cloud">
+              <a href="#" class="tag-item" style="font-size: 16px">AI</a>
+              <a href="#" class="tag-item" style="font-size: 13px">Quantum</a>
+              <a href="#" class="tag-item" style="font-size: 14px">Framework</a>
+              <a href="#" class="tag-item" style="font-size: 12px">Data</a>
+              <a href="#" class="tag-item" style="font-size: 15px">Ecology</a>
+              <a href="#" class="tag-item" style="font-size: 11px">Design</a>
+              <a href="#" class="tag-item" style="font-size: 13px">Fintech</a>
+              <a href="#" class="tag-item" style="font-size: 12px">Sovereign</a>
+            </div>
+          </div>
+
+          <div class="widget-box fade-in-section">
+            <h5 class="section-title mb-3" style="font-size: 18px">
+              Editor's Selection
+            </h5>
+            <div class="d-flex flex-column gap-3">
+              <div class="list-widget-item">
+                <img
+                  data-src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=120&q=80"
+                  alt="Workstation desk"
+                  class="img-thumb-aspect lazy-img"
+                />
+                <a href="#" class="card-title-sm font-serif d-block"
+                  >Balancing interface friction inside complex analytical
+                  dashboards</a
+                >
+              </div>
+              <div class="list-widget-item">
+                <img
+                  data-src="https://images.unsplash.com/photo-1496096265110-f83ad7f96608?auto=format&fit=crop&w=120&q=80"
+                  alt="Server rack neon"
+                  class="img-thumb-aspect lazy-img"
+                />
+                <a href="#" class="card-title-sm font-serif d-block"
+                  >Distributed computational blocks across multi-region
+                  networks</a
+                >
+              </div>
+              <div class="list-widget-item">
+                <img
+                  data-src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=120&q=80"
+                  alt="Exams papers"
+                  class="img-thumb-aspect lazy-img"
+                />
+                <a href="#" class="card-title-sm font-serif d-block"
+                  >Cognitive load optimization paradigms within online testing
+                  ecosystems</a
+                >
+              </div>
+              <div class="list-widget-item">
+                <img
+                  data-src="https://images.unsplash.com/photo-1535303311164-664fc9ec6532?auto=format&fit=crop&w=120&q=80"
+                  alt="Mobile workflow interface"
+                  class="img-thumb-aspect lazy-img"
+                />
+                <a href="#" class="card-title-sm font-serif d-block"
+                  >Mobile application structural footprints minimizing runtime
+                  telemetry</a
+                >
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <footer class="footer-elite pt-5 pb-3">
+      <div class="container footer-border-bottom pb-5">
+        <div class="row g-4">
+          <div class="col-md-6 col-lg-3">
+            <h5>Trending Matrix</h5>
+            <div class="d-flex flex-column gap-3">
+              <div class="d-flex gap-3 align-items-center">
+                <img
+                  data-src="https://images.unsplash.com/photo-1504868584819-f8e8b446d2e4?auto=format&fit=crop&w=100&q=80"
+                  alt="Analytics vector map"
+                  class="img-thumb-aspect lazy-img"
+                  style="width: 60px"
+                />
+                <div>
+                  <a href="#" class="d-block text-white small font-serif mb-1"
+                    >Global analytic scaling properties</a
+                  >
+                  <span class="text-muted d-block" style="font-size: 11px"
+                    >May 11, 2025</span
+                  >
+                </div>
+              </div>
+              <div class="d-flex gap-3 align-items-center">
+                <img
+                  data-src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=100&q=80"
+                  alt="Cloud storage cluster"
+                  class="img-thumb-aspect lazy-img"
+                  style="width: 60px"
+                />
+                <div>
+                  <a href="#" class="d-block text-white small font-serif mb-1"
+                    >Decentralized storage layer models</a
+                  >
+                  <span class="text-muted d-block" style="font-size: 11px"
+                    >May 10, 2025</span
+                  >
+                </div>
+              </div>
+              <div class="d-flex gap-3 align-items-center">
+                <img
+                  data-src="https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=100&q=80"
+                  alt="Mobile dashboard chart"
+                  class="img-thumb-aspect lazy-img"
+                  style="width: 60px"
+                />
+                <div>
+                  <a href="#" class="d-block text-white small font-serif mb-1"
+                    >Mobile core optimization tools</a
+                  >
+                  <span class="text-muted d-block" style="font-size: 11px"
+                    >May 09, 2025</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-lg-3">
+            <h5>Taxonomy</h5>
+            <ul class="list-unstyled d-flex flex-column gap-2 small">
+              <li class="border-bottom border-secondary pb-2">
+                <a href="#" class="d-flex justify-content-between"
+                  >Business <span>(12)</span></a
+                >
+              </li>
+              <li class="border-bottom border-secondary pb-2">
+                <a href="#" class="d-flex justify-content-between"
+                  >Technology <span>(24)</span></a
+                >
+              </li>
+              <li class="border-bottom border-secondary pb-2">
+                <a href="#" class="d-flex justify-content-between"
+                  >Fashion <span>(8)</span></a
+                >
+              </li>
+              <li class="border-bottom border-secondary pb-2">
+                <a href="#" class="d-flex justify-content-between"
+                  >Politics <span>(15)</span></a
+                >
+              </li>
+              <li class="border-bottom border-secondary pb-2">
+                <a href="#" class="d-flex justify-content-between"
+                  >Sports <span>(11)</span></a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div class="col-md-6 col-lg-3">
+            <h5>Visual Grid</h5>
+            <div class="footer-gallery">
+              <img
+                data-src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=150&q=80"
+                alt="Analytics thumbnail 1"
+                class="lazy-img"
+              />
+              <img
+                data-src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=150&q=80"
+                alt="Networks thumbnail 2"
+                class="lazy-img"
+              />
+              <img
+                data-src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=150&q=80"
+                alt="Telemetry thumbnail 3"
+                class="lazy-img"
+              />
+              <img
+                data-src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=150&q=80"
+                alt="Security thumbnail 4"
+                class="lazy-img"
+              />
+              <img
+                data-src="https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=150&q=80"
+                alt="Media thumbnail 5"
+                class="lazy-img"
+              />
+              <img
+                data-src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=150&q=80"
+                alt="Finance thumbnail 6"
+                class="lazy-img"
+              />
+            </div>
+          </div>
+
+          <div class="col-md-6 col-lg-3">
+            <h5>Metadata Cloud</h5>
+            <div class="tag-cloud">
+              <a
+                href="#"
+                class="tag-item bg-secondary text-white border-0"
+                style="font-size: 12px"
+                >Systems</a
+              >
+              <a
+                href="#"
+                class="tag-item bg-secondary text-white border-0"
+                style="font-size: 14px"
+                >Logistics</a
+              >
+              <a
+                href="#"
+                class="tag-item bg-secondary text-white border-0"
+                style="font-size: 11px"
+                >Crypto</a
+              >
+              <a
+                href="#"
+                class="tag-item bg-secondary text-white border-0"
+                style="font-size: 15px"
+                >Telemetry</a
+              >
+              <a
+                href="#"
+                class="tag-item bg-secondary text-white border-0"
+                style="font-size: 13px"
+                >Security</a
+              >
+              <a
+                href="#"
+                class="tag-item bg-secondary text-white border-0"
+                style="font-size: 12px"
+                >Micro</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container pt-3">
+        <div
+          class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3"
+        >
+          <p class="m-0 small">
+            &copy; 2026 Magazine Plus. All rights reserved. Refined for
+            structural precision.
+          </p>
+          <div class="d-flex gap-3 fs-5">
+            <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+            <a href="#" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
+            <a href="#" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+            <a href="#" aria-label="Instagram"
+              ><i class="bi bi-instagram"></i
+            ></a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // 1. Dark Mode System Implementation
+      function toggleTheme() {
+        const htmlTag = document.documentElement;
+        const currentTheme = htmlTag.getAttribute("data-theme");
+        const targetTheme = currentTheme === "light" ? "dark" : "light";
+
+        htmlTag.setAttribute("data-theme", targetTheme);
+        localStorage.setItem("mag-theme", targetTheme);
+        updateThemeIcons(targetTheme);
+      }
+
+      function updateThemeIcons(theme) {
+        const iconDesktop = document.getElementById("themeIcon");
+        const iconMobile = document.getElementById("themeIconMobile");
+
+        if (theme === "dark") {
+          if (iconDesktop) iconDesktop.className = "bi bi-sun-fill";
+          if (iconMobile) iconMobile.className = "bi bi-sun-fill";
+        } else {
+          if (iconDesktop) iconDesktop.className = "bi bi-moon-stars-fill";
+          if (iconMobile) iconMobile.className = "bi bi-moon-stars-fill";
+        }
+      }
+
+      // Initialize theme state safely on boot
+      (function initTheme() {
+        const savedTheme = localStorage.getItem("mag-theme") || "light";
+        document.documentElement.setAttribute("data-theme", savedTheme);
+        // Wait for DOM layout load to verify elements
+        document.addEventListener("DOMContentLoaded", () => {
+          updateThemeIcons(savedTheme);
+        });
+      })();
+
+      // 2. UX Upgrade: Dynamic Sticky Header Manipulation
+      window.addEventListener("scroll", function () {
+        const header = document.getElementById("mainHeader");
+        if (window.scrollY > 40) {
+          // Height of the breaking ticker layer
+          header.classList.add("sticky-header");
+        } else {
+          header.classList.remove("sticky-header");
+        }
+      });
+
+      // 3. Performance: Intersection Observer for Lazy Loading Images
+      document.addEventListener("DOMContentLoaded", function () {
+        const lazyImages = [].slice.call(
+          document.querySelectorAll(".lazy-img"),
+        );
+
+        if ("IntersectionObserver" in window) {
+          let lazyImageObserver = new IntersectionObserver(function (
+            entries,
+            observer,
+          ) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                let lazyImage = entry.target;
+                lazyImage.src = lazyImage.dataset.src;
+                lazyImage.classList.remove("lazy-img");
+                lazyImageObserver.unobserve(lazyImage);
+              }
+            });
+          });
+
+          lazyImages.forEach(function (lazyImage) {
+            lazyImageObserver.observe(lazyImage);
+          });
+        } else {
+          // Fallback for primitive layout engines
+          lazyImages.forEach(function (lazyImage) {
+            lazyImage.src = lazyImage.dataset.src;
+          });
+        }
+      });
+
+      // 4. Performance & UX: Smooth Fade-In Animation on Scroll
+      document.addEventListener("DOMContentLoaded", function () {
+        const fadeSections = [].slice.call(
+          document.querySelectorAll(".fade-in-section"),
+        );
+
+        if ("IntersectionObserver" in window) {
+          let fadeObserver = new IntersectionObserver(
+            function (entries, observer) {
+              entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                  entry.target.classList.add("is-visible");
+                  fadeObserver.unobserve(entry.target);
+                }
+              });
+            },
+            { threshold: 0.05 },
+          );
+
+          fadeSections.forEach(function (section) {
+            fadeObserver.observe(section);
+          });
+        } else {
+          fadeSections.forEach(function (section) {
+            section.classList.add("is-visible");
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

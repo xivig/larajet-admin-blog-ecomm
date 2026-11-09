@@ -58,15 +58,16 @@ class BlogController extends Controller
               ->latest('id');
 
         $isBlogList = $request->routeIs('blog.list') || $request->is('blog-list*');
-        $columns = $isBlogList ? 3 : 4;
-        $perPage = $isBlogList ? 9 : 12;
+        $columns = $request->has('cols') ? (int) $request->cols : 4;
+        $perPage = $columns === 3 ? 9 : 12;
 
         $posts = $query->paginate($perPage)->withQueryString();
         $images = Picture::all();
         $categories = Category::withCount('posts')->get();
         $tags = Tag::withCount('posts')->orderByDesc('posts_count')->take(25)->get();
+        $totalPostsCount = Post::published()->count();
 
-        return view('blog.blog-list', compact('posts', 'images', 'categories', 'tags', 'columns', 'isBlogList'));
+        return view('blog.blog-list', compact('posts', 'images', 'categories', 'tags', 'columns', 'isBlogList', 'totalPostsCount'));
     }
 
     /**

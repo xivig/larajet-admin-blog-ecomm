@@ -1,27 +1,33 @@
 @use('Illuminate\Support\Str')
 @extends('layouts.blog')
-@section('title', ($columns ?? 3) == 4 ? 'Xivig - All Articles & Publications' : 'Xivig - Editorial & Engineering Blog')
+@section('title', 'Xivig - Editorial & Engineering Blog')
 @section('content')
 
 <!-- Blog Hero Banner -->
-<section class="page-title" style="padding: 100px 0 60px 0;">
-    <div class="container">
+<section class="page-title" style="padding: 90px 0 50px 0;">
+    <div class="container-fluid px-xl-5 px-lg-4 px-3">
         <div class="row align-items-center">
-            <div class="col-lg-8">
+            <div class="col-lg-7">
                 <span class="badge-elite badge-elite-dark mb-3">
-                    <span class="badge-dot pulse"></span> {{ ($columns ?? 3) == 4 ? 'Complete Technical Archive' : 'Engineering & Architecture Magazine' }}
+                    <span class="badge-dot pulse"></span> Engineering & Architecture Magazine
                 </span>
                 <h1 class="font-weight-bold mb-3 display-4" style="letter-spacing: -0.03em;">
-                    {{ ($columns ?? 3) == 4 ? 'All Articles & Blueprints' : 'Insights & Knowledge' }}
+                    Articles & Engineering Insights
                 </h1>
-                <p class="text-muted lead mb-0">
-                    {{ ($columns ?? 3) == 4 ? 'Browse our complete multi-column catalog of engineering blueprints, tutorials, and system releases.' : 'Explore deep-dive technical articles, architectural blueprints, and full-stack best practices.' }}
+                <p class="text-muted lead mb-0" style="max-width: 680px;">
+                    Explore verified deep-dive technical articles, architectural blueprints, and full-stack best practices.
                 </p>
             </div>
-            <div class="col-lg-4 mt-4 mt-lg-0 text-lg-right">
-                <form action="{{ request()->url() }}" method="GET" class="position-relative w-100" style="max-width: 360px; margin-left: auto;">
-                    <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-elite pr-5" style="border-radius: 999px; padding-right: 52px; height: 46px;" placeholder="Search insights...">
-                    <button type="submit" class="btn-elite btn-elite-primary btn-sm position-absolute" style="top: 50%; right: 5px; transform: translateY(-50%); border-radius: 999px; height: 36px; width: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; z-index: 5;" title="Search">
+            <div class="col-lg-5 mt-4 mt-lg-0 text-lg-right">
+                <form action="{{ request()->url() }}" method="GET" class="position-relative w-100" style="max-width: 380px; margin-left: auto;">
+                    @if(request('category'))
+                        <input type="hidden" name="category" value="{{ request('category') }}">
+                    @endif
+                    @if(request('cols'))
+                        <input type="hidden" name="cols" value="{{ request('cols') }}">
+                    @endif
+                    <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-elite pr-5" style="border-radius: 999px; padding-right: 52px; height: 48px;" placeholder="Search articles, guides, tech...">
+                    <button type="submit" class="btn-elite btn-elite-primary btn-sm position-absolute" style="top: 50%; right: 6px; transform: translateY(-50%); border-radius: 999px; height: 36px; width: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; z-index: 5;" title="Search">
                         <i class="fas fa-search"></i>
                     </button>
                 </form>
@@ -31,14 +37,48 @@
 </section>
 
 <!-- Main Blog Section -->
-<section class="section py-5">
-    <div class="{{ ($columns ?? 3) == 4 ? 'container-fluid px-lg-5' : 'container' }}">
+<section class="section py-4">
+    <div class="container-fluid px-xl-5 px-lg-4 px-md-3 px-2">
+
+        <!-- Elite Category Filter & View Controls Bar -->
+        <div class="blog-filter-bar mb-4">
+            <div class="d-flex flex-wrap align-items-center justify-content-between" style="gap: 12px;">
+                <div class="category-pill-group">
+                    <a href="{{ request()->fullUrlWithQuery(['category' => null, 'page' => null]) }}" 
+                       class="cat-pill {{ !request('category') ? 'active' : '' }}">
+                        <i class="fas fa-layer-group mr-1"></i> All Articles <span class="cat-count">{{ $totalPostsCount ?? $posts->total() }}</span>
+                    </a>
+                    @foreach($categories->take(7) as $category)
+                        <a href="{{ request()->fullUrlWithQuery(['category' => $category->name, 'page' => null]) }}" 
+                           class="cat-pill {{ request('category') == $category->name || request('category') == $category->id ? 'active' : '' }}">
+                            {{ $category->name }} <span class="cat-count">{{ $category->posts_count }}</span>
+                        </a>
+                    @endforeach
+                </div>
+
+                <div class="d-flex align-items-center ml-auto" style="gap: 16px;">
+                    <span class="text-muted small d-none d-md-inline">
+                        Showing <strong>{{ $posts->firstItem() ?? 0 }}-{{ $posts->lastItem() ?? 0 }}</strong> of <strong>{{ $posts->total() }}</strong>
+                    </span>
+                    <div class="btn-group btn-group-sm layout-switcher" role="group">
+                        <a href="{{ request()->fullUrlWithQuery(['cols' => 4]) }}" class="btn {{ ($columns ?? 4) == 4 ? 'btn-primary' : 'btn-outline-secondary' }}" title="4 Columns Grid">
+                            <i class="fas fa-th"></i>
+                        </a>
+                        <a href="{{ request()->fullUrlWithQuery(['cols' => 3]) }}" class="btn {{ ($columns ?? 4) == 3 ? 'btn-primary' : 'btn-outline-secondary' }}" title="3 Columns Grid">
+                            <i class="fas fa-th-large"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         @if(count($posts) > 0)
             <div class="row">
                 @foreach($posts as $post)
-                    <div class="{{ ($columns ?? 3) == 4 ? 'col-xl-3 col-lg-4 col-md-6 mb-4' : 'col-lg-4 col-md-6 mb-4' }}">
-                        <article class="blog-item h-100 d-flex flex-column">
-                            <div class="blog-img-wrap">
+                    <div class="{{ ($columns ?? 4) == 3 ? 'col-lg-4 col-md-6 col-12 mb-4' : 'col-xl-3 col-lg-3 col-md-6 col-12 mb-4' }}">
+                        <article class="blog-item-elite h-100">
+                            <!-- Image Wrap with Badges -->
+                            <div class="blog-img-wrap-elite">
                                 <a href="{{ route('single-post', $post->slug) }}">
                                     @php
                                         $postImg = $post->image->link ?? 'admin-dist/img/blog-1-PTDVKJDt.webp';
@@ -46,45 +86,73 @@
                                     @endphp
                                     <img loading="lazy" src="{{ $imgSrc }}" alt="{{ $post->title }}" onerror="this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                                 </a>
-                                <span class="blog-category-tag">
-                                    {{ $post->category->name ?? 'General' }}
-                                </span>
-                                @if($post->is_sticky)
-                                    <span class="badge badge-danger position-absolute" style="top: 12px; left: 12px; z-index: 2; padding: 6px 10px; font-weight: 700;">
-                                        <i class="fas fa-thumbtack mr-1"></i> Pinned
+
+                                <!-- Badges Overlay: Pinned/Featured Left, Category Right -->
+                                <div class="blog-card-badges">
+                                    <div class="d-inline-flex align-items-center" style="gap: 6px;">
+                                        @if($post->is_sticky)
+                                            <span class="badge-elite-pinned">
+                                                <i class="fas fa-thumbtack mr-1"></i> Pinned
+                                            </span>
+                                        @elseif($post->is_featured)
+                                            <span class="badge-elite-featured">
+                                                <i class="fas fa-star mr-1"></i> Featured
+                                            </span>
+                                        @endif
+
+                                        @if($post->visibility === 'password_protected')
+                                            <span class="badge-elite-locked" title="Password Protected">
+                                                <i class="fas fa-lock"></i>
+                                            </span>
+                                        @elseif($post->visibility === 'private')
+                                            <span class="badge-elite-locked" title="Members Only">
+                                                <i class="fas fa-user-lock"></i>
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <span class="badge-elite-category" title="{{ $post->category->name ?? 'General' }}">
+                                        {{ $post->category->name ?? 'General' }}
                                     </span>
-                                @elseif($post->is_featured)
-                                    <span class="badge badge-warning text-dark position-absolute" style="top: 12px; left: 12px; z-index: 2; padding: 6px 10px; font-weight: 700;">
-                                        <i class="fas fa-star mr-1"></i> Featured
-                                    </span>
-                                @endif
+                                </div>
                             </div>
 
-                            <div class="blog-item-content d-flex flex-column flex-grow-1">
-                                <div class="blog-meta-pills">
+                            <!-- Card Body -->
+                            <div class="blog-body-elite">
+                                <!-- Meta Row 1: Author & Published Date -->
+                                <div class="blog-meta-row-elite">
                                     <span><i class="far fa-user"></i> {{ $post->author->nickname ?? ($post->user->name ?? 'Admin') }}</span>
-                                    <span><i class="far fa-calendar-alt"></i> {{ $post->created_at ? $post->created_at->format('M d, Y') : 'Recent' }}</span>
-                                    @if($post->tag)
-                                        <span><i class="fas fa-tag"></i> {{ $post->tag->name }}</span>
-                                    @endif
+                                    <span><i class="far fa-calendar-alt"></i> {{ $post->published_at ? $post->published_at->format('M d, Y') : ($post->created_at ? $post->created_at->format('M d, Y') : 'Recent') }}</span>
                                 </div>
 
-                                <h3 style="font-size: {{ ($columns ?? 3) == 4 ? '1.15rem' : '1.35rem' }};">
-                                    <a href="{{ route('single-post', $post->slug) }}" class="blog-title-link">
+                                <!-- Meta Row 2: Tag / Category Pill -->
+                                @if($post->tag || $post->category)
+                                    <div class="blog-tag-row-elite">
+                                        <span class="blog-tag-pill" title="{{ $post->tag->name ?? $post->category->name }}">
+                                            <i class="fas fa-tag"></i> {{ $post->tag->name ?? $post->category->name }}
+                                        </span>
+                                    </div>
+                                @endif
+
+                                <!-- Title (Clamped to 2 lines with uniform height) -->
+                                <h3 class="blog-title-wrap-elite">
+                                    <a href="{{ route('single-post', $post->slug) }}" class="blog-title-elite" title="{{ $post->title }}">
                                         {{ $post->title }}
                                     </a>
                                 </h3>
 
-                                <p class="blog-excerpt">
-                                    {{ $post->excerpt ?: Str::limit(strip_tags($post->content), ($columns ?? 3) == 4 ? 85 : 120) }}
+                                <!-- Excerpt (Clamped to 2 lines with uniform height) -->
+                                <p class="blog-excerpt-elite">
+                                    {{ $post->excerpt ?: Str::limit(strip_tags($post->content), 85) }}
                                 </p>
 
-                                <div class="mt-auto pt-3 d-flex align-items-center justify-content-between" style="border-top: 1px solid #f1f5f9;">
-                                    <a href="{{ route('single-post', $post->slug) }}" class="btn-elite btn-elite-primary btn-sm">
-                                        Read <i class="fas fa-arrow-right ml-1" style="font-size: 11px;"></i>
+                                <!-- Footer: Gradient Read Button + Reading Time -->
+                                <div class="blog-footer-elite">
+                                    <a href="{{ route('single-post', $post->slug) }}" class="btn-read-elite">
+                                        Read <i class="fas fa-arrow-right"></i>
                                     </a>
-                                    <span class="text-muted small">
-                                        <i class="far fa-clock mr-1"></i> {{ $post->reading_time }} min read
+                                    <span class="blog-reading-time">
+                                        <i class="far fa-clock"></i> {{ $post->reading_time }} min read
                                     </span>
                                 </div>
                             </div>
@@ -94,7 +162,7 @@
             </div>
 
             <!-- Modern Pagination -->
-            <div class="row justify-content-center mt-5">
+            <div class="row justify-content-center mt-4">
                 <div class="col-lg-8 text-center">
                     <div class="d-flex justify-content-center">
                         {{ $posts->links() }}
@@ -114,4 +182,3 @@
     </div>
 </section>
 @endsection
-
