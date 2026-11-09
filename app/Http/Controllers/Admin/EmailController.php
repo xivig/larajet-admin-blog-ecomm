@@ -58,30 +58,68 @@ class EmailController extends Controller
     }
 
     /**
-     * Store and send a newly composed email.
+     * Store and send a newly composed email with optional attachments.
      */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'recipient_email' => 'required|email|max:255',
+            'cc_email' => 'nullable|email|max:255',
+            'bcc_email' => 'nullable|email|max:255',
             'subject' => 'required|string|max:255',
             'body' => 'required|string',
-            'is_draft' => 'nullable|boolean',
+            'attachments.*' => 'nullable|file|max:20480',
+            'is_draft' => 'nullable',
         ]);
 
-        $folder = $request->input('is_draft') ? 'draft' : 'sent';
+        $folder = $request->filled('is_draft') && $request->is_draft ? 'draft' : 'sent';
+
+        $storedAttachments = [];
+        if ($request->hasFile('attachments')) {
+            $uploadDir = public_path('uploads/email-attachments');
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            foreach ($request->file('attachments') as $file) {
+                if ($file->isValid()) {
+                    $originalName = $file->getClientOriginalName();
+                    $extension = strtolower($file->getClientOriginalExtension());
+                    $rawSize = $file->getSize();
+
+                    // Format human-readable size
+                    $units = ['B', 'KB', 'MB', 'GB'];
+                    $pow = floor(($rawSize ? log($rawSize) : 0) / log(1024));
+                    $pow = min($pow, count($units) - 1);
+                    $formattedSize = round($rawSize / pow(1024, $pow), 1) . ' ' . $units[$pow];
+
+                    $safeFileName = time() . '_' . uniqid() . '.' . $extension;
+                    $file->move($uploadDir, $safeFileName);
+
+                    $storedAttachments[] = [
+                        'name' => $originalName,
+                        'path' => 'uploads/email-attachments/' . $safeFileName,
+                        'size' => $formattedSize,
+                        'extension' => $extension,
+                    ];
+                }
+            }
+        }
 
         AdminEmail::create([
             'sender_name' => auth()->user()->name ?? 'Executive Administrator',
             'sender_email' => auth()->user()->email ?? 'admin@xivig.com',
             'recipient_email' => $request->recipient_email,
+            'cc_email' => $request->cc_email,
+            'bcc_email' => $request->bcc_email,
             'subject' => $request->subject,
             'body' => $request->body,
+            'attachments' => !empty($storedAttachments) ? $storedAttachments : null,
             'folder' => $folder,
             'is_read' => true,
         ]);
 
-        $msg = $folder === 'draft' ? 'Email saved to drafts.' : 'Email dispatched successfully!';
+        $msg = $folder === 'draft' ? 'Email draft saved successfully.' : 'Email dispatched successfully!';
         return redirect()->route('admin.email.index', ['folder' => $folder])->with('success', $msg);
     }
 
@@ -143,6 +181,34 @@ class EmailController extends Controller
     }
 
     /**
+     * Restore an email from trash back to inbox.
+     */
+    public function restore(AdminEmail $email): RedirectResponse
+    {
+        $email->update(['folder' => 'inbox']);
+        return back()->with('success', 'Email restored to inbox.');
+    }
+
+    /**
+     * Empty all emails from trash folder.
+     */
+    public function emptyTrash(): RedirectResponse
+    {
+        $trashedEmails = AdminEmail::where('folder', 'trash')->get();
+        foreach ($trashedEmails as $email) {
+            if (!empty($email->attachments) && is_array($email->attachments)) {
+                foreach ($email->attachments as $att) {
+                    if (isset($att['path']) && file_exists(public_path($att['path']))) {
+                        @unlink(public_path($att['path']));
+                    }
+                }
+            }
+            $email->delete();
+        }
+        return back()->with('success', 'Trash emptied successfully.');
+    }
+
+    /**
      * Mark all emails as read.
      */
     public function markAllRead(): RedirectResponse
@@ -164,12 +230,25 @@ class EmailController extends Controller
         }
 
         switch ($action) {
-            case 'delete':
-                AdminEmail::whereIn('id', $ids)->delete();
-                return back()->with('success', count($ids) . ' conversation(s) permanently deleted.');
             case 'trash':
                 AdminEmail::whereIn('id', $ids)->update(['folder' => 'trash']);
                 return back()->with('success', count($ids) . ' conversation(s) moved to trash.');
+            case 'restore':
+                AdminEmail::whereIn('id', $ids)->update(['folder' => 'inbox']);
+                return back()->with('success', count($ids) . ' conversation(s) restored to inbox.');
+            case 'delete':
+                $emails = AdminEmail::whereIn('id', $ids)->get();
+                foreach ($emails as $email) {
+                    if (!empty($email->attachments) && is_array($email->attachments)) {
+                        foreach ($email->attachments as $att) {
+                            if (isset($att['path']) && file_exists(public_path($att['path']))) {
+                                @unlink(public_path($att['path']));
+                            }
+                        }
+                    }
+                    $email->delete();
+                }
+                return back()->with('success', count($ids) . ' conversation(s) permanently deleted.');
             case 'archive':
                 AdminEmail::whereIn('id', $ids)->update(['folder' => 'sent']);
                 return back()->with('success', count($ids) . ' conversation(s) archived.');
@@ -188,11 +267,23 @@ class EmailController extends Controller
     }
 
     /**
-     * Permanently delete an email.
+     * Delete an email: moves to trash if not in trash yet, permanently purges if already in trash.
      */
     public function destroy(AdminEmail $email): RedirectResponse
     {
-        $email->delete();
-        return back()->with('success', 'Email permanently purged.');
+        if ($email->folder === 'trash') {
+            if (!empty($email->attachments) && is_array($email->attachments)) {
+                foreach ($email->attachments as $att) {
+                    if (isset($att['path']) && file_exists(public_path($att['path']))) {
+                        @unlink(public_path($att['path']));
+                    }
+                }
+            }
+            $email->delete();
+            return back()->with('success', 'Conversation permanently deleted.');
+        }
+
+        $email->update(['folder' => 'trash']);
+        return back()->with('success', 'Conversation moved to trash.');
     }
 }

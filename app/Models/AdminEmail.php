@@ -13,8 +13,11 @@ class AdminEmail extends Model
         'sender_name',
         'sender_email',
         'recipient_email',
+        'cc_email',
+        'bcc_email',
         'subject',
         'body',
+        'attachments',
         'folder',
         'is_starred',
         'is_read',
@@ -23,5 +26,6 @@ class AdminEmail extends Model
     protected $casts = [
         'is_starred' => 'boolean',
         'is_read' => 'boolean',
+        'attachments' => 'array',
     ];
 }

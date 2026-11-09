@@ -150,7 +150,9 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('email', [AdminEmailController::class, 'store'])->name('admin.email.store');
     Route::post('email/bulk', [AdminEmailController::class, 'bulkAction'])->name('admin.email.bulk');
     Route::match(['get', 'post'], 'email/mark-all-read', [AdminEmailController::class, 'markAllRead'])->name('admin.email.mark-all-read');
+    Route::post('email/empty-trash', [AdminEmailController::class, 'emptyTrash'])->name('admin.email.empty-trash');
     Route::get('email/{email}', [AdminEmailController::class, 'show'])->name('admin.email.show');
+    Route::post('email/{email}/restore', [AdminEmailController::class, 'restore'])->name('admin.email.restore');
     Route::post('email/{email}/mark-read', [AdminEmailController::class, 'markRead'])->name('admin.email.mark-read');
     Route::post('email/{email}/star', [AdminEmailController::class, 'toggleStar'])->name('admin.email.star');
     Route::post('email/{email}/move', [AdminEmailController::class, 'moveFolder'])->name('admin.email.move');
