@@ -187,6 +187,11 @@ class MediaController extends Controller
                 'folder' => $folder,
             ]);
 
+            // Dispatch async media optimization job to database queue
+            try {
+                \App\Jobs\OptimizeMediaImageJob::dispatch($relativeLink);
+            } catch (\Throwable $e) {}
+
             $createdAssets[] = $picture;
         }
 

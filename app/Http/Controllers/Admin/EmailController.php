@@ -107,7 +107,7 @@ class EmailController extends Controller
             }
         }
 
-        AdminEmail::create([
+        $email = AdminEmail::create([
             'sender_name' => auth()->user()->name ?? 'Executive Administrator',
             'sender_email' => auth()->user()->email ?? 'admin@xivig.com',
             'recipient_email' => $request->recipient_email,
@@ -119,6 +119,13 @@ class EmailController extends Controller
             'folder' => $folder,
             'is_read' => true,
         ]);
+
+        // Dispatch background delivery through Database Queue
+        if ($folder === 'sent') {
+            try {
+                \App\Jobs\ProcessQueuedEmail::dispatch($email->id);
+            } catch (\Throwable $e) {}
+        }
 
         $msg = $folder === 'draft' ? 'Email draft saved successfully.' : 'Email dispatched successfully!';
         return redirect()->route('admin.email.index', ['folder' => $folder])->with('success', $msg);

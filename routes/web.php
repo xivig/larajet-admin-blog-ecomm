@@ -208,6 +208,12 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('settings/integrations', [AdminSettingController::class, 'updateIntegrations'])->name('admin.settings.integrations');
     Route::post('settings/editorial', [AdminSettingController::class, 'updateEditorial'])->name('admin.settings.editorial');
     Route::post('settings/timezone', [AdminSettingController::class, 'updateTimezone'])->name('admin.settings.timezone');
+    Route::post('settings/cache/purge', [AdminSettingController::class, 'purgeCache'])->name('admin.settings.cache.purge');
+    Route::post('settings/cache/warm', [AdminSettingController::class, 'warmCache'])->name('admin.settings.cache.warm');
+    Route::post('settings/scheduler/run', [AdminSettingController::class, 'runScheduler'])->name('admin.settings.scheduler.run');
+    Route::post('settings/queue/work', [AdminSettingController::class, 'runQueueWorker'])->name('admin.settings.queue.work');
+    Route::post('settings/queue/retry', [AdminSettingController::class, 'retryFailedJobs'])->name('admin.settings.queue.retry');
+    Route::post('settings/queue/flush', [AdminSettingController::class, 'flushFailedJobs'])->name('admin.settings.queue.flush');
 
     // SEO & Search Engine Intelligence Suite
     Route::get('settings/seo', [AdminSeoSettingController::class, 'index'])->name('admin.settings.seo');

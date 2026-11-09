@@ -25,6 +25,7 @@ class Post extends Model
         'content',
         'excerpt',
         'status',
+        'published_at',
     ];
 
     public function getRouteKeyName(): string
@@ -64,6 +65,7 @@ class Post extends Model
     {
         return [
             'status' => 'boolean',
+            'published_at' => 'datetime',
         ];
     }
 

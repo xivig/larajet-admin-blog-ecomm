@@ -247,7 +247,7 @@
       </div>
     </div>
 
-    <!-- Right Column: Sidebar Widgets (Matching Screenshot) -->
+    <!-- Right Column: Production CMS Engine Telemetry & Architecture -->
     <div class="col-lg-4">
       <!-- 1. Syndication & Feeds Widget -->
       <div class="card border-0 shadow-sm rounded-4 mb-4">
@@ -285,30 +285,191 @@
         </div>
       </div>
 
-      <!-- 2. Engine Information Widget -->
-      <div class="card border-0 shadow-sm rounded-4">
-        <div class="card-header bg-transparent border-0 pt-4 px-4 pb-2">
-          <h6 class="fw-bold text-uppercase text-muted mb-0" style="font-size: 11px; letter-spacing: 0.8px;">Engine Information</h6>
+      <!-- 2. Engine & Local Storage Widget -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4 pb-2 d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold text-uppercase text-muted mb-0" style="font-size: 11px; letter-spacing: 0.8px;">Engine &amp; Storage Architecture</h6>
+          <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-0.5" style="font-size: 10px;">PHP 8.3/8.4</span>
         </div>
         <div class="card-body p-4 pt-2">
           <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
-            <span class="text-muted small">Storage Driver</span>
+            <span class="text-muted small">PHP Runtime</span>
+            <span class="fw-semibold text-body small font-monospace">{{ $phpVersion }}</span>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+            <span class="text-muted small">Database Connection</span>
+            <span class="fw-semibold text-body small">{{ $dbDriverName }}</span>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+            <span class="text-muted small">Local Storage Disk</span>
             <span class="fw-semibold text-body small">{{ $storageDriver }}</span>
           </div>
 
           <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
-            <span class="text-muted small">Database</span>
-            <span class="fw-semibold text-body small">{{ $dbDriverName }}</span>
+            <span class="text-muted small">Storage Symlink</span>
+            <span class="badge {{ $storageLinkConnected ? 'bg-success-subtle text-success border-success-subtle' : 'bg-primary-subtle text-primary border-primary-subtle' }} border rounded-pill px-2 py-0.5" style="font-size: 11px;">
+              {{ $storageLinkConnected ? 'Connected' : 'Standalone (/uploads)' }}
+            </span>
           </div>
 
           <div class="d-flex align-items-center justify-content-between pt-2">
-            <span class="text-muted small">Rate Limiting</span>
-            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 fw-medium" style="font-size: 11px;">
-              Armed
+            <span class="text-muted small">Uploads Directory</span>
+            <span class="badge {{ $uploadsWritable ? 'bg-success-subtle text-success border-success-subtle' : 'bg-danger-subtle text-danger border-danger-subtle' }} border rounded-pill px-2 py-0.5" style="font-size: 11px;">
+              {{ $uploadsWritable ? 'Writable (0755)' : 'Read-Only' }}
             </span>
           </div>
         </div>
       </div>
+
+      <!-- 3. Database Cache Widget -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4 pb-2 d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-1.5">
+            <i class="bi bi-hdd-stack text-primary"></i>
+            <h6 class="fw-bold text-uppercase text-muted mb-0" style="font-size: 11px; letter-spacing: 0.8px;">Database Cache</h6>
+          </div>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-0.5" style="font-size: 10px;">
+            Driver: {{ ucfirst($cacheDriver) }}
+          </span>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <p class="text-muted small mb-3" style="font-size: 12px;">
+            Accelerates site settings, navigation trees, and syndication feeds via the dedicated <code>cache</code> database table.
+          </p>
+
+          <div class="d-flex align-items-center justify-content-between py-2 border-bottom mb-3">
+            <span class="text-muted small">Cached Records in DB</span>
+            <span class="fw-bold text-primary small font-monospace">{{ $cacheCount }} item(s)</span>
+          </div>
+
+          <div class="d-flex gap-2">
+            <form action="{{ route('admin.settings.cache.warm') }}" method="POST" class="flex-grow-1">
+              @csrf
+              <button type="submit" class="btn btn-sm btn-outline-primary w-100 rounded-pill py-1.5" style="font-size: 12px;">
+                <i class="bi bi-fire me-1"></i> Pre-Warm Cache
+              </button>
+            </form>
+            <form action="{{ route('admin.settings.cache.purge') }}" method="POST" class="flex-grow-1">
+              @csrf
+              <button type="submit" class="btn btn-sm btn-outline-danger w-100 rounded-pill py-1.5" style="font-size: 12px;" onclick="return confirm('Flush all database cache entries?')">
+                <i class="bi bi-trash3 me-1"></i> Flush Cache
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Database Queue & Background Workers Widget -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4 pb-2 d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-1.5">
+            <i class="bi bi-cpu text-primary"></i>
+            <h6 class="fw-bold text-uppercase text-muted mb-0" style="font-size: 11px; letter-spacing: 0.8px;">Database Queue</h6>
+          </div>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-0.5" style="font-size: 10px;">
+            Driver: {{ ucfirst($queueDriver) }}
+          </span>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <p class="text-muted small mb-3" style="font-size: 12px;">
+            Asynchronously executes emails, image optimization, and background CMS processing in the <code>jobs</code> table.
+          </p>
+
+          <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+            <span class="text-muted small">Pending Jobs</span>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2.5 py-0.5 font-monospace">
+              {{ $pendingJobsCount }}
+            </span>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between py-2 border-bottom mb-3">
+            <span class="text-muted small">Failed Jobs</span>
+            <span class="badge {{ $failedJobsCount > 0 ? 'bg-danger text-white' : 'bg-light text-muted border' }} rounded-pill px-2.5 py-0.5 font-monospace">
+              {{ $failedJobsCount }}
+            </span>
+          </div>
+
+          <div class="d-flex flex-column gap-2">
+            <form action="{{ route('admin.settings.queue.work') }}" method="POST">
+              @csrf
+              <button type="submit" class="btn btn-sm btn-outline-primary w-100 rounded-pill py-1.5" style="font-size: 12px;">
+                <i class="bi bi-play-circle me-1"></i> Process Queue Batch Now
+              </button>
+            </form>
+
+            @if ($failedJobsCount > 0)
+              <div class="d-flex gap-2">
+                <form action="{{ route('admin.settings.queue.retry') }}" method="POST" class="flex-grow-1">
+                  @csrf
+                  <button type="submit" class="btn btn-sm btn-outline-warning w-100 rounded-pill py-1" style="font-size: 11px;">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Retry Failed
+                  </button>
+                </form>
+                <form action="{{ route('admin.settings.queue.flush') }}" method="POST" class="flex-grow-1">
+                  @csrf
+                  <button type="submit" class="btn btn-sm btn-outline-secondary w-100 rounded-pill py-1" style="font-size: 11px;" onclick="return confirm('Clear all failed jobs?')">
+                    <i class="bi bi-x-circle me-1"></i> Clear Failed
+                  </button>
+                </form>
+              </div>
+            @endif
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Automated Scheduler & Cron Jobs Widget -->
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4 pb-2 d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-1.5">
+            <i class="bi bi-calendar-check text-primary"></i>
+            <h6 class="fw-bold text-uppercase text-muted mb-0" style="font-size: 11px; letter-spacing: 0.8px;">Scheduler &amp; Cron Jobs</h6>
+          </div>
+          <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2 py-0.5" style="font-size: 10px;">
+            Armed
+          </span>
+        </div>
+        <div class="card-body p-4 pt-2">
+          <p class="text-muted small mb-2" style="font-size: 12px;">
+            Executes scheduled post releases, queue maintenance, cache pre-warming, and session pruning automatically.
+          </p>
+
+          <!-- Registered Tasks List -->
+          <div class="mb-3 border rounded-3 p-2 bg-light-subtle" style="max-height: 180px; overflow-y: auto;">
+            <div class="fw-semibold text-muted text-uppercase mb-1.5" style="font-size: 10px; letter-spacing: 0.5px;">Registered Tasks ({{ count($schedulerEvents) }})</div>
+            @forelse ($schedulerEvents as $ev)
+              <div class="py-1.5 border-bottom small d-flex align-items-center justify-content-between gap-2" style="font-size: 11px;">
+                <span class="text-truncate text-body" title="{{ $ev['command'] }}">
+                  <i class="bi bi-terminal me-1 text-primary"></i>{{ $ev['command'] }}
+                </span>
+                <span class="badge bg-secondary-subtle text-secondary font-monospace" style="font-size: 10px;">{{ $ev['expression'] }}</span>
+              </div>
+            @empty
+              <div class="text-muted small py-2 text-center" style="font-size: 11px;">No scheduled tasks registered.</div>
+            @endforelse
+          </div>
+
+          <!-- Crontab Command Helper -->
+          <div class="mb-3">
+            <label class="form-label text-muted fw-semibold mb-1" style="font-size: 11px;">Production Linux Crontab Entry:</label>
+            <div class="input-group input-group-sm">
+              <input type="text" class="form-control font-monospace bg-light" id="crontabSnippet" style="font-size: 10px;" value="* * * * * cd {{ base_path() }} && php artisan schedule:run >> /dev/null 2>&1" readonly>
+              <button class="btn btn-outline-secondary" type="button" onclick="navigator.clipboard.writeText(document.getElementById('crontabSnippet').value); alert('Crontab entry copied to clipboard!');" title="Copy Crontab">
+                <i class="bi bi-copy"></i>
+              </button>
+            </div>
+          </div>
+
+          <form action="{{ route('admin.settings.scheduler.run') }}" method="POST">
+            @csrf
+            <button type="submit" class="btn btn-sm btn-primary w-100 rounded-pill py-1.5 fw-semibold" style="font-size: 12px; background-color: #5551ff; border-color: #5551ff;">
+              <i class="bi bi-arrow-repeat me-1"></i> Run Scheduler Now (Manual Test)
+            </button>
+          </form>
+        </div>
+      </div>
+
     </div>
   </div>
 

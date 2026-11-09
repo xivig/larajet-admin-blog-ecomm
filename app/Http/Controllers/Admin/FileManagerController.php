@@ -168,6 +168,10 @@ class FileManagerController extends Controller
 
         $file->move($destDir, $safeName);
 
+        try {
+            \App\Jobs\OptimizeMediaImageJob::dispatch($folder . '/' . $safeName);
+        } catch (\Throwable $e) {}
+
         return redirect()->route('admin.file-manager.index', ['folder' => $folder])
             ->with('success', 'File "' . $safeName . '" uploaded successfully!');
     }
