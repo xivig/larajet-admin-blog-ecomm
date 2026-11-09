@@ -52,7 +52,7 @@
                 <span>Inbox</span>
               </span>
               @if ($counts['unread'] > 0)
-                <span class="email-nav-badge">{{ $counts['unread'] }}</span>
+                <span class="email-nav-badge" id="inboxUnreadBadge">{{ $counts['unread'] }}</span>
               @endif
             </a>
           </li>
@@ -123,11 +123,11 @@
           </li>
           <li class="email-label-item px-3 py-1.5 d-flex align-items-center gap-2 small">
             <span class="email-label-dot" style="background: var(--bs-info, #0dcaf0);"></span>
-            <span>Community Discussions</span>
+            <span>Discussions</span>
           </li>
           <li class="email-label-item px-3 py-1.5 d-flex align-items-center gap-2 small">
             <span class="email-label-dot" style="background: var(--bs-warning, #ffc107);"></span>
-            <span>Operations &amp; System</span>
+            <span>Operations</span>
           </li>
         </ul>
       </div>
@@ -135,11 +135,11 @@
       <!-- Storage Widget -->
       <div class="email-storage mt-auto p-3">
         <div class="email-storage-info d-flex justify-content-between small text-muted mb-1">
-          <span>Mailbox Capacity</span>
-          <span>{{ $emails->total() }} msgs</span>
+          <span>Mailbox Usage</span>
+          <span>{{ $emails->total() }} conversations</span>
         </div>
         <div class="progress" style="height: 5px;">
-          <div class="progress-bar bg-primary" role="progressbar" style="width: 35%;" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100"></div>
+          <div class="progress-bar bg-primary" role="progressbar" style="width: 42%;" aria-valuenow="42" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
       </div>
     </div>
@@ -148,21 +148,60 @@
     <div class="email-main" id="emailMain">
 
       <!-- Email List View -->
-      <div class="email-list-view" id="emailListView" style="{{ $viewEmail ? 'display: none;' : '' }}">
-        <!-- Header Toolbar -->
+      <div class="email-list-view" id="emailListView">
+        <!-- Header Toolbar (Matching Template Exactly) -->
         <div class="email-list-header">
           <!-- Mobile Sidebar Toggle -->
-          <button class="email-sidebar-toggle" id="emailSidebarToggle" aria-label="Open folders">
+          <button type="button" class="email-sidebar-toggle" id="emailSidebarToggle" aria-label="Open folders">
             <i class="bi bi-folder2-open"></i>
           </button>
 
+          <!-- Action Buttons Group (Checkbox, Refresh, Archive, Trash, Dropdown) -->
           <div class="email-list-actions">
-            <div class="form-check mb-0">
-              <input class="form-check-input" type="checkbox" id="selectAllEmails" title="Select All">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="selectAll" title="Select All Conversations">
             </div>
-            <a href="{{ request()->fullUrl() }}" class="email-action-btn" title="Refresh">
+
+            <button type="button" class="email-action-btn" id="btnRefresh" title="Refresh" onclick="window.location.reload();">
               <i class="bi bi-arrow-clockwise"></i>
-            </a>
+            </button>
+
+            <button type="button" class="email-action-btn" id="btnArchive" title="Archive / Move to Sent">
+              <i class="bi bi-archive"></i>
+            </button>
+
+            <button type="button" class="email-action-btn" id="btnDelete" title="Move to Trash / Delete">
+              <i class="bi bi-trash"></i>
+            </button>
+
+            <div class="dropdown">
+              <button type="button" class="email-action-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="More Actions">
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a class="dropdown-item" href="{{ route('admin.email.mark-all-read') }}">
+                    <i class="bi bi-check2-all me-2"></i>Mark all as read
+                  </a>
+                </li>
+                <li>
+                  <button type="button" class="dropdown-item" id="menuStarSelected">
+                    <i class="bi bi-star me-2"></i>Star selected
+                  </button>
+                </li>
+                <li>
+                  <button type="button" class="dropdown-item" id="menuUnstarSelected">
+                    <i class="bi bi-star-half me-2"></i>Unstar selected
+                  </button>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <button type="button" class="dropdown-item text-danger" id="menuDeleteSelected">
+                    <i class="bi bi-trash me-2"></i>Move selected to trash
+                  </button>
+                </li>
+              </ul>
+            </div>
           </div>
 
           <!-- Email Search -->
@@ -172,13 +211,14 @@
               <input type="hidden" name="starred" value="1">
             @endif
             <i class="bi bi-search email-search-icon"></i>
-            <input type="text" name="search" class="form-control" placeholder="Search conversations..." value="{{ request('search') }}">
+            <input type="text" name="search" class="form-control" placeholder="Search emails..." value="{{ request('search') }}">
           </form>
 
+          <!-- Pagination Controls -->
           <div class="email-list-pagination">
             <span class="email-pagination-info">{{ $emails->firstItem() ?? 0 }}-{{ $emails->lastItem() ?? 0 }} of {{ $emails->total() }}</span>
             @if($emails->onFirstPage())
-              <button class="email-pagination-btn" disabled><i class="bi bi-chevron-left"></i></button>
+              <button type="button" class="email-pagination-btn" disabled><i class="bi bi-chevron-left"></i></button>
             @else
               <a href="{{ $emails->previousPageUrl() }}" class="email-pagination-btn"><i class="bi bi-chevron-left"></i></a>
             @endif
@@ -186,7 +226,7 @@
             @if($emails->hasMorePages())
               <a href="{{ $emails->nextPageUrl() }}" class="email-pagination-btn"><i class="bi bi-chevron-right"></i></a>
             @else
-              <button class="email-pagination-btn" disabled><i class="bi bi-chevron-right"></i></button>
+              <button type="button" class="email-pagination-btn" disabled><i class="bi bi-chevron-right"></i></button>
             @endif
           </div>
         </div>
@@ -195,40 +235,45 @@
         <div class="email-list">
           @forelse ($emails as $email)
             <div class="email-item {{ !$email->is_read ? 'unread' : '' }}" 
-                 data-email-id="{{ $email->id }}"
-                 onclick="openEmailDetails('{{ $email->id }}', '{{ addslashes($email->subject) }}', '{{ addslashes($email->sender_name) }}', '{{ addslashes($email->sender_email) }}', '{{ addslashes($email->created_at->format('M d, Y h:i A')) }}', '{{ addslashes(nl2br(e($email->body))) }}')">
+                 data-email-id="{{ $email->id }}">
               
-              <div class="email-item-select" onclick="event.stopPropagation();">
-                <input class="form-check-input email-checkbox" type="checkbox" value="{{ $email->id }}">
+              <!-- Checkbox (Multi-Selection) -->
+              <div class="email-item-select">
+                <input class="form-check-input email-item-checkbox" type="checkbox" value="{{ $email->id }}">
               </div>
 
-              <button type="button" class="email-item-star {{ $email->is_starred ? 'starred' : '' }}" onclick="toggleStar(event, '{{ $email->id }}', this)">
+              <!-- Star Toggle Button -->
+              <button type="button" class="email-item-star {{ $email->is_starred ? 'starred' : '' }}" data-email-id="{{ $email->id }}" title="Toggle Star">
                 <i class="bi {{ $email->is_starred ? 'bi-star-fill text-warning' : 'bi-star' }}"></i>
               </button>
 
+              <!-- Sender Avatar -->
               <div class="email-item-avatar">
                 <div class="avatar-circle rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px; font-size: 14px;">
                   {{ strtoupper(substr($email->sender_name ?: $email->sender_email, 0, 1)) }}
                 </div>
               </div>
 
+              <!-- Content Preview -->
               <div class="email-item-content">
                 <div class="email-item-header">
                   <span class="email-item-sender fw-semibold">{{ $email->sender_name ?: $email->sender_email }}</span>
-                  <span class="email-item-time text-muted small">{{ $email->created_at->diffForHumans() }}</span>
+                  <span class="email-item-time text-muted small">{{ $email->created_at->format('M d, Y h:i A') }}</span>
                 </div>
                 <div class="email-item-subject fw-medium text-truncate">{{ $email->subject }}</div>
                 <div class="email-item-preview text-muted small text-truncate">{{ Str::limit(strip_tags($email->body), 110) }}</div>
               </div>
 
-              <div class="email-item-actions" onclick="event.stopPropagation();">
-                <form action="{{ route('admin.email.destroy', $email->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Move conversation to trash?');">
-                  @csrf
-                  @method('DELETE')
-                  <button type="submit" class="btn btn-sm text-danger p-1" title="Delete">
-                    <i class="bi bi-trash"></i>
-                  </button>
-                </form>
+              <!-- Hidden Raw Elements for Error-Free JS Payload Loading -->
+              <div class="email-raw-sender-email d-none">{{ $email->sender_email }}</div>
+              <div class="email-raw-recipient-email d-none">{{ $email->recipient_email }}</div>
+              <div class="email-raw-body d-none">{!! nl2br(e($email->body)) !!}</div>
+
+              <!-- Quick Delete Action -->
+              <div class="email-item-actions">
+                <button type="button" class="btn btn-sm text-danger p-1 single-delete-btn" data-email-id="{{ $email->id }}" title="Delete conversation">
+                  <i class="bi bi-trash"></i>
+                </button>
               </div>
             </div>
           @empty
@@ -241,48 +286,76 @@
         </div>
       </div>
 
-      <!-- Email Detail View -->
-      <div class="email-detail-view" id="emailDetailView" style="{{ $viewEmail ? 'display: flex;' : 'display: none;' }}">
-        <div class="email-detail-header d-flex align-items-center justify-content-between p-3 border-bottom">
-          <div class="d-flex align-items-center gap-2">
-            <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill" id="emailBackBtn">
-              <i class="bi bi-arrow-left me-1"></i> Back to List
-            </button>
-            <span class="badge bg-primary-subtle text-primary rounded-pill px-2.5 py-1" id="detailFolderBadge">Conversation</span>
-          </div>
+      <!-- Email Detail View (Native Template Architecture) -->
+      <div class="email-detail-view" id="emailDetailView" style="display: none;">
+        <!-- Detail Header -->
+        <div class="email-detail-header">
+          <button type="button" class="email-action-btn email-back-btn" id="emailBackBtn" title="Back to list">
+            <i class="bi bi-arrow-left"></i>
+          </button>
 
-          <div class="d-flex align-items-center gap-2" id="detailActions">
-            <!-- Delete action injected via JS -->
+          <div class="email-detail-actions">
+            <form id="detailDeleteForm" action="#" method="POST" class="d-inline" onsubmit="return confirm('Delete this conversation?');">
+              @csrf
+              @method('DELETE')
+              <button type="submit" class="email-action-btn" title="Delete conversation">
+                <i class="bi bi-trash"></i>
+              </button>
+            </form>
+
+            <button type="button" class="email-action-btn" id="detailReplyBtn" title="Reply to message">
+              <i class="bi bi-reply"></i>
+            </button>
           </div>
         </div>
 
-        <div class="email-detail-content p-4 flex-grow-1 overflow-auto">
-          <div class="d-flex align-items-start justify-content-between mb-4 pb-3 border-bottom">
-            <div class="d-flex align-items-center gap-3">
-              <div class="avatar-circle rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold fs-5" id="detailAvatar" style="width: 48px; height: 48px;">
-                M
-              </div>
-              <div>
-                <h4 class="mb-1 fw-bold text-body" id="detailSubject">Select a message</h4>
-                <div class="small text-muted">
-                  From: <strong class="text-body" id="detailSenderName">Sender</strong> 
-                  &lt;<span id="detailSenderEmail">email@domain.com</span>&gt;
-                </div>
-              </div>
-            </div>
-            <div class="text-muted small" id="detailDate">
-              Date
+        <!-- Detail Content -->
+        <div class="email-detail-content">
+          <div class="email-detail-subject">
+            <h4 id="detailSubject" class="mb-0">Select a message</h4>
+            <div class="email-detail-labels">
+              <span class="badge bg-primary-subtle text-primary rounded-pill px-2.5 py-1">Direct Dispatch</span>
             </div>
           </div>
 
-          <div class="email-body-text fs-6 lh-lg text-body mb-4" id="detailBody" style="white-space: pre-line;">
-            Email body content...
+          <!-- Email Message Body -->
+          <div class="email-message">
+            <div class="email-message-header d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 pb-3 border-bottom">
+              <div class="email-message-sender d-flex align-items-center gap-3">
+                <div class="avatar-circle rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold fs-5" id="detailAvatar" style="width: 44px; height: 44px;">
+                  M
+                </div>
+                <div class="email-message-sender-info">
+                  <div class="email-message-sender-name fw-semibold">
+                    <span id="detailSenderName">Sender Name</span>
+                    <span class="email-message-sender-email text-muted small">&lt;<span id="detailSenderEmail">email@example.com</span>&gt;</span>
+                  </div>
+                  <div class="email-message-recipients text-muted small">
+                    To: <span id="detailRecipientEmail">me</span>
+                  </div>
+                </div>
+              </div>
+              <div class="email-message-meta text-muted small" id="detailDate">
+                Jan 20, 2026, 10:30 AM
+              </div>
+            </div>
+
+            <div class="email-message-body fs-6 lh-lg text-body mb-4" id="detailBody" style="white-space: pre-wrap; font-family: 'Plus Jakarta Sans', sans-serif;">
+              Message content...
+            </div>
           </div>
         </div>
       </div>
 
     </div>
   </div>
+
+  <!-- Hidden Form for Multi-Select Bulk Actions -->
+  <form id="bulkEmailForm" action="{{ route('admin.email.bulk') }}" method="POST" style="display: none;">
+    @csrf
+    <input type="hidden" name="action" id="bulkActionInput" value="">
+    <div id="bulkEmailInputs"></div>
+  </form>
 
   <!-- Compose Email Modal -->
   <div class="modal fade" id="composeEmailModal" tabindex="-1" aria-labelledby="composeEmailModalLabel" aria-hidden="true">
@@ -331,95 +404,260 @@
 
 @push('scripts')
 <script>
-  // Mobile drawer toggle for Email Sidebar
-  const emailSidebar = document.getElementById('emailSidebar');
-  const emailSidebarOverlay = document.getElementById('emailSidebarOverlay');
-  const emailSidebarToggle = document.getElementById('emailSidebarToggle');
-  const emailSidebarClose = document.getElementById('emailSidebarClose');
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Mobile Drawer Navigation
+    const emailSidebar = document.getElementById('emailSidebar');
+    const emailSidebarOverlay = document.getElementById('emailSidebarOverlay');
+    const emailSidebarToggle = document.getElementById('emailSidebarToggle');
+    const emailSidebarClose = document.getElementById('emailSidebarClose');
 
-  if (emailSidebarToggle && emailSidebar) {
-    emailSidebarToggle.addEventListener('click', () => {
-      emailSidebar.classList.add('open');
-      if (emailSidebarOverlay) emailSidebarOverlay.classList.add('show');
+    if (emailSidebarToggle && emailSidebar) {
+      emailSidebarToggle.addEventListener('click', () => {
+        emailSidebar.classList.add('open');
+        if (emailSidebarOverlay) emailSidebarOverlay.classList.add('show');
+      });
+    }
+
+    if (emailSidebarClose && emailSidebar) {
+      emailSidebarClose.addEventListener('click', () => {
+        emailSidebar.classList.remove('open');
+        if (emailSidebarOverlay) emailSidebarOverlay.classList.remove('show');
+      });
+    }
+
+    if (emailSidebarOverlay && emailSidebar) {
+      emailSidebarOverlay.addEventListener('click', () => {
+        emailSidebar.classList.remove('open');
+        emailSidebarOverlay.classList.remove('show');
+      });
+    }
+
+    // 2. Multi-Selection Checkbox Logic
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const itemCheckboxes = document.querySelectorAll('.email-item-checkbox');
+
+    if (selectAllCheckbox) {
+      selectAllCheckbox.addEventListener('change', function() {
+        itemCheckboxes.forEach(cb => {
+          cb.checked = selectAllCheckbox.checked;
+        });
+      });
+    }
+
+    itemCheckboxes.forEach(cb => {
+      cb.addEventListener('change', function(e) {
+        e.stopPropagation();
+        const total = itemCheckboxes.length;
+        const checkedCount = document.querySelectorAll('.email-item-checkbox:checked').length;
+        if (selectAllCheckbox) {
+          selectAllCheckbox.checked = (checkedCount === total && total > 0);
+          selectAllCheckbox.indeterminate = (checkedCount > 0 && checkedCount < total);
+        }
+      });
     });
-  }
 
-  if (emailSidebarClose && emailSidebar) {
-    emailSidebarClose.addEventListener('click', () => {
-      emailSidebar.classList.remove('open');
-      if (emailSidebarOverlay) emailSidebarOverlay.classList.remove('show');
-    });
-  }
+    // Helper to get checked email IDs
+    function getSelectedIds() {
+      const selected = [];
+      document.querySelectorAll('.email-item-checkbox:checked').forEach(cb => {
+        selected.push(cb.value);
+      });
+      return selected;
+    }
 
-  if (emailSidebarOverlay && emailSidebar) {
-    emailSidebarOverlay.addEventListener('click', () => {
-      emailSidebar.classList.remove('open');
-      emailSidebarOverlay.classList.remove('show');
-    });
-  }
-
-  // Toggle Email Star
-  function toggleStar(event, emailId, btn) {
-    event.stopPropagation();
-    btn.classList.toggle('starred');
-    const icon = btn.querySelector('i');
-
-    fetch(`/admin/email/${emailId}/star`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    // Helper to submit bulk form
+    function submitBulkAction(actionName) {
+      const ids = getSelectedIds();
+      if (ids.length === 0) {
+        alert('Please select at least one conversation first.');
+        return;
       }
-    }).then(res => res.json()).then(data => {
-      if (data.is_starred) {
-        icon.className = 'bi bi-star-fill text-warning';
-      } else {
-        icon.className = 'bi bi-star';
-      }
-    }).catch(err => {
-      console.error('Star toggle failed', err);
+
+      const form = document.getElementById('bulkEmailForm');
+      const actionInput = document.getElementById('bulkActionInput');
+      const inputsContainer = document.getElementById('bulkEmailInputs');
+
+      actionInput.value = actionName;
+      inputsContainer.innerHTML = '';
+
+      ids.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'ids[]';
+        input.value = id;
+        inputsContainer.appendChild(input);
+      });
+
+      form.submit();
+    }
+
+    // 3. Toolbar Action Buttons
+    const btnArchive = document.getElementById('btnArchive');
+    if (btnArchive) {
+      btnArchive.addEventListener('click', () => submitBulkAction('archive'));
+    }
+
+    const btnDelete = document.getElementById('btnDelete');
+    if (btnDelete) {
+      btnDelete.addEventListener('click', () => {
+        if (confirm('Move selected conversation(s) to trash?')) {
+          submitBulkAction('trash');
+        }
+      });
+    }
+
+    const menuDeleteSelected = document.getElementById('menuDeleteSelected');
+    if (menuDeleteSelected) {
+      menuDeleteSelected.addEventListener('click', () => {
+        if (confirm('Move selected conversation(s) to trash?')) {
+          submitBulkAction('trash');
+        }
+      });
+    }
+
+    const menuStarSelected = document.getElementById('menuStarSelected');
+    if (menuStarSelected) {
+      menuStarSelected.addEventListener('click', () => submitBulkAction('star'));
+    }
+
+    const menuUnstarSelected = document.getElementById('menuUnstarSelected');
+    if (menuUnstarSelected) {
+      menuUnstarSelected.addEventListener('click', () => submitBulkAction('unstar'));
+    }
+
+    // 4. Single Delete Button
+    document.querySelectorAll('.single-delete-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const emailId = this.dataset.emailId;
+        if (confirm('Delete this conversation?')) {
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = `/admin/email/${emailId}`;
+
+          const token = document.createElement('input');
+          token.type = 'hidden';
+          token.name = '_token';
+          token.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+          form.appendChild(token);
+
+          const method = document.createElement('input');
+          method.type = 'hidden';
+          method.name = '_method';
+          method.value = 'DELETE';
+          form.appendChild(method);
+
+          document.body.appendChild(form);
+          form.submit();
+        }
+      });
     });
-  }
 
-  // Detail View Display
-  const emailListView = document.getElementById('emailListView');
-  const emailDetailView = document.getElementById('emailDetailView');
-  const emailBackBtn = document.getElementById('emailBackBtn');
+    // 5. Star Toggle Logic
+    document.querySelectorAll('.email-item-star').forEach(starBtn => {
+      starBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const emailId = this.dataset.emailId;
+        const icon = this.querySelector('i');
 
-  function openEmailDetails(id, subject, senderName, senderEmail, date, body) {
-    document.getElementById('detailSubject').innerText = subject;
-    document.getElementById('detailSenderName').innerText = senderName;
-    document.getElementById('detailSenderEmail').innerText = senderEmail;
-    document.getElementById('detailDate').innerText = date;
-    document.getElementById('detailAvatar').innerText = (senderName || senderEmail).charAt(0).toUpperCase();
-    document.getElementById('detailBody').innerHTML = body;
-
-    // Inject delete form
-    document.getElementById('detailActions').innerHTML = `
-      <form action="/admin/email/${id}" method="POST" onsubmit="return confirm('Delete message?');">
-        <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').getAttribute('content')}">
-        <input type="hidden" name="_method" value="DELETE">
-        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill">
-          <i class="bi bi-trash me-1"></i> Delete
-        </button>
-      </form>
-    `;
-
-    // Mark as read visually
-    const item = document.querySelector(`[data-email-id="${id}"]`);
-    if (item) item.classList.remove('unread');
-
-    // Switch views
-    emailListView.style.display = 'none';
-    emailDetailView.style.display = 'flex';
-  }
-
-  if (emailBackBtn) {
-    emailBackBtn.addEventListener('click', () => {
-      emailDetailView.style.display = 'none';
-      emailListView.style.display = 'flex';
+        fetch(`/admin/email/${emailId}/star`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          }
+        }).then(() => {
+          this.classList.toggle('starred');
+          if (this.classList.contains('starred')) {
+            icon.className = 'bi bi-star-fill text-warning';
+          } else {
+            icon.className = 'bi bi-star';
+          }
+        }).catch(err => console.error('Star toggle failed', err));
+      });
     });
-  }
+
+    // 6. Read Mail: Item Click -> Show Detail View
+    const emailListView = document.getElementById('emailListView');
+    const emailDetailView = document.getElementById('emailDetailView');
+    const emailBackBtn = document.getElementById('emailBackBtn');
+
+    document.querySelectorAll('.email-item').forEach(item => {
+      item.addEventListener('click', function(e) {
+        // Prevent opening if clicked inside checkbox, star, or actions
+        if (e.target.closest('.email-item-select') || e.target.closest('.email-item-star') || e.target.closest('.email-item-actions')) {
+          return;
+        }
+
+        const emailId = this.dataset.emailId;
+        const subject = this.querySelector('.email-item-subject').textContent;
+        const sender = this.querySelector('.email-item-sender').textContent;
+        const time = this.querySelector('.email-item-time').textContent;
+        const senderEmail = this.querySelector('.email-raw-sender-email').textContent;
+        const recipientEmail = this.querySelector('.email-raw-recipient-email').textContent;
+        const bodyContent = this.querySelector('.email-raw-body').innerHTML;
+
+        // Populate detail view
+        document.getElementById('detailSubject').textContent = subject;
+        document.getElementById('detailSenderName').textContent = sender;
+        document.getElementById('detailSenderEmail').textContent = senderEmail;
+        document.getElementById('detailRecipientEmail').textContent = recipientEmail;
+        document.getElementById('detailDate').textContent = time;
+        document.getElementById('detailAvatar').textContent = sender.trim().charAt(0).toUpperCase();
+        document.getElementById('detailBody').innerHTML = bodyContent;
+
+        // Populate detail delete form action
+        const detailDeleteForm = document.getElementById('detailDeleteForm');
+        if (detailDeleteForm) {
+          detailDeleteForm.action = `/admin/email/${emailId}`;
+        }
+
+        // Wire reply button to open modal with prefilled data
+        const replyBtn = document.getElementById('detailReplyBtn');
+        if (replyBtn) {
+          replyBtn.onclick = function() {
+            const composeModal = new bootstrap.Modal(document.getElementById('composeEmailModal'));
+            document.getElementById('recipient_email').value = senderEmail;
+            document.getElementById('subject').value = subject.startsWith('Re: ') ? subject : `Re: ${subject}`;
+            composeModal.show();
+          };
+        }
+
+        // Switch view
+        emailListView.style.display = 'none';
+        emailDetailView.style.display = 'flex';
+
+        // Mark as read visually
+        this.classList.remove('unread');
+
+        // Send AJAX request to mark as read in database
+        fetch(`/admin/email/${emailId}/mark-read`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          }
+        }).then(res => res.json()).then(data => {
+          const badge = document.getElementById('inboxUnreadBadge');
+          if (badge && typeof data.unread_count !== 'undefined') {
+            if (data.unread_count > 0) {
+              badge.textContent = data.unread_count;
+            } else {
+              badge.remove();
+            }
+          }
+        }).catch(err => console.log('Mark read failed', err));
+      });
+    });
+
+    // Back button returns to list view
+    if (emailBackBtn) {
+      emailBackBtn.addEventListener('click', function() {
+        emailDetailView.style.display = 'none';
+        emailListView.style.display = 'flex';
+      });
+    }
+  });
 </script>
 @endpush
 

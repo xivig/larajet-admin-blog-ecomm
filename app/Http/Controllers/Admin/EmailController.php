@@ -143,6 +143,51 @@ class EmailController extends Controller
     }
 
     /**
+     * Mark all emails as read.
+     */
+    public function markAllRead(): RedirectResponse
+    {
+        AdminEmail::where('folder', 'inbox')->update(['is_read' => true]);
+        return back()->with('success', 'All inbox messages marked as read.');
+    }
+
+    /**
+     * Handle bulk operations for selected emails.
+     */
+    public function bulkAction(Request $request): RedirectResponse
+    {
+        $ids = $request->input('ids', []);
+        $action = $request->input('action');
+
+        if (empty($ids) || !is_array($ids)) {
+            return back()->with('error', 'No conversations were selected.');
+        }
+
+        switch ($action) {
+            case 'delete':
+                AdminEmail::whereIn('id', $ids)->delete();
+                return back()->with('success', count($ids) . ' conversation(s) permanently deleted.');
+            case 'trash':
+                AdminEmail::whereIn('id', $ids)->update(['folder' => 'trash']);
+                return back()->with('success', count($ids) . ' conversation(s) moved to trash.');
+            case 'archive':
+                AdminEmail::whereIn('id', $ids)->update(['folder' => 'sent']);
+                return back()->with('success', count($ids) . ' conversation(s) archived.');
+            case 'mark_read':
+                AdminEmail::whereIn('id', $ids)->update(['is_read' => true]);
+                return back()->with('success', count($ids) . ' conversation(s) marked as read.');
+            case 'star':
+                AdminEmail::whereIn('id', $ids)->update(['is_starred' => true]);
+                return back()->with('success', count($ids) . ' conversation(s) starred.');
+            case 'unstar':
+                AdminEmail::whereIn('id', $ids)->update(['is_starred' => false]);
+                return back()->with('success', count($ids) . ' conversation(s) unstarred.');
+            default:
+                return back()->with('error', 'Invalid bulk action specified.');
+        }
+    }
+
+    /**
      * Permanently delete an email.
      */
     public function destroy(AdminEmail $email): RedirectResponse
