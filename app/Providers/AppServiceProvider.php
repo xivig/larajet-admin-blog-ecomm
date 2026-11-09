@@ -33,6 +33,12 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Setting::observe(\App\Observers\SettingObserver::class);
         \App\Models\Comment::observe(\App\Observers\CommentObserver::class);
 
+        // Authentication & Login History Event Listeners
+        \Illuminate\Support\Facades\Event::listen(
+            \Illuminate\Auth\Events\Login::class,
+            \App\Listeners\RecordLoginHistory::class,
+        );
+
         // Apply dynamically configured system timezone globally
         try {
             $configuredTz = \App\Models\Setting::get('system_timezone');

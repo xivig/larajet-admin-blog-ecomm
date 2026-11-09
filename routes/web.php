@@ -19,8 +19,11 @@ use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\RegisterController;
 use App\Http\Controllers\Admin\RoleController as AdminRoleController;
 use App\Http\Controllers\Admin\SeoSettingController as AdminSeoSettingController;
+use App\Http\Controllers\Admin\SessionController as AdminSessionController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\TagController as AdminTagController;
+use App\Http\Controllers\Admin\TwoFactorChallengeController as AdminTwoFactorChallengeController;
+use App\Http\Controllers\Admin\TwoFactorController as AdminTwoFactorController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
@@ -83,6 +86,12 @@ Route::prefix('admin')->middleware('guest:admin')->group(function () {
     Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('admin.password.email');
     Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('admin.password.reset');
     Route::post('reset-password', [ForgotPasswordController::class, 'reset'])->name('admin.password.update');
+});
+
+// Admin 2FA Challenge (when 2FA is prompted upon sign-in)
+Route::prefix('admin')->group(function () {
+    Route::get('two-factor-challenge', [AdminTwoFactorChallengeController::class, 'create'])->name('admin.two-factor.challenge');
+    Route::post('two-factor-challenge', [AdminTwoFactorChallengeController::class, 'store'])->name('admin.two-factor.challenge.store');
 });
 
 // Admin Authenticated Routes
@@ -236,6 +245,18 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::get('profile', [AdminProfileController::class, 'edit'])->name('admin.profile');
     Route::put('profile', [AdminProfileController::class, 'update'])->name('admin.profile.update');
     Route::put('profile/password', [AdminProfileController::class, 'updatePassword'])->name('admin.profile.password');
+    Route::post('profile/email-verification/send', [AdminProfileController::class, 'sendVerification'])->name('admin.profile.verification.send');
+
+    // Admin 2FA Management (Google Authenticator)
+    Route::post('profile/two-factor/enable', [AdminTwoFactorController::class, 'enable'])->name('admin.profile.two-factor.enable');
+    Route::post('profile/two-factor/confirm', [AdminTwoFactorController::class, 'confirm'])->name('admin.profile.two-factor.confirm');
+    Route::post('profile/two-factor/recovery-codes', [AdminTwoFactorController::class, 'regenerateRecoveryCodes'])->name('admin.profile.two-factor.recovery-codes');
+    Route::get('profile/two-factor/recovery-codes/download', [AdminTwoFactorController::class, 'downloadRecoveryCodes'])->name('admin.profile.two-factor.download-codes');
+    Route::post('profile/two-factor/disable', [AdminTwoFactorController::class, 'disable'])->name('admin.profile.two-factor.disable');
+
+    // Admin Active Sessions Management
+    Route::delete('profile/sessions/{sessionId}', [AdminSessionController::class, 'destroy'])->name('admin.profile.sessions.destroy');
+    Route::post('profile/sessions/logout-others', [AdminSessionController::class, 'logoutOthers'])->name('admin.profile.sessions.logout-others');
 });
 
 // Dynamic Public Feeds & Crawlers

@@ -24,14 +24,25 @@ class LoginController extends Controller
      */
     public function store(AdminLoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        $admin = $request->authenticate();
+
+        if ($admin->hasEnabledTwoFactorAuthentication()) {
+            $request->session()->put([
+                'admin.2fa.id' => $admin->id,
+                'admin.2fa.remember' => $request->boolean('remember'),
+            ]);
+
+            return redirect()->route('admin.two-factor.challenge');
+        }
+
+        Auth::guard('admin')->login($admin, $request->boolean('remember'));
 
         $request->session()->regenerate();
 
         // Forget any stale intended URL that might point back to login
         $request->session()->forget('url.intended');
 
-        return redirect()->route('admin.dashboard');
+        return redirect()->intended(route('admin.dashboard'));
     }
 
     /**

@@ -34,23 +34,27 @@ class AdminLoginRequest extends FormRequest
     }
 
     /**
-     * Attempt to authenticate the request's credentials.
+     * Attempt to authenticate the request's credentials and return the matched Admin model.
      *
      * @throws ValidationException
      */
-    public function authenticate(): void
+    public function authenticate(): \App\Models\Admin
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::guard('admin')->attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+        $admin = \App\Models\Admin::where('email', $this->string('email'))->first();
+
+        if (! $admin || ! \Illuminate\Support\Facades\Hash::check($this->string('password'), $admin->password)) {
+            \Illuminate\Support\Facades\RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
             ]);
         }
 
-        RateLimiter::clear($this->throttleKey());
+        \Illuminate\Support\Facades\RateLimiter::clear($this->throttleKey());
+
+        return $admin;
     }
 
     /**

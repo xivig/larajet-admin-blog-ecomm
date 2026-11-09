@@ -16,18 +16,59 @@ class ProfileController extends Controller
     /**
      * Show admin profile edit form.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        return $this->edit();
+        return $this->edit($request);
     }
 
     /**
      * Show admin profile edit form.
      */
-    public function edit(): View
+    public function edit(Request $request): View
     {
         $admin = Auth::guard('admin')->user() ?? Admin::first();
-        return view('admin.profile', compact('admin'));
+
+        $deviceTracking = app(\App\Services\DeviceTrackingService::class);
+        $activeSessions = $deviceTracking->getActiveSessions($admin?->id, $request);
+        $loginHistories = $deviceTracking->getRecentHistory('admin', $admin?->id, 10);
+
+        // QR Code SVG & Secret for 2FA setup if in progress
+        $qrCodeSvg = null;
+        $twoFactorSecret = null;
+
+        if ($admin && !empty($admin->two_factor_secret) && is_null($admin->two_factor_confirmed_at)) {
+            try {
+                $qrCodeSvg = $admin->twoFactorQrCodeSvg();
+                $twoFactorSecret = decrypt($admin->two_factor_secret);
+            } catch (\Throwable $e) {
+                // Handle unencrypted or mismatched key gracefully
+            }
+        }
+
+        return view('admin.profile', compact(
+            'admin',
+            'activeSessions',
+            'loginHistories',
+            'qrCodeSvg',
+            'twoFactorSecret'
+        ));
+    }
+
+    /**
+     * Resend verification email to admin.
+     */
+    public function sendVerification(Request $request): RedirectResponse
+    {
+        /** @var Admin|null $admin */
+        $admin = Auth::guard('admin')->user();
+        if ($admin && !$admin->hasVerifiedEmail()) {
+            $admin->sendEmailVerificationNotification();
+            return redirect()->route('admin.profile')
+                ->with('success', 'A fresh verification link has been sent to ' . $admin->email);
+        }
+
+        return redirect()->route('admin.profile')
+            ->with('info', 'Your email address is already verified.');
     }
 
     /**
