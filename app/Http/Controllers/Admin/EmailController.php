@@ -51,6 +51,7 @@ class EmailController extends Controller
             'starred' => AdminEmail::where('is_starred', true)->count(),
             'sent' => AdminEmail::where('folder', 'sent')->count(),
             'draft' => AdminEmail::where('folder', 'draft')->count(),
+            'spam' => AdminEmail::where('folder', 'spam')->count(),
             'trash' => AdminEmail::where('folder', 'trash')->count(),
         ];
 
@@ -154,28 +155,79 @@ class EmailController extends Controller
     }
 
     /**
+     * Mark an email as unread via AJAX or redirect.
+     */
+    public function markUnread(AdminEmail $email): RedirectResponse|JsonResponse
+    {
+        $email->update(['is_read' => false]);
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'unread_count' => AdminEmail::where('folder', 'inbox')->where('is_read', false)->count(),
+            ]);
+        }
+
+        return redirect()->route('admin.email.index', ['folder' => $email->folder])->with('success', 'Conversation marked as unread.');
+    }
+
+    /**
+     * Report an email as spam.
+     */
+    public function reportSpam(AdminEmail $email): RedirectResponse|JsonResponse
+    {
+        $email->update(['folder' => 'spam']);
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Conversation moved to Spam.',
+            ]);
+        }
+
+        return redirect()->route('admin.email.index', ['folder' => 'spam'])->with('success', 'Conversation moved to Spam.');
+    }
+
+    /**
      * Toggle starred status.
      */
-    public function toggleStar(AdminEmail $email): RedirectResponse
+    public function toggleStar(AdminEmail $email): RedirectResponse|JsonResponse
     {
         $email->update(['is_starred' => !$email->is_starred]);
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'is_starred' => $email->is_starred,
+            ]);
+        }
+
         return back()->with('success', 'Email ' . ($email->is_starred ? 'starred.' : 'unstarred.'));
     }
 
     /**
      * Move to trash or restore.
      */
-    public function moveToFolder(Request $request, AdminEmail $email): RedirectResponse
+    public function moveToFolder(Request $request, AdminEmail $email): RedirectResponse|JsonResponse
     {
         $folder = $request->input('folder', 'trash');
         $email->update(['folder' => $folder]);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'folder' => $folder,
+                'message' => 'Email moved to ' . ucfirst($folder) . '.',
+            ]);
+        }
+
         return back()->with('success', 'Email moved to ' . ucfirst($folder) . '.');
     }
 
     /**
      * Alias for moveFolder matching admin.email.move route.
      */
-    public function moveFolder(Request $request, AdminEmail $email): RedirectResponse
+    public function moveFolder(Request $request, AdminEmail $email): RedirectResponse|JsonResponse
     {
         return $this->moveToFolder($request, $email);
     }
@@ -183,9 +235,17 @@ class EmailController extends Controller
     /**
      * Restore an email from trash back to inbox.
      */
-    public function restore(AdminEmail $email): RedirectResponse
+    public function restore(AdminEmail $email): RedirectResponse|JsonResponse
     {
         $email->update(['folder' => 'inbox']);
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Conversation restored to inbox.',
+            ]);
+        }
+
         return back()->with('success', 'Email restored to inbox.');
     }
 
@@ -236,6 +296,9 @@ class EmailController extends Controller
             case 'restore':
                 AdminEmail::whereIn('id', $ids)->update(['folder' => 'inbox']);
                 return back()->with('success', count($ids) . ' conversation(s) restored to inbox.');
+            case 'spam':
+                AdminEmail::whereIn('id', $ids)->update(['folder' => 'spam']);
+                return back()->with('success', count($ids) . ' conversation(s) reported as spam.');
             case 'delete':
                 $emails = AdminEmail::whereIn('id', $ids)->get();
                 foreach ($emails as $email) {
@@ -255,6 +318,9 @@ class EmailController extends Controller
             case 'mark_read':
                 AdminEmail::whereIn('id', $ids)->update(['is_read' => true]);
                 return back()->with('success', count($ids) . ' conversation(s) marked as read.');
+            case 'mark_unread':
+                AdminEmail::whereIn('id', $ids)->update(['is_read' => false]);
+                return back()->with('success', count($ids) . ' conversation(s) marked as unread.');
             case 'star':
                 AdminEmail::whereIn('id', $ids)->update(['is_starred' => true]);
                 return back()->with('success', count($ids) . ' conversation(s) starred.');
@@ -269,7 +335,7 @@ class EmailController extends Controller
     /**
      * Delete an email: moves to trash if not in trash yet, permanently purges if already in trash.
      */
-    public function destroy(AdminEmail $email): RedirectResponse
+    public function destroy(AdminEmail $email): RedirectResponse|JsonResponse
     {
         if ($email->folder === 'trash') {
             if (!empty($email->attachments) && is_array($email->attachments)) {
@@ -280,10 +346,26 @@ class EmailController extends Controller
                 }
             }
             $email->delete();
+
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Conversation permanently deleted.',
+                ]);
+            }
+
             return back()->with('success', 'Conversation permanently deleted.');
         }
 
         $email->update(['folder' => 'trash']);
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Conversation moved to trash.',
+            ]);
+        }
+
         return back()->with('success', 'Conversation moved to trash.');
     }
 }

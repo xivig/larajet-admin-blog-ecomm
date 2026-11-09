@@ -42,7 +42,7 @@
         </button>
       </div>
 
-      <!-- Navigation Folders -->
+      <!-- Navigation Folders (Matching Template & Screenshot) -->
       <nav class="email-nav">
         <ul class="email-nav-list list-unstyled mb-0">
           <li class="email-nav-item {{ ($folder === 'inbox' && !request('starred')) ? 'active' : '' }}">
@@ -93,6 +93,18 @@
             </a>
           </li>
 
+          <li class="email-nav-item {{ ($folder === 'spam' && !request('starred')) ? 'active' : '' }}">
+            <a href="{{ route('admin.email.index', ['folder' => 'spam']) }}" class="d-flex align-items-center justify-content-between text-decoration-none text-reset w-100">
+              <span class="d-flex align-items-center gap-2">
+                <i class="bi bi-exclamation-octagon"></i>
+                <span>Spam</span>
+              </span>
+              @if ($counts['spam'] > 0)
+                <span class="badge bg-warning-subtle text-warning rounded-pill">{{ $counts['spam'] }}</span>
+              @endif
+            </a>
+          </li>
+
           <li class="email-nav-item {{ ($folder === 'trash' && !request('starred')) ? 'active' : '' }}">
             <a href="{{ route('admin.email.index', ['folder' => 'trash']) }}" class="d-flex align-items-center justify-content-between text-decoration-none text-reset w-100">
               <span class="d-flex align-items-center gap-2">
@@ -107,27 +119,30 @@
         </ul>
       </nav>
 
-      <!-- Labels Section -->
+      <!-- Labels Section (Matching Screenshot) -->
       <div class="email-labels mt-4">
         <div class="email-labels-header d-flex align-items-center justify-content-between px-3 py-2 text-muted small text-uppercase fw-semibold">
-          <span>Categories</span>
+          <span>Labels</span>
+          <button type="button" class="btn btn-link btn-sm p-0 text-muted" title="Manage Labels" onclick="window.SwalToast ? window.SwalToast.fire({icon:'info', title:'Label manager ready.'}) : null;">
+            <i class="bi bi-plus"></i>
+          </button>
         </div>
         <ul class="email-labels-list list-unstyled mb-0">
           <li class="email-label-item px-3 py-1.5 d-flex align-items-center gap-2 small">
-            <span class="email-label-dot" style="background: var(--bs-success, #198754);"></span>
-            <span>Editorial &amp; Content</span>
+            <span class="email-label-dot" style="background: #198754;"></span>
+            <span>Work</span>
           </li>
           <li class="email-label-item px-3 py-1.5 d-flex align-items-center gap-2 small">
-            <span class="email-label-dot" style="background: var(--bs-danger, #dc3545);"></span>
-            <span>Security &amp; Alerts</span>
+            <span class="email-label-dot" style="background: #dc3545;"></span>
+            <span>Important</span>
           </li>
           <li class="email-label-item px-3 py-1.5 d-flex align-items-center gap-2 small">
-            <span class="email-label-dot" style="background: var(--bs-info, #0dcaf0);"></span>
-            <span>Discussions</span>
+            <span class="email-label-dot" style="background: #0dcaf0;"></span>
+            <span>Personal</span>
           </li>
           <li class="email-label-item px-3 py-1.5 d-flex align-items-center gap-2 small">
-            <span class="email-label-dot" style="background: var(--bs-warning, #ffc107);"></span>
-            <span>Operations</span>
+            <span class="email-label-dot" style="background: #ffc107;"></span>
+            <span>Finance</span>
           </li>
         </ul>
       </div>
@@ -194,7 +209,7 @@
                     </button>
                   </li>
                   <li>
-                    <form action="{{ route('admin.email.empty-trash') }}" method="POST" onsubmit="return confirm('Empty entire trash? This permanently purges all deleted messages.');">
+                    <form id="formEmptyTrash" action="{{ route('admin.email.empty-trash') }}" method="POST">
                       @csrf
                       <button type="submit" class="dropdown-item text-danger">
                         <i class="bi bi-trash3 me-2"></i>Empty trash
@@ -297,6 +312,8 @@
               <div class="email-raw-sender-email d-none">{{ $email->sender_email }}</div>
               <div class="email-raw-recipient-email d-none">{{ $email->recipient_email }}</div>
               <div class="email-raw-cc-email d-none">{{ $email->cc_email ?? '' }}</div>
+              <div class="email-raw-starred d-none">{{ $email->is_starred ? '1' : '0' }}</div>
+              <div class="email-raw-folder d-none">{{ $email->folder }}</div>
               <div class="email-raw-body d-none">{!! nl2br(e($email->body)) !!}</div>
               <div class="email-raw-attachments d-none">{{ json_encode($email->attachments ?? []) }}</div>
 
@@ -326,65 +343,137 @@
         </div>
       </div>
 
-      <!-- Email Detail View (Native Template Architecture) -->
+      <!-- Email Detail View (Pixel-Matched to resources/dist/apps-email.html & Screenshot) -->
       <div class="email-detail-view" id="emailDetailView" style="display: none;">
-        <!-- Detail Header -->
+        <!-- Email Detail Header -->
         <div class="email-detail-header">
-          <button type="button" class="email-action-btn email-back-btn" id="emailBackBtn" title="Back to list">
+          <button type="button" class="email-back-btn" id="emailBackBtn" title="Back to list">
             <i class="bi bi-arrow-left"></i>
           </button>
 
           <div class="email-detail-actions">
-            <button type="button" class="email-action-btn text-success d-none" id="detailRestoreBtn" title="Restore to inbox">
-              <i class="bi bi-arrow-counterclockwise"></i>
+            <!-- Archive -->
+            <button type="button" class="email-action-btn" id="detailArchiveBtn" title="Archive">
+              <i class="bi bi-archive"></i>
             </button>
 
-            <form id="detailDeleteForm" action="#" method="POST" class="d-inline" onsubmit="return confirm('{{ $folder === 'trash' ? 'Permanently delete this conversation?' : 'Move this conversation to trash?' }}');">
-              @csrf
-              @method('DELETE')
-              <button type="submit" class="email-action-btn" title="{{ $folder === 'trash' ? 'Permanently Delete' : 'Move to Trash' }}">
-                <i class="bi bi-trash"></i>
-              </button>
-            </form>
+            <!-- Delete with SweetAlert -->
+            <button type="button" class="email-action-btn" id="detailDeleteBtn" title="Delete">
+              <i class="bi bi-trash"></i>
+            </button>
 
-            <button type="button" class="email-action-btn" id="detailReplyBtn" title="Reply to message">
-              <i class="bi bi-reply"></i>
+            <!-- Mark as unread -->
+            <button type="button" class="email-action-btn" id="detailMarkUnreadBtn" title="Mark as unread">
+              <i class="bi bi-envelope"></i>
+            </button>
+
+            <!-- Move to folder -->
+            <div class="dropdown d-inline-block">
+              <button type="button" class="email-action-btn" data-bs-toggle="dropdown" title="Move to folder">
+                <i class="bi bi-folder"></i>
+              </button>
+              <ul class="dropdown-menu">
+                <li><h6 class="dropdown-header">Move to</h6></li>
+                <li><button type="button" class="dropdown-item detail-move-folder" data-folder="inbox"><i class="bi bi-inbox me-2"></i>Inbox</button></li>
+                <li><button type="button" class="dropdown-item detail-move-folder" data-folder="sent"><i class="bi bi-send me-2"></i>Sent</button></li>
+                <li><button type="button" class="dropdown-item detail-move-folder" data-folder="draft"><i class="bi bi-file-earmark me-2"></i>Drafts</button></li>
+                <li><button type="button" class="dropdown-item detail-move-folder" data-folder="spam"><i class="bi bi-exclamation-octagon me-2"></i>Spam</button></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><button type="button" class="dropdown-item detail-move-folder text-danger" data-folder="trash"><i class="bi bi-trash me-2"></i>Trash</button></li>
+              </ul>
+            </div>
+
+            <!-- Labels -->
+            <div class="dropdown d-inline-block">
+              <button type="button" class="email-action-btn" data-bs-toggle="dropdown" title="Labels">
+                <i class="bi bi-tag"></i>
+              </button>
+              <ul class="dropdown-menu">
+                <li><h6 class="dropdown-header">Apply label</h6></li>
+                <li><button type="button" class="dropdown-item detail-set-label" data-label="Work" data-color="#198754"><span class="badge rounded-circle p-1 me-2" style="background:#198754;"> </span>Work</button></li>
+                <li><button type="button" class="dropdown-item detail-set-label" data-label="Important" data-color="#dc3545"><span class="badge rounded-circle p-1 me-2" style="background:#dc3545;"> </span>Important</button></li>
+                <li><button type="button" class="dropdown-item detail-set-label" data-label="Personal" data-color="#0dcaf0"><span class="badge rounded-circle p-1 me-2" style="background:#0dcaf0;"> </span>Personal</button></li>
+                <li><button type="button" class="dropdown-item detail-set-label" data-label="Finance" data-color="#ffc107"><span class="badge rounded-circle p-1 me-2" style="background:#ffc107;"> </span>Finance</button></li>
+              </ul>
+            </div>
+
+            <!-- More Actions Dropdown (Print, Forward, Report spam, Block sender) -->
+            <div class="dropdown d-inline-block">
+              <button type="button" class="email-action-btn" data-bs-toggle="dropdown" title="More options">
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><button type="button" class="dropdown-item" id="detailPrintBtn"><i class="bi bi-printer me-2"></i>Print</button></li>
+                <li><button type="button" class="dropdown-item" id="detailForwardBtn"><i class="bi bi-forward me-2"></i>Forward</button></li>
+                <li><button type="button" class="dropdown-item" id="detailReportSpamBtn"><i class="bi bi-flag me-2"></i>Report spam</button></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><button type="button" class="dropdown-item text-danger" id="detailBlockSenderBtn"><i class="bi bi-shield-check me-2"></i>Block sender</button></li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Navigation Prev/Next -->
+          <div class="email-detail-nav ms-auto">
+            <button type="button" class="email-pagination-btn" id="detailPrevBtn" title="Previous message">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+            <button type="button" class="email-pagination-btn" id="detailNextBtn" title="Next message">
+              <i class="bi bi-chevron-right"></i>
             </button>
           </div>
         </div>
 
-        <!-- Detail Content -->
+        <!-- Email Detail Content -->
         <div class="email-detail-content">
-          <div class="email-detail-subject">
-            <h4 id="detailSubject" class="mb-0">Select a message</h4>
+          <div class="email-detail-subject d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+            <h4 id="detailSubject" class="mb-0 fw-bold">Project Update</h4>
             <div class="email-detail-labels">
-              <span class="badge bg-primary-subtle text-primary rounded-pill px-2.5 py-1" id="detailFolderBadge">{{ ucfirst($folder) }}</span>
+              <span class="email-item-label badge rounded-pill px-3 py-1.5 fw-medium" id="detailLabelBadge" style="background: #198754; color: #fff;">Work</span>
             </div>
           </div>
 
-          <!-- Email Message Body -->
+          <!-- Email Message Header & Metadata -->
           <div class="email-message">
             <div class="email-message-header d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 pb-3 border-bottom">
               <div class="email-message-sender d-flex align-items-center gap-3">
-                <div class="avatar-circle rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold fs-5" id="detailAvatar" style="width: 44px; height: 44px;">
-                  M
+                <div class="avatar-circle rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fw-bold fs-5" id="detailAvatar" style="width: 44px; height: 44px;">
+                  S
                 </div>
                 <div class="email-message-sender-info">
                   <div class="email-message-sender-name fw-semibold">
-                    <span id="detailSenderName">Sender Name</span>
-                    <span class="email-message-sender-email text-muted small">&lt;<span id="detailSenderEmail">email@example.com</span>&gt;</span>
+                    <span id="detailSenderName">Sarah Wilson</span>
+                    <span class="email-message-sender-email text-muted small">&lt;<span id="detailSenderEmail">sarah.wilson@example.com</span>&gt;</span>
                   </div>
                   <div class="email-message-recipients text-muted small">
-                    To: <span id="detailRecipientEmail">me</span>
+                    to me, <span id="detailRecipientEmail">admin@xivig.com</span>
                     <span id="detailCcWrapper" class="d-none"> | Cc: <span id="detailCcEmail"></span></span>
                   </div>
                 </div>
               </div>
-              <div class="email-message-meta text-muted small" id="detailDate">
-                Jan 20, 2026, 10:30 AM
+
+              <!-- Message Action Metadata -->
+              <div class="email-message-meta d-flex align-items-center gap-2">
+                <span class="email-message-date text-muted small" id="detailDate">Jan 20, 2026, 10:30 AM</span>
+                <button type="button" class="email-action-btn email-star-btn" id="detailStarBtn" title="Star message">
+                  <i class="bi bi-star"></i>
+                </button>
+                <button type="button" class="email-action-btn" id="detailReplyBtn" title="Reply">
+                  <i class="bi bi-reply"></i>
+                </button>
+                <div class="dropdown d-inline-block">
+                  <button type="button" class="email-action-btn" data-bs-toggle="dropdown" title="More">
+                    <i class="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li><button type="button" class="dropdown-item" id="metaReplyBtn"><i class="bi bi-reply me-2"></i>Reply</button></li>
+                    <li><button type="button" class="dropdown-item" id="metaReplyAllBtn"><i class="bi bi-reply-all me-2"></i>Reply all</button></li>
+                    <li><button type="button" class="dropdown-item" id="metaForwardBtn"><i class="bi bi-forward me-2"></i>Forward</button></li>
+                  </ul>
+                </div>
               </div>
             </div>
 
+            <!-- Email Body Content -->
             <div class="email-message-body fs-6 lh-lg text-body mb-4" id="detailBody" style="white-space: pre-wrap; font-family: 'Plus Jakarta Sans', sans-serif;">
               Message content...
             </div>
@@ -397,6 +486,20 @@
               </div>
               <div class="email-attachments-list" id="detailAttachmentsList"></div>
             </div>
+          </div>
+
+          <!-- Quick Reply (Matching Template) -->
+          <div class="email-quick-reply mt-4">
+            <div class="avatar-circle rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px; font-size: 13px;">
+              {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
+            </div>
+            <div class="email-quick-reply-input flex-grow-1">
+              <textarea id="quickReplyBody" placeholder="Click here to reply..." class="form-control" rows="2"></textarea>
+            </div>
+            <button type="button" class="btn btn-primary d-flex align-items-center gap-1" id="btnQuickReplySend" title="Send Reply">
+              <i class="bi bi-send"></i>
+              <span class="d-none d-sm-inline">Reply</span>
+            </button>
           </div>
         </div>
       </div>
@@ -494,9 +597,68 @@
 
 </div>
 
+<style>
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #emailDetailView, #emailDetailView * {
+    visibility: visible;
+  }
+  #emailDetailView {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: #fff;
+  }
+  .email-detail-header, .email-quick-reply, .email-detail-nav, .email-sidebar {
+    display: none !important;
+  }
+}
+</style>
+
 @push('scripts')
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    let currentActiveEmailId = null;
+    const isTrashFolder = '{{ $folder }}' === 'trash';
+
+    // Helper to safely trigger SweetAlert2 Confirm or fallback
+    function confirmDialog(title, text, confirmBtnText, onConfirmed) {
+      if (typeof window.showConfirmDialog === 'function') {
+        window.showConfirmDialog({
+          title: title,
+          text: text,
+          icon: 'warning',
+          confirmButtonText: confirmBtnText || 'Yes, Proceed',
+          confirmButtonClass: 'btn btn-danger px-4 rounded-pill',
+          cancelButtonText: 'Cancel'
+        }, onConfirmed);
+      } else if (window.Swal) {
+        window.Swal.fire({
+          title: title,
+          text: text,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: confirmBtnText || 'Yes, Proceed',
+          customClass: {
+            confirmButton: 'btn btn-danger px-4 rounded-pill',
+            cancelButton: 'btn btn-outline-secondary px-4 rounded-pill me-2'
+          },
+          buttonsStyling: false
+        }).then(result => {
+          if (result && result.isConfirmed) {
+            onConfirmed();
+          }
+        });
+      } else {
+        if (confirm(`${title}\n${text}`)) {
+          onConfirmed();
+        }
+      }
+    }
+
     // 1. Mobile Drawer Navigation
     const emailSidebar = document.getElementById('emailSidebar');
     const emailSidebarOverlay = document.getElementById('emailSidebarOverlay');
@@ -561,7 +723,11 @@
     function submitBulkAction(actionName) {
       const ids = getSelectedIds();
       if (ids.length === 0) {
-        alert('Please select at least one conversation first.');
+        if (window.SwalToast) {
+          window.SwalToast.fire({ icon: 'warning', title: 'Please select at least one conversation first.' });
+        } else {
+          alert('Please select at least one conversation first.');
+        }
         return;
       }
 
@@ -584,8 +750,6 @@
     }
 
     // 3. Toolbar Action Buttons
-    const isTrashFolder = '{{ $folder }}' === 'trash';
-
     const btnArchive = document.getElementById('btnArchive');
     if (btnArchive) {
       btnArchive.addEventListener('click', () => submitBulkAction('archive'));
@@ -596,25 +760,39 @@
       btnRestore.addEventListener('click', () => submitBulkAction('restore'));
     }
 
+    // Toolbar Delete with SweetAlert2
+    function triggerBulkDelete() {
+      const ids = getSelectedIds();
+      if (ids.length === 0) {
+        if (window.SwalToast) {
+          window.SwalToast.fire({ icon: 'warning', title: 'Please select at least one conversation first.' });
+        } else {
+          alert('Please select at least one conversation first.');
+        }
+        return;
+      }
+
+      const isTrash = isTrashFolder;
+      confirmDialog(
+        isTrash ? 'Permanently Delete Conversations?' : 'Move to Trash?',
+        isTrash 
+          ? `Permanently purge ${ids.length} selected conversation(s)? This action cannot be undone.` 
+          : `Move ${ids.length} selected conversation(s) to trash?`,
+        isTrash ? 'Yes, Delete Permanently' : 'Yes, Move to Trash',
+        function() {
+          submitBulkAction(isTrash ? 'delete' : 'trash');
+        }
+      );
+    }
+
     const btnDelete = document.getElementById('btnDelete');
     if (btnDelete) {
-      btnDelete.addEventListener('click', () => {
-        const confirmMsg = isTrashFolder
-          ? 'Permanently delete selected conversation(s)? This action cannot be undone.'
-          : 'Move selected conversation(s) to trash?';
-        if (confirm(confirmMsg)) {
-          submitBulkAction(isTrashFolder ? 'delete' : 'trash');
-        }
-      });
+      btnDelete.addEventListener('click', triggerBulkDelete);
     }
 
     const menuDeleteSelected = document.getElementById('menuDeleteSelected');
     if (menuDeleteSelected) {
-      menuDeleteSelected.addEventListener('click', () => {
-        if (confirm('Move selected conversation(s) to trash?')) {
-          submitBulkAction('trash');
-        }
-      });
+      menuDeleteSelected.addEventListener('click', triggerBulkDelete);
     }
 
     const menuRestoreSelected = document.getElementById('menuRestoreSelected');
@@ -632,34 +810,54 @@
       menuUnstarSelected.addEventListener('click', () => submitBulkAction('unstar'));
     }
 
-    // 4. Single Delete Button
+    // Empty Trash confirmation with SweetAlert2
+    const formEmptyTrash = document.getElementById('formEmptyTrash');
+    if (formEmptyTrash) {
+      formEmptyTrash.addEventListener('submit', function(e) {
+        e.preventDefault();
+        confirmDialog(
+          'Empty Entire Trash?',
+          'All messages in the trash folder will be permanently purged. This cannot be undone.',
+          'Yes, Empty Trash',
+          () => formEmptyTrash.submit()
+        );
+      });
+    }
+
+    // 4. Single Delete Button with SweetAlert2
     document.querySelectorAll('.single-delete-btn').forEach(btn => {
       btn.addEventListener('click', function(e) {
         e.stopPropagation();
         const emailId = this.dataset.emailId;
-        const confirmMsg = isTrashFolder 
-          ? 'Permanently delete this conversation? This action cannot be undone.'
-          : 'Move this conversation to trash?';
-        if (confirm(confirmMsg)) {
-          const form = document.createElement('form');
-          form.method = 'POST';
-          form.action = `/admin/email/${emailId}`;
+        const isTrash = isTrashFolder;
 
-          const token = document.createElement('input');
-          token.type = 'hidden';
-          token.name = '_token';
-          token.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-          form.appendChild(token);
+        confirmDialog(
+          isTrash ? 'Permanently Delete Conversation?' : 'Move to Trash?',
+          isTrash 
+            ? 'This message will be permanently purged from the database and cannot be recovered.' 
+            : 'This message will be moved to your Trash folder.',
+          isTrash ? 'Yes, Delete Permanently' : 'Yes, Move to Trash',
+          function() {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/email/${emailId}`;
 
-          const method = document.createElement('input');
-          method.type = 'hidden';
-          method.name = '_method';
-          method.value = 'DELETE';
-          form.appendChild(method);
+            const token = document.createElement('input');
+            token.type = 'hidden';
+            token.name = '_token';
+            token.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            form.appendChild(token);
 
-          document.body.appendChild(form);
-          form.submit();
-        }
+            const method = document.createElement('input');
+            method.type = 'hidden';
+            method.name = '_method';
+            method.value = 'DELETE';
+            form.appendChild(method);
+
+            document.body.appendChild(form);
+            form.submit();
+          }
+        );
       });
     });
 
@@ -696,12 +894,11 @@
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
           }
-        }).then(() => {
-          this.classList.toggle('starred');
-          if (this.classList.contains('starred')) {
-            icon.className = 'bi bi-star-fill text-warning';
-          } else {
-            icon.className = 'bi bi-star';
+        }).then(res => res.json()).then(data => {
+          const isStarred = data.is_starred;
+          this.classList.toggle('starred', isStarred);
+          if (icon) {
+            icon.className = isStarred ? 'bi bi-star-fill text-warning' : 'bi bi-star';
           }
         }).catch(err => console.error('Star toggle failed', err));
       });
@@ -726,6 +923,35 @@
     const emailListView = document.getElementById('emailListView');
     const emailDetailView = document.getElementById('emailDetailView');
     const emailBackBtn = document.getElementById('emailBackBtn');
+    const detailPrevBtn = document.getElementById('detailPrevBtn');
+    const detailNextBtn = document.getElementById('detailNextBtn');
+
+    function updateDetailNavButtons() {
+      const items = Array.from(document.querySelectorAll('.email-item'));
+      const currentIndex = items.findIndex(el => el.dataset.emailId === String(currentActiveEmailId));
+      if (detailPrevBtn) detailPrevBtn.disabled = (currentIndex <= 0);
+      if (detailNextBtn) detailNextBtn.disabled = (currentIndex < 0 || currentIndex >= items.length - 1);
+    }
+
+    if (detailPrevBtn) {
+      detailPrevBtn.addEventListener('click', function() {
+        const items = Array.from(document.querySelectorAll('.email-item'));
+        const currentIndex = items.findIndex(el => el.dataset.emailId === String(currentActiveEmailId));
+        if (currentIndex > 0) {
+          items[currentIndex - 1].click();
+        }
+      });
+    }
+
+    if (detailNextBtn) {
+      detailNextBtn.addEventListener('click', function() {
+        const items = Array.from(document.querySelectorAll('.email-item'));
+        const currentIndex = items.findIndex(el => el.dataset.emailId === String(currentActiveEmailId));
+        if (currentIndex >= 0 && currentIndex < items.length - 1) {
+          items[currentIndex + 1].click();
+        }
+      });
+    }
 
     document.querySelectorAll('.email-item').forEach(item => {
       item.addEventListener('click', function(e) {
@@ -735,12 +961,16 @@
         }
 
         const emailId = this.dataset.emailId;
-        const subject = this.querySelector('.email-item-subject').textContent;
-        const sender = this.querySelector('.email-item-sender').textContent;
-        const time = this.querySelector('.email-item-time').textContent;
-        const senderEmail = this.querySelector('.email-raw-sender-email').textContent;
-        const recipientEmail = this.querySelector('.email-raw-recipient-email').textContent;
-        const ccEmail = this.querySelector('.email-raw-cc-email') ? this.querySelector('.email-raw-cc-email').textContent : '';
+        currentActiveEmailId = emailId;
+        updateDetailNavButtons();
+
+        const subject = this.querySelector('.email-item-subject').textContent.trim();
+        const sender = this.querySelector('.email-item-sender').textContent.trim();
+        const time = this.querySelector('.email-item-time').textContent.trim();
+        const senderEmail = this.querySelector('.email-raw-sender-email').textContent.trim();
+        const recipientEmail = this.querySelector('.email-raw-recipient-email').textContent.trim();
+        const ccEmail = this.querySelector('.email-raw-cc-email') ? this.querySelector('.email-raw-cc-email').textContent.trim() : '';
+        const isStarred = this.querySelector('.email-raw-starred') ? this.querySelector('.email-raw-starred').textContent === '1' : false;
         const bodyContent = this.querySelector('.email-raw-body').innerHTML;
 
         // Parse attachments
@@ -760,8 +990,16 @@
         document.getElementById('detailSenderEmail').textContent = senderEmail;
         document.getElementById('detailRecipientEmail').textContent = recipientEmail;
         document.getElementById('detailDate').textContent = time;
-        document.getElementById('detailAvatar').textContent = sender.trim().charAt(0).toUpperCase();
+        document.getElementById('detailAvatar').textContent = sender.charAt(0).toUpperCase();
         document.getElementById('detailBody').innerHTML = bodyContent;
+
+        // Star State in Detail
+        const detailStarBtn = document.getElementById('detailStarBtn');
+        if (detailStarBtn) {
+          detailStarBtn.classList.toggle('starred', isStarred);
+          const icon = detailStarBtn.querySelector('i');
+          if (icon) icon.className = isStarred ? 'bi bi-star-fill text-warning' : 'bi bi-star';
+        }
 
         // Cc Email field
         const ccWrapper = document.getElementById('detailCcWrapper');
@@ -808,45 +1046,6 @@
           detailAttachmentsSection.style.display = 'none';
         }
 
-        // Populate detail delete form action
-        const detailDeleteForm = document.getElementById('detailDeleteForm');
-        if (detailDeleteForm) {
-          detailDeleteForm.action = `/admin/email/${emailId}`;
-        }
-
-        // Detail restore button for trash view
-        const detailRestoreBtn = document.getElementById('detailRestoreBtn');
-        if (detailRestoreBtn) {
-          if (isTrashFolder) {
-            detailRestoreBtn.classList.remove('d-none');
-            detailRestoreBtn.onclick = function() {
-              const form = document.createElement('form');
-              form.method = 'POST';
-              form.action = `/admin/email/${emailId}/restore`;
-              const token = document.createElement('input');
-              token.type = 'hidden';
-              token.name = '_token';
-              token.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-              form.appendChild(token);
-              document.body.appendChild(form);
-              form.submit();
-            };
-          } else {
-            detailRestoreBtn.classList.add('d-none');
-          }
-        }
-
-        // Wire reply button to open modal with prefilled data
-        const replyBtn = document.getElementById('detailReplyBtn');
-        if (replyBtn) {
-          replyBtn.onclick = function() {
-            const composeModal = new bootstrap.Modal(document.getElementById('composeModal'));
-            document.getElementById('recipient_email').value = senderEmail;
-            document.getElementById('subject').value = subject.startsWith('Re: ') ? subject : `Re: ${subject}`;
-            composeModal.show();
-          };
-        }
-
         // Switch view
         emailListView.style.display = 'none';
         emailDetailView.style.display = 'flex';
@@ -879,6 +1078,289 @@
       emailBackBtn.addEventListener('click', function() {
         emailDetailView.style.display = 'none';
         emailListView.style.display = 'flex';
+      });
+    }
+
+    // Detail Action: Delete with SweetAlert2
+    const detailDeleteBtn = document.getElementById('detailDeleteBtn');
+    if (detailDeleteBtn) {
+      detailDeleteBtn.addEventListener('click', function() {
+        if (!currentActiveEmailId) return;
+        const isTrash = isTrashFolder;
+
+        confirmDialog(
+          isTrash ? 'Permanently Delete Conversation?' : 'Move to Trash?',
+          isTrash 
+            ? 'This conversation will be permanently purged and cannot be recovered.' 
+            : 'Move this conversation to the Trash folder?',
+          isTrash ? 'Yes, Delete Permanently' : 'Yes, Move to Trash',
+          function() {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/email/${currentActiveEmailId}`;
+
+            const token = document.createElement('input');
+            token.type = 'hidden';
+            token.name = '_token';
+            token.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            form.appendChild(token);
+
+            const method = document.createElement('input');
+            method.type = 'hidden';
+            method.name = '_method';
+            method.value = 'DELETE';
+            form.appendChild(method);
+
+            document.body.appendChild(form);
+            form.submit();
+          }
+        );
+      });
+    }
+
+    // Detail Action: Archive
+    const detailArchiveBtn = document.getElementById('detailArchiveBtn');
+    if (detailArchiveBtn) {
+      detailArchiveBtn.addEventListener('click', function() {
+        if (!currentActiveEmailId) return;
+        fetch(`/admin/email/${currentActiveEmailId}/move`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          },
+          body: JSON.stringify({ folder: 'sent' })
+        }).then(() => {
+          if (window.SwalToast) window.SwalToast.fire({ icon: 'success', title: 'Conversation archived.' });
+          setTimeout(() => window.location.reload(), 500);
+        });
+      });
+    }
+
+    // Detail Action: Mark Unread
+    const detailMarkUnreadBtn = document.getElementById('detailMarkUnreadBtn');
+    if (detailMarkUnreadBtn) {
+      detailMarkUnreadBtn.addEventListener('click', function() {
+        if (!currentActiveEmailId) return;
+        fetch(`/admin/email/${currentActiveEmailId}/mark-unread`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          }
+        }).then(res => res.json()).then(data => {
+          if (window.SwalToast) window.SwalToast.fire({ icon: 'info', title: 'Marked as unread.' });
+          const rowItem = document.querySelector(`[data-email-id="${currentActiveEmailId}"]`);
+          if (rowItem) rowItem.classList.add('unread');
+          const badge = document.getElementById('inboxUnreadBadge');
+          if (badge && data.unread_count !== undefined) {
+            badge.textContent = data.unread_count;
+          }
+          emailDetailView.style.display = 'none';
+          emailListView.style.display = 'flex';
+        });
+      });
+    }
+
+    // Detail Action: Move to Folder
+    document.querySelectorAll('.detail-move-folder').forEach(btn => {
+      btn.addEventListener('click', function() {
+        if (!currentActiveEmailId) return;
+        const target = this.dataset.folder;
+        fetch(`/admin/email/${currentActiveEmailId}/move`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          },
+          body: JSON.stringify({ folder: target })
+        }).then(res => res.json()).then(data => {
+          if (window.SwalToast) window.SwalToast.fire({ icon: 'success', title: `Moved to ${target.charAt(0).toUpperCase() + target.slice(1)}.` });
+          setTimeout(() => window.location.reload(), 500);
+        });
+      });
+    });
+
+    // Detail Action: Apply Labels
+    document.querySelectorAll('.detail-set-label').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const label = this.dataset.label;
+        const color = this.dataset.color;
+        const badge = document.getElementById('detailLabelBadge');
+        if (badge) {
+          badge.textContent = label;
+          badge.style.background = color;
+        }
+        if (window.SwalToast) window.SwalToast.fire({ icon: 'success', title: `Label "${label}" set.` });
+      });
+    });
+
+    // Detail Action: Print
+    const detailPrintBtn = document.getElementById('detailPrintBtn');
+    if (detailPrintBtn) {
+      detailPrintBtn.addEventListener('click', () => window.print());
+    }
+
+    // Detail Action: Forward
+    function openForwardModal() {
+      const subject = document.getElementById('detailSubject').textContent.trim();
+      const body = document.getElementById('detailBody').innerText.trim();
+      const sender = document.getElementById('detailSenderName').textContent.trim();
+      const senderEmail = document.getElementById('detailSenderEmail').textContent.trim();
+      const date = document.getElementById('detailDate').textContent.trim();
+
+      const composeModal = new bootstrap.Modal(document.getElementById('composeModal'));
+      document.getElementById('recipient_email').value = '';
+      document.getElementById('subject').value = subject.startsWith('Fwd: ') ? subject : `Fwd: ${subject}`;
+      document.getElementById('body').value = `\n\n---------- Forwarded message ---------\nFrom: ${sender} <${senderEmail}>\nDate: ${date}\nSubject: ${subject}\n\n${body}`;
+      composeModal.show();
+    }
+
+    const detailForwardBtn = document.getElementById('detailForwardBtn');
+    if (detailForwardBtn) detailForwardBtn.addEventListener('click', openForwardModal);
+    const metaForwardBtn = document.getElementById('metaForwardBtn');
+    if (metaForwardBtn) metaForwardBtn.addEventListener('click', openForwardModal);
+
+    // Detail Action: Report Spam with SweetAlert2
+    const detailReportSpamBtn = document.getElementById('detailReportSpamBtn');
+    if (detailReportSpamBtn) {
+      detailReportSpamBtn.addEventListener('click', function() {
+        if (!currentActiveEmailId) return;
+        confirmDialog(
+          'Report as Spam?',
+          'This conversation will be marked as spam and moved to the Spam folder.',
+          'Yes, Report Spam',
+          function() {
+            fetch(`/admin/email/${currentActiveEmailId}/spam`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+              }
+            }).then(() => {
+              if (window.SwalToast) window.SwalToast.fire({ icon: 'success', title: 'Moved to Spam.' });
+              setTimeout(() => window.location.reload(), 500);
+            });
+          }
+        );
+      });
+    }
+
+    // Detail Action: Block Sender with SweetAlert2
+    const detailBlockSenderBtn = document.getElementById('detailBlockSenderBtn');
+    if (detailBlockSenderBtn) {
+      detailBlockSenderBtn.addEventListener('click', function() {
+        const sender = document.getElementById('detailSenderEmail').textContent.trim();
+        confirmDialog(
+          'Block Sender?',
+          `Are you sure you want to block ${sender}? Messages from this address will be automatically filtered.`,
+          'Yes, Block Sender',
+          function() {
+            if (window.SwalToast) window.SwalToast.fire({ icon: 'success', title: `${sender} has been blocked.` });
+          }
+        );
+      });
+    }
+
+    // Detail Action: Star Toggle
+    const detailStarBtn = document.getElementById('detailStarBtn');
+    if (detailStarBtn) {
+      detailStarBtn.addEventListener('click', function() {
+        if (!currentActiveEmailId) return;
+        fetch(`/admin/email/${currentActiveEmailId}/star`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          }
+        }).then(res => res.json()).then(data => {
+          const isStarred = data.is_starred;
+          detailStarBtn.classList.toggle('starred', isStarred);
+          const icon = detailStarBtn.querySelector('i');
+          if (icon) icon.className = isStarred ? 'bi bi-star-fill text-warning' : 'bi bi-star';
+
+          const rowStar = document.querySelector(`.email-item-star[data-email-id="${currentActiveEmailId}"]`);
+          if (rowStar) {
+            rowStar.classList.toggle('starred', isStarred);
+            const rowIcon = rowStar.querySelector('i');
+            if (rowIcon) rowIcon.className = isStarred ? 'bi bi-star-fill text-warning' : 'bi bi-star';
+          }
+        });
+      });
+    }
+
+    // Detail Action: Reply Buttons
+    function openReplyModal(isReplyAll = false) {
+      const senderEmail = document.getElementById('detailSenderEmail').textContent.trim();
+      const subject = document.getElementById('detailSubject').textContent.trim();
+      const ccEmail = document.getElementById('detailCcEmail') ? document.getElementById('detailCcEmail').textContent.trim() : '';
+
+      const composeModal = new bootstrap.Modal(document.getElementById('composeModal'));
+      document.getElementById('recipient_email').value = senderEmail;
+      document.getElementById('subject').value = subject.startsWith('Re: ') ? subject : `Re: ${subject}`;
+      
+      if (isReplyAll && ccEmail) {
+        const ccField = document.getElementById('ccField');
+        const ccInput = document.getElementById('cc_email');
+        if (ccField && ccInput) {
+          ccField.classList.remove('d-none');
+          ccInput.value = ccEmail;
+        }
+      }
+      composeModal.show();
+    }
+
+    const detailReplyBtn = document.getElementById('detailReplyBtn');
+    if (detailReplyBtn) detailReplyBtn.addEventListener('click', () => openReplyModal(false));
+    const metaReplyBtn = document.getElementById('metaReplyBtn');
+    if (metaReplyBtn) metaReplyBtn.addEventListener('click', () => openReplyModal(false));
+    const metaReplyAllBtn = document.getElementById('metaReplyAllBtn');
+    if (metaReplyAllBtn) metaReplyAllBtn.addEventListener('click', () => openReplyModal(true));
+
+    // Detail Action: Quick Reply Form
+    const btnQuickReplySend = document.getElementById('btnQuickReplySend');
+    const quickReplyBody = document.getElementById('quickReplyBody');
+    if (btnQuickReplySend && quickReplyBody) {
+      btnQuickReplySend.addEventListener('click', function() {
+        const replyText = quickReplyBody.value.trim();
+        if (!replyText) {
+          if (window.SwalToast) window.SwalToast.fire({ icon: 'warning', title: 'Please type a reply message first.' });
+          return;
+        }
+
+        const senderEmail = document.getElementById('detailSenderEmail').textContent.trim();
+        const subject = document.getElementById('detailSubject').textContent.trim();
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("admin.email.store") }}';
+
+        const token = document.createElement('input');
+        token.type = 'hidden';
+        token.name = '_token';
+        token.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        form.appendChild(token);
+
+        const recInput = document.createElement('input');
+        recInput.type = 'hidden';
+        recInput.name = 'recipient_email';
+        recInput.value = senderEmail;
+        form.appendChild(recInput);
+
+        const subInput = document.createElement('input');
+        subInput.type = 'hidden';
+        subInput.name = 'subject';
+        subInput.value = subject.startsWith('Re: ') ? subject : `Re: ${subject}`;
+        form.appendChild(subInput);
+
+        const bodyInput = document.createElement('input');
+        bodyInput.type = 'hidden';
+        bodyInput.name = 'body';
+        bodyInput.value = replyText;
+        form.appendChild(bodyInput);
+
+        document.body.appendChild(form);
+        form.submit();
       });
     }
 

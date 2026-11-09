@@ -154,6 +154,8 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::get('email/{email}', [AdminEmailController::class, 'show'])->name('admin.email.show');
     Route::post('email/{email}/restore', [AdminEmailController::class, 'restore'])->name('admin.email.restore');
     Route::post('email/{email}/mark-read', [AdminEmailController::class, 'markRead'])->name('admin.email.mark-read');
+    Route::post('email/{email}/mark-unread', [AdminEmailController::class, 'markUnread'])->name('admin.email.mark-unread');
+    Route::post('email/{email}/spam', [AdminEmailController::class, 'reportSpam'])->name('admin.email.spam');
     Route::post('email/{email}/star', [AdminEmailController::class, 'toggleStar'])->name('admin.email.star');
     Route::post('email/{email}/move', [AdminEmailController::class, 'moveFolder'])->name('admin.email.move');
     Route::delete('email/{email}', [AdminEmailController::class, 'destroy'])->name('admin.email.destroy');
