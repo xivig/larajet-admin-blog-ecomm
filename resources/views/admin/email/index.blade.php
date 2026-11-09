@@ -317,20 +317,27 @@
               <div class="email-raw-body d-none">{!! nl2br(e($email->body)) !!}</div>
               <div class="email-raw-attachments d-none">{{ json_encode($email->attachments ?? []) }}</div>
 
-              <!-- Quick Action (Restore / Delete) -->
-              <div class="email-item-actions">
-                @if($folder === 'trash')
-                  <button type="button" class="btn btn-sm text-success p-1 single-restore-btn" data-email-id="{{ $email->id }}" title="Restore to Inbox">
-                    <i class="bi bi-arrow-counterclockwise"></i>
+              <!-- Segmented Action Buttons (Copy/Restore, Quick Reply, Delete) -->
+              <div class="email-item-actions ms-auto flex-shrink-0">
+                <div class="btn-group btn-group-sm" role="group" aria-label="Conversation Actions">
+                  @if($folder === 'trash')
+                    <button type="button" class="btn btn-outline-success single-restore-btn" data-email-id="{{ $email->id }}" title="Restore to Inbox">
+                      <i class="bi bi-arrow-counterclockwise"></i>
+                    </button>
+                  @else
+                    <button type="button" class="btn btn-outline-success single-copy-btn" data-email-id="{{ $email->id }}" title="Copy conversation details">
+                      <i class="bi bi-copy"></i>
+                    </button>
+                  @endif
+
+                  <button type="button" class="btn btn-outline-primary single-quick-reply-btn" data-email-id="{{ $email->id }}" title="Quick Reply">
+                    <i class="bi bi-pencil"></i>
                   </button>
-                  <button type="button" class="btn btn-sm text-danger p-1 single-delete-btn" data-email-id="{{ $email->id }}" title="Permanently Delete">
+
+                  <button type="button" class="btn btn-outline-danger single-delete-btn" data-email-id="{{ $email->id }}" title="{{ $folder === 'trash' ? 'Permanently Delete' : 'Move to Trash' }}">
                     <i class="bi bi-trash"></i>
                   </button>
-                @else
-                  <button type="button" class="btn btn-sm text-danger p-1 single-delete-btn" data-email-id="{{ $email->id }}" title="Move to Trash">
-                    <i class="bi bi-trash"></i>
-                  </button>
-                @endif
+                </div>
               </div>
             </div>
           @empty
@@ -598,6 +605,71 @@
 </div>
 
 <style>
+/* Segmented Action Button Group in Email Item Row (Matches Template & Screenshot) */
+.email-item-actions {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+}
+.email-item:hover .email-item-actions {
+  opacity: 1;
+}
+.email-item-actions .btn-group {
+  display: inline-flex;
+  vertical-align: middle;
+}
+.email-item-actions .btn-group .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 28px;
+  padding: 0;
+  font-size: 0.8125rem;
+  background-color: transparent;
+  transition: all 0.15s ease-in-out;
+  box-shadow: none !important;
+}
+.email-item-actions .btn-group .btn-outline-success {
+  border: 1px solid #10b981;
+  color: #10b981;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.email-item-actions .btn-group .btn-outline-success:hover {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #059669;
+  border-color: #10b981;
+}
+.email-item-actions .btn-group .btn-outline-primary {
+  border: 1px solid #3b82f6;
+  color: #3b82f6;
+  border-radius: 0;
+  margin-left: -1px;
+}
+.email-item-actions .btn-group .btn-outline-primary:hover {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #2563eb;
+  border-color: #3b82f6;
+}
+.email-item-actions .btn-group .btn-outline-danger {
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  margin-left: -1px;
+}
+.email-item-actions .btn-group .btn-outline-danger:hover {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+  border-color: #ef4444;
+}
+
 @media print {
   body * {
     visibility: hidden;
@@ -824,7 +896,7 @@
       });
     }
 
-    // 4. Single Delete Button with SweetAlert2
+    // 4. Single Delete Button with SweetAlert2 (from Button Group)
     document.querySelectorAll('.single-delete-btn').forEach(btn => {
       btn.addEventListener('click', function(e) {
         e.stopPropagation();
@@ -861,7 +933,80 @@
       });
     });
 
-    // 5. Single Restore Button (for Trash folder)
+    // 5. Single Quick Reply Button (from Button Group - Blue Pencil)
+    document.querySelectorAll('.single-quick-reply-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const row = this.closest('.email-item');
+        if (!row) return;
+
+        const sender = row.querySelector('.email-item-sender').textContent.trim();
+        const senderEmail = row.querySelector('.email-raw-sender-email').textContent.trim();
+        const subject = row.querySelector('.email-item-subject').textContent.trim();
+
+        const composeModalEl = document.getElementById('composeModal');
+        const composeModal = new bootstrap.Modal(composeModalEl);
+
+        const modalTitle = document.getElementById('composeModalLabel');
+        if (modalTitle) modalTitle.textContent = `Quick Reply to ${sender}`;
+
+        document.getElementById('recipient_email').value = senderEmail;
+        document.getElementById('subject').value = subject.startsWith('Re: ') ? subject : `Re: ${subject}`;
+
+        const bodyArea = document.getElementById('body');
+        if (bodyArea) {
+          bodyArea.value = '';
+          bodyArea.placeholder = `Write your quick reply to ${sender}...`;
+        }
+
+        composeModal.show();
+        setTimeout(() => {
+          if (bodyArea) bodyArea.focus();
+        }, 350);
+      });
+    });
+
+    // 6. Single Copy / Duplicate Button (from Button Group - Green Copy)
+    document.querySelectorAll('.single-copy-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const row = this.closest('.email-item');
+        if (!row) return;
+
+        const subject = row.querySelector('.email-item-subject').textContent.trim();
+        const sender = row.querySelector('.email-item-sender').textContent.trim();
+        const senderEmail = row.querySelector('.email-raw-sender-email').textContent.trim();
+        const body = row.querySelector('.email-raw-body').innerText.trim();
+
+        const summary = `From: ${sender} <${senderEmail}>\nSubject: ${subject}\n\n${body}`;
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(summary).then(() => {
+            if (window.SwalToast) {
+              window.SwalToast.fire({ icon: 'success', title: 'Conversation copied to clipboard!' });
+            }
+          }).catch(() => fallbackCopy(summary));
+        } else {
+          fallbackCopy(summary);
+        }
+
+        function fallbackCopy(text) {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          if (window.SwalToast) {
+            window.SwalToast.fire({ icon: 'success', title: 'Conversation copied to clipboard!' });
+          }
+        }
+      });
+    });
+
+    // 7. Single Restore Button (for Trash folder - Green Button)
     document.querySelectorAll('.single-restore-btn').forEach(btn => {
       btn.addEventListener('click', function(e) {
         e.stopPropagation();
@@ -881,7 +1026,7 @@
       });
     });
 
-    // 6. Star Toggle Logic
+    // 8. Star Toggle Logic
     document.querySelectorAll('.email-item-star').forEach(starBtn => {
       starBtn.addEventListener('click', function(e) {
         e.stopPropagation();
@@ -904,7 +1049,7 @@
       });
     });
 
-    // 7. Helper for Attachment Icons
+    // 9. Helper for Attachment Icons
     function getFileIcon(filename) {
       if (!filename) return 'bi-file-earmark';
       const ext = filename.split('.').pop().toLowerCase();
@@ -919,7 +1064,7 @@
       return 'bi-file-earmark';
     }
 
-    // 8. Read Mail: Item Click -> Show Detail View
+    // 10. Read Mail: Item Click -> Show Detail View
     const emailListView = document.getElementById('emailListView');
     const emailDetailView = document.getElementById('emailDetailView');
     const emailBackBtn = document.getElementById('emailBackBtn');
@@ -955,7 +1100,7 @@
 
     document.querySelectorAll('.email-item').forEach(item => {
       item.addEventListener('click', function(e) {
-        // Prevent opening if clicked inside checkbox, star, or actions
+        // Prevent opening if clicked inside checkbox, star, or action button group
         if (e.target.closest('.email-item-select') || e.target.closest('.email-item-star') || e.target.closest('.email-item-actions')) {
           return;
         }
@@ -1364,7 +1509,17 @@
       });
     }
 
-    // 9. Compose Modal Logic & Attachments Management
+    // 11. Compose Modal Logic & Attachments Management
+    const composeModalEl = document.getElementById('composeModal');
+    if (composeModalEl) {
+      composeModalEl.addEventListener('hidden.bs.modal', function() {
+        const modalTitle = document.getElementById('composeModalLabel');
+        if (modalTitle) modalTitle.textContent = 'New Message';
+        const bodyArea = document.getElementById('body');
+        if (bodyArea) bodyArea.placeholder = 'Write your message here...';
+      });
+    }
+
     const showCcBtn = document.getElementById('showCcBtn');
     const showBccBtn = document.getElementById('showBccBtn');
     const ccField = document.getElementById('ccField');
