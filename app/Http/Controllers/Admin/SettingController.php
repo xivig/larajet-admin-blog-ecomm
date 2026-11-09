@@ -8,14 +8,65 @@ use App\Models\Post;
 use App\Models\Setting;
 use App\Models\Tag;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use DateTime;
+use DateTimeZone;
 
 class SettingController extends Controller
 {
+    /**
+     * Get all standard timezones grouped by region with formatted offsets.
+     */
+    public static function getAllTimezones(): array
+    {
+        $timezones = [];
+        $now = new DateTime('now', new DateTimeZone('UTC'));
+
+        foreach (DateTimeZone::listIdentifiers() as $tzId) {
+            $parts = explode('/', $tzId, 2);
+            $region = $parts[0];
+            $city = isset($parts[1]) ? str_replace('_', ' ', $parts[1]) : $region;
+
+            try {
+                $tz = new DateTimeZone($tzId);
+                $offset = $tz->getOffset($now);
+                $hours = intdiv($offset, 3600);
+                $minutes = abs(intdiv($offset % 3600, 60));
+                $sign = $offset >= 0 ? '+' : '-';
+                $formattedOffset = sprintf('UTC%s%02d:%02d', $sign, abs($hours), $minutes);
+            } catch (\Throwable $e) {
+                $offset = 0;
+                $formattedOffset = 'UTC+00:00';
+            }
+
+            $timezones[$region][] = [
+                'id' => $tzId,
+                'name' => $city,
+                'offset' => $offset,
+                'formatted_offset' => $formattedOffset,
+                'label' => "({$formattedOffset}) " . str_replace('_', ' ', $tzId),
+            ];
+        }
+
+        // Sort timezones within each region by offset then name
+        foreach ($timezones as $region => &$tzList) {
+            usort($tzList, function ($a, $b) {
+                if ($a['offset'] === $b['offset']) {
+                    return strcmp($a['id'], $b['id']);
+                }
+                return $a['offset'] <=> $b['offset'];
+            });
+        }
+
+        return $timezones;
+    }
+
     /**
      * Display the site settings management dashboard.
      */
@@ -42,7 +93,9 @@ class SettingController extends Controller
             $currentTimeInTz = Carbon::now()->format('M d, Y h:i A');
         }
 
-        return view('admin.settings.index', compact('settings', 'storageDriver', 'dbDriverName', 'activeTimezone', 'currentTimeInTz'));
+        $allTimezones = self::getAllTimezones();
+
+        return view('admin.settings.index', compact('settings', 'storageDriver', 'dbDriverName', 'activeTimezone', 'currentTimeInTz', 'allTimezones'));
     }
 
     /**
@@ -100,7 +153,7 @@ class SettingController extends Controller
             'editorial_email' => 'required|email|max:255',
             'stories_per_page' => 'required|integer|min:1|max:100',
             'comments_moderation' => 'required|string|in:Auto-Approve,Manual Review,Strict Spam Filter',
-            'system_timezone' => 'required|string|max:100',
+            'system_timezone' => ['required', 'string', Rule::in(DateTimeZone::listIdentifiers())],
         ]);
 
         Setting::set('gazette_title', $request->gazette_title, 'editorial');
@@ -111,7 +164,46 @@ class SettingController extends Controller
         Setting::set('comments_moderation', $request->comments_moderation, 'editorial');
         Setting::set('system_timezone', $request->system_timezone, 'editorial');
 
-        return redirect()->route('admin.settings.index')->with('success', 'Editorial configuration & branding saved.');
+        // Apply dynamically to current runtime
+        date_default_timezone_set($request->system_timezone);
+        config(['app.timezone' => $request->system_timezone]);
+
+        return redirect()->route('admin.settings.index')->with('success', 'Editorial configuration & branding saved successfully.');
+    }
+
+    /**
+     * Update or quickly apply Default System Timezone.
+     */
+    public function updateTimezone(Request $request): RedirectResponse|JsonResponse
+    {
+        $request->validate([
+            'system_timezone' => ['required', 'string', Rule::in(DateTimeZone::listIdentifiers())],
+        ]);
+
+        $tz = $request->system_timezone;
+        Setting::set('system_timezone', $tz, 'editorial');
+
+        // Apply immediately to current execution context
+        date_default_timezone_set($tz);
+        config(['app.timezone' => $tz]);
+
+        try {
+            $currentTime = Carbon::now($tz)->format('M d, Y h:i A');
+        } catch (\Throwable $e) {
+            $currentTime = Carbon::now()->format('M d, Y h:i A');
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "System timezone updated to {$tz}.",
+                'timezone' => $tz,
+                'current_time' => $currentTime
+            ]);
+        }
+
+        return redirect()->route('admin.settings.index')
+            ->with('success', "System timezone successfully updated to {$tz} (Current time: {$currentTime}).");
     }
 
     /**

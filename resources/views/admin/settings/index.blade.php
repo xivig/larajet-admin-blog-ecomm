@@ -174,29 +174,69 @@
             </div>
 
             <!-- Default System Timezone Box -->
-            <div class="border rounded-4 p-3.5 mb-4 bg-light-subtle">
+            <div class="border rounded-4 p-3.5 mb-4 bg-light-subtle shadow-sm">
               <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
-                <div class="d-flex align-items-center gap-1.5 fw-semibold text-body">
-                  <i class="bi bi-clock text-primary"></i>
+                <div class="d-flex align-items-center gap-2 fw-semibold text-body">
+                  <div class="rounded-2 p-1.5 bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center">
+                    <i class="bi bi-clock-history"></i>
+                  </div>
                   <span>Default System Timezone</span>
                 </div>
-                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fw-medium" style="font-size: 11px;">
-                  Active: {{ $currentTimeInTz }}
-                </span>
-              </div>
-              <div class="text-muted small mb-3">
-                Global baseline timezone used for editorial scheduling, activity audit timestamps, and dispatches.
+                <div class="d-flex align-items-center gap-2">
+                  <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-2.5 py-1 d-inline-flex align-items-center gap-1" id="btnDetectTz" style="font-size: 11px;" title="Automatically detect your device timezone">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>Detect Mine</span>
+                  </button>
+                  <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1.5 fw-medium" id="tzActiveBadge" style="font-size: 11px;">
+                    Active: {{ $currentTimeInTz }}
+                  </span>
+                </div>
               </div>
 
-              <select name="system_timezone" class="form-select rounded-3">
-                <option value="Europe/Paris" {{ $activeTimezone === 'Europe/Paris' ? 'selected' : '' }}>(UTC+01:00/+02:00) Paris, Brussels, Geneva, Madrid</option>
-                <option value="Europe/London" {{ $activeTimezone === 'Europe/London' ? 'selected' : '' }}>(UTC+00:00/+01:00) London, Dublin, Lisbon</option>
-                <option value="America/New_York" {{ $activeTimezone === 'America/New_York' ? 'selected' : '' }}>(UTC-05:00/-04:00) Eastern Time (US &amp; Canada)</option>
-                <option value="America/Los_Angeles" {{ $activeTimezone === 'America/Los_Angeles' ? 'selected' : '' }}>(UTC-08:00/-07:00) Pacific Time (US &amp; Canada)</option>
-                <option value="Asia/Tokyo" {{ $activeTimezone === 'Asia/Tokyo' ? 'selected' : '' }}>(UTC+09:00) Tokyo, Osaka, Sapporo</option>
-                <option value="Asia/Dubai" {{ $activeTimezone === 'Asia/Dubai' ? 'selected' : '' }}>(UTC+04:00) Dubai, Abu Dhabi</option>
-                <option value="UTC" {{ $activeTimezone === 'UTC' ? 'selected' : '' }}>(UTC+00:00) Coordinated Universal Time</option>
+              <div class="text-muted small mb-3">
+                Global baseline timezone used across the entire application for post scheduling, article publish dates, activity logs, dispatches, and notifications.
+              </div>
+
+              <!-- Filter / Search Box -->
+              <div class="input-group input-group-sm mb-2">
+                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                <input type="text" id="tzSearchInput" class="form-control border-start-0 ps-0" placeholder="Quick search timezone (e.g. New York, London, Tokyo, Kolkata, Berlin, UTC)..." autocomplete="off">
+                <button type="button" class="btn btn-outline-secondary border-start-0" id="tzClearFilter" style="display: none;" title="Clear filter">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+
+              <!-- Timezone Select with ALL Timezones -->
+              <select name="system_timezone" id="systemTimezoneSelect" class="form-select rounded-3 py-2 mb-3" style="max-height: 280px;">
+                @foreach ($allTimezones as $region => $tzList)
+                  <optgroup label="{{ $region }} ({{ count($tzList) }})">
+                    @foreach ($tzList as $tz)
+                      <option value="{{ $tz['id'] }}" data-offset="{{ $tz['formatted_offset'] }}" {{ $activeTimezone === $tz['id'] ? 'selected' : '' }}>
+                        {{ $tz['label'] }}
+                      </option>
+                    @endforeach
+                  </optgroup>
+                @endforeach
               </select>
+
+              <!-- Live Information and Instant Apply Bar -->
+              <div class="p-2.5 rounded-3 border bg-white d-flex flex-wrap align-items-center justify-content-between gap-2" id="tzInfoBar">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <span class="badge bg-secondary-subtle text-secondary rounded-pill px-2.5 py-1" style="font-size: 11px;" id="tzRegionBadge">
+                    Region: {{ explode('/', $activeTimezone)[0] ?? 'UTC' }}
+                  </span>
+                  <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill px-2.5 py-1" style="font-size: 11px;" id="tzOffsetBadge">
+                    UTC Offset
+                  </span>
+                  <span class="small text-muted d-inline-flex align-items-center gap-1">
+                    <i class="bi bi-clock"></i> Local Time: <strong class="text-body font-monospace" id="tzLiveClock">{{ $currentTimeInTz }}</strong>
+                  </span>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1" id="btnApplyTimezoneAjax" style="font-size: 12px;">
+                  <i class="bi bi-check2-circle"></i>
+                  <span>Apply Now</span>
+                </button>
+              </div>
             </div>
 
             <button type="submit" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold" style="background-color: #5551ff; border-color: #5551ff;">
@@ -289,6 +329,188 @@
       icon.classList.add('bi-eye');
     }
   }
+
+  // Timezone Manager Interactive Functionality
+  (function() {
+    const tzSelect = document.getElementById('systemTimezoneSelect');
+    const tzSearchInput = document.getElementById('tzSearchInput');
+    const tzClearBtn = document.getElementById('tzClearFilter');
+    const tzActiveBadge = document.getElementById('tzActiveBadge');
+    const tzLiveClock = document.getElementById('tzLiveClock');
+    const tzRegionBadge = document.getElementById('tzRegionBadge');
+    const tzOffsetBadge = document.getElementById('tzOffsetBadge');
+    const btnDetectTz = document.getElementById('btnDetectTz');
+    const btnApplyAjax = document.getElementById('btnApplyTimezoneAjax');
+
+    if (!tzSelect) return;
+
+    // 1. Live Time Formatter for any IANA timezone
+    function formatTimeInZone(timeZone) {
+      try {
+        const d = new Date();
+        const formatter = new Intl.DateTimeFormat('en-US', {
+          timeZone: timeZone,
+          month: 'short',
+          day: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true
+        });
+        return formatter.format(d);
+      } catch (e) {
+        return new Date().toLocaleTimeString();
+      }
+    }
+
+    // 2. Update UI badges and live clocks
+    function updateTzDisplay() {
+      const selectedOption = tzSelect.options[tzSelect.selectedIndex];
+      if (!selectedOption) return;
+      const zoneId = selectedOption.value;
+      const offset = selectedOption.getAttribute('data-offset') || '';
+      const region = zoneId.split('/')[0] || 'UTC';
+
+      const formatted = formatTimeInZone(zoneId);
+      if (tzLiveClock) tzLiveClock.textContent = formatted;
+      if (tzRegionBadge) tzRegionBadge.textContent = 'Region: ' + region;
+      if (tzOffsetBadge) tzOffsetBadge.textContent = offset || 'UTC Offset';
+    }
+
+    tzSelect.addEventListener('change', updateTzDisplay);
+
+    // Initial update
+    updateTzDisplay();
+
+    // 1-second live ticking clock
+    setInterval(function() {
+      const selectedOption = tzSelect.options[tzSelect.selectedIndex];
+      if (selectedOption) {
+        const formatted = formatTimeInZone(selectedOption.value);
+        if (tzLiveClock) tzLiveClock.textContent = formatted;
+      }
+    }, 1000);
+
+    // 3. Quick Filter Search
+    if (tzSearchInput) {
+      tzSearchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        if (tzClearBtn) tzClearBtn.style.display = query ? '' : 'none';
+
+        const optgroups = tzSelect.querySelectorAll('optgroup');
+        optgroups.forEach(function(group) {
+          let visibleCount = 0;
+          const options = group.querySelectorAll('option');
+          options.forEach(function(opt) {
+            const text = opt.textContent.toLowerCase();
+            const val = opt.value.toLowerCase();
+            const matches = !query || text.includes(query) || val.includes(query);
+            opt.hidden = !matches;
+            if (matches) visibleCount++;
+          });
+          group.hidden = (visibleCount === 0);
+        });
+      });
+
+      if (tzClearBtn) {
+        tzClearBtn.addEventListener('click', function() {
+          tzSearchInput.value = '';
+          tzSearchInput.dispatchEvent(new Event('input'));
+          tzSearchInput.focus();
+        });
+      }
+    }
+
+    // 4. Detect Device Browser Timezone
+    if (btnDetectTz) {
+      btnDetectTz.addEventListener('click', function() {
+        try {
+          const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          let matched = false;
+          for (let i = 0; i < tzSelect.options.length; i++) {
+            if (tzSelect.options[i].value === detected) {
+              tzSelect.selectedIndex = i;
+              matched = true;
+              break;
+            }
+          }
+          if (matched) {
+            updateTzDisplay();
+            if (typeof Swal !== 'undefined') {
+              Swal.fire({
+                icon: 'success',
+                title: 'Timezone Detected!',
+                text: 'Selected "' + detected + '" from your device clock.',
+                timer: 2500,
+                showConfirmButton: false
+              });
+            }
+          } else {
+            alert('Detected timezone "' + detected + '" is not in standard list.');
+          }
+        } catch (e) {
+          alert('Could not detect device timezone.');
+        }
+      });
+    }
+
+    // 5. Instant Apply Button (AJAX)
+    if (btnApplyAjax) {
+      btnApplyAjax.addEventListener('click', function() {
+        const selectedTz = tzSelect.value;
+        const btn = this;
+        const originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Applying...';
+
+        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+                      document.querySelector('input[name="_token"]')?.value;
+
+        fetch('{{ route("admin.settings.timezone") }}', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': token,
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ system_timezone: selectedTz })
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+          if (data.success) {
+            if (tzActiveBadge) {
+              tzActiveBadge.textContent = 'Active: ' + data.current_time;
+              tzActiveBadge.classList.add('bg-success-subtle', 'text-success', 'border-success-subtle');
+              tzActiveBadge.classList.remove('bg-primary-subtle', 'text-primary', 'border-primary-subtle');
+              setTimeout(function() {
+                tzActiveBadge.classList.remove('bg-success-subtle', 'text-success', 'border-success-subtle');
+                tzActiveBadge.classList.add('bg-primary-subtle', 'text-primary', 'border-primary-subtle');
+              }, 3000);
+            }
+            if (typeof Swal !== 'undefined') {
+              Swal.fire({
+                icon: 'success',
+                title: 'Timezone Applied!',
+                text: data.message + ' Current server time: ' + data.current_time,
+                timer: 2500,
+                showConfirmButton: false
+              });
+            }
+          } else {
+            alert(data.message || 'Error updating timezone.');
+          }
+        })
+        .catch(function(err) {
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+          alert('Failed to update timezone. Please check server logs.');
+        });
+      });
+    }
+  })();
 </script>
 @endpush
 

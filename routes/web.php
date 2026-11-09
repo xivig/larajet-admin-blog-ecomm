@@ -207,6 +207,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('settings/maintenance', [AdminSettingController::class, 'updateMaintenance'])->name('admin.settings.maintenance');
     Route::post('settings/integrations', [AdminSettingController::class, 'updateIntegrations'])->name('admin.settings.integrations');
     Route::post('settings/editorial', [AdminSettingController::class, 'updateEditorial'])->name('admin.settings.editorial');
+    Route::post('settings/timezone', [AdminSettingController::class, 'updateTimezone'])->name('admin.settings.timezone');
 
     // SEO & Search Engine Intelligence Suite
     Route::get('settings/seo', [AdminSeoSettingController::class, 'index'])->name('admin.settings.seo');

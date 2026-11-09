@@ -23,5 +23,16 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
         Paginator::useBootstrap();
+
+        // Apply dynamically configured system timezone globally
+        try {
+            $configuredTz = \App\Models\Setting::get('system_timezone');
+            if ($configuredTz && in_array($configuredTz, \DateTimeZone::listIdentifiers())) {
+                date_default_timezone_set($configuredTz);
+                config(['app.timezone' => $configuredTz]);
+            }
+        } catch (\Throwable $e) {
+            // Ignore during early migrations or database uninitialized state
+        }
     }
 }
