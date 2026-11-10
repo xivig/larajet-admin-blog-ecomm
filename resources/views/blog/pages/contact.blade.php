@@ -41,7 +41,7 @@
                         </div>
                         <div class="form-group mb-3">
                             <label class="font-weight-bold small text-muted">Subject</label>
-                            <input type="text" name="subject" class="form-control" placeholder="Technical Inquiry / Partnership">
+                            <input type="text" name="subject" value="{{ request('subject') }}" class="form-control" placeholder="Technical Inquiry / Partnership">
                         </div>
                         <div class="form-group mb-4">
                             <label class="font-weight-bold small text-muted">Your Message *</label>

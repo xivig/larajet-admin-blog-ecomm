@@ -25,7 +25,7 @@
 						</div>
 						<div class="form-group mb-4">
 							<label class="font-weight-bold small text-dark">Project Specifications</label>
-							<textarea name="message" class="form-control form-control-elite" rows="4" placeholder="Briefly describe your objectives or questions..." required></textarea>
+							<textarea name="message" class="form-control form-control-elite" rows="4" placeholder="Briefly describe your objectives or questions..." required>{{ request('subject') ? request('subject') . " — " : '' }}</textarea>
 						</div>
 						<button class="btn-elite btn-elite-primary w-100" name="submit" type="submit">
 							<i class="fas fa-paper-plane mr-2"></i> Submit Inquiry

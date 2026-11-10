@@ -41,6 +41,9 @@ class UrlRedirectMiddleware
             if (!str_starts_with($target, 'http://') && !str_starts_with($target, 'https://')) {
                 $target = url($target);
             }
+            if (($qs = $request->getQueryString()) && !str_contains($target, '?')) {
+                $target .= '?' . $qs;
+            }
 
             return redirect()->to($target, $rule->status_code ?: 301);
         }

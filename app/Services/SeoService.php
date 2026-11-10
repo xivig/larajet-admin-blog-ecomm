@@ -433,9 +433,16 @@ class SeoService
             ];
         }
 
+        // Respect per-page Blade @section('title') on non-home static routes (e.g. /project, /about, /services)
+        $sectionTitle = trim(app('view')->getSection('title', ''));
+        $isNamedNonHome = request()->route()?->getName() !== 'home';
+        $resolvedGlobalTitle = ($sectionTitle !== '' && $isNamedNonHome)
+            ? $sectionTitle
+            : $settings->get('seo_meta_title', $siteName . ' - Elite Editorial Command Center');
+
         // Global site fallback
         return [
-            'title' => $settings->get('seo_meta_title', $siteName . ' - Elite Editorial Command Center'),
+            'title' => $resolvedGlobalTitle,
             'description' => $siteDesc,
             'keywords' => $settings->get('seo_meta_keywords', 'laravel, architecture, engineering, cms'),
             'canonical' => url()->current(),
@@ -448,7 +455,7 @@ class SeoService
             'rating' => $defaultRating,
             'copyright' => $defaultCopyright,
             'og_type' => 'website',
-            'og_title' => $settings->get('seo_meta_title', $siteName),
+            'og_title' => $resolvedGlobalTitle,
             'og_description' => $siteDesc,
             'image' => $defaultImage,
             'twitter_card' => 'summary_large_image',
