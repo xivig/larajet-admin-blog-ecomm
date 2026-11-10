@@ -37,15 +37,17 @@ class UrlRedirectMiddleware
             $rule->increment('hits_count');
             $rule->update(['last_accessed_at' => now()]);
 
-            $target = $rule->target_path;
-            if (!str_starts_with($target, 'http://') && !str_starts_with($target, 'https://')) {
-                $target = url($target);
-            }
-            if (($qs = $request->getQueryString()) && !str_contains($target, '?')) {
-                $target .= '?' . $qs;
-            }
+            $target = trim((string) $rule->target_path);
+            if ($target !== '' && preg_match('/^(https?:\/\/|\/)/i', $target)) {
+                if (!str_starts_with($target, 'http://') && !str_starts_with($target, 'https://')) {
+                    $target = url($target);
+                }
+                if (($qs = $request->getQueryString()) && !str_contains($target, '?')) {
+                    $target .= '?' . $qs;
+                }
 
-            return redirect()->to($target, $rule->status_code ?: 301);
+                return redirect()->to($target, $rule->status_code ?: 301);
+            }
         }
 
         // 2. Check Automatic Slug History (e.g. /blog/{old_slug} or /post/{old_slug})

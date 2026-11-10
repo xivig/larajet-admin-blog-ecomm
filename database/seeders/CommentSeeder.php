@@ -10,68 +10,58 @@ use Illuminate\Database\Seeder;
 class CommentSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Seed realistic editorial and engineering reader comments across published articles.
      */
     public function run(): void
     {
         $userIds = User::pluck('id')->all();
-        $postIds = Post::pluck('id')->all();
+        $postIds = Post::orderBy('id')->pluck('id')->all();
 
         if (empty($userIds) || empty($postIds)) {
             return;
         }
 
         $comments = [
-            "A great look into backstory!",
-            "A lot of prep required before it is usable as an advent calendar.",
-            "Absolutely adored this book. Can't wait to read the next one.",
-            "Another great plus is that the hardcover's design looks amazing on my shelf!",
-            "Cosy and warm. Does the job.",
-            "Definitely a book I would recommend to fans of the series.",
-            "Does what it says on the package.",
-            "Easy to use. Helpful.",
-            "Expensive for the quality.",
-            "Good base for a Xmas Advent Calendar - needs quite a bit of sanding before painting",
-            "Good quality.",
-            "Great idea but a really rough finish.",
-            "Great quality and will last many years.",
-            "I bought this for the dog just to keep him a bit warmer in his bed and it's perfect for that",
-            "I couldn't put this down!",
-            "I had no idea what to expect from this when I started reading but was instantly hooked.",
-            "I loved it and cannot wait for the second novel.",
-            "I thought this was pricey for what it was but it's exactly what I was looking for.",
-            "If you're a fan of the series you'll love this.",
-            "Incredible.",
-            "It was purchased as a gift for my Grandson who was delighted with the book.",
-            "It's very soft and comfortable, it's just a little thin, I am happy with my blanket for my couch.",
-            "I've just spent the last two days reading it and it was so worth the purchase!",
-            "Keeps you warm.",
-            "Love this new addition to my living room. It's so soft and warm.",
-            "Loved it !! great pacing and storyline.",
-            "Lovely and soft.",
-            "Must-read/have.",
-            "One of my favourite books!",
-            "Package arrived early and was properly wrapped.",
-            "Really soft really large & easy to wash & dries quickly.",
-            "So good!",
-            "Thank you so much for this item what a great way to personalise a gift.",
-            "The book has perfectly evolved with the original audience target (young teens) who are still a fan.",
-            "The box itself makes a good base and its quality is good enough once you've spent the time to finish it.",
-            "The storytelling is excellent in this and the way the author describes bending is sublime.",
-            "They look beautiful. The bigger boxes are quite big!",
-            "This is a great Christmas idea.",
-            "Very good service from this supplier.",
-            "Very large & cosy. Just what I wanted.",
-            "What I also love is how the air nomads are still there and thriving!",
-            "Will 100% buy again. Thank you.",
+            'Strong breakdown of the failure modes around tail latency—especially isolating read replicas from background analytical jobs.',
+            'We rolled out a similar connection-pooler topology last quarter and saw p99 checkout latency drop from 420ms to 68ms.',
+            'The contrast-ratio edge cases over photographic scrims caught us off guard during our light-mode launch too. Scoped token rules fixed it cleanly.',
+            'Appreciate the concrete numbers on NAT gateway egress optimization. Moving S3 and container registry pulls to VPC endpoints paid for itself in a week.',
+            'Great perspective on keeping domain modules decoupled inside a modular monolith before committing to network boundaries.',
+            'How are you handling schema evolution on the outbox relay table during zero-downtime blue/green migrations?',
+            'Clear comparison between vectorized execution and row-oriented indexes. Our billing dashboard queries went from 14s to under 300ms.',
+            'Security teams rarely talk enough about passkey recovery flows in enterprise environments—this struck the right balance between UX and compliance.',
+            'Switching our CI pipeline to deterministic Nix environments cut flaky integration builds down below 0.5%.',
+            'Helpful reminder that evaluation harnesses need adversarial edge cases just as much as golden happy-path prompts.',
+            'The idempotency key lifecycle section should be required reading for every payments integration team.',
+            'We adopted error-budget burn alerts with two-window multi-burn-rate thresholds and reduced midnight pages by over 60%.',
+            'Bookmarking this for our design-system audit next sprint—fluid clamped type scales eliminated half our mobile media queries.',
+            'Excellent deep dive. Did you benchmark KV-cache quantization accuracy impact on code-generation tasks specifically?',
+            'Clean explanation of RBAC versus policy-based authorization boundaries inside multi-tenant workspaces.',
+            'Having ephemeral preview databases per pull request transformed how our PMs and QA sign off on UI changes.',
+            'Practical trade-offs throughout. Avoiding premature sharding until a single tuned primary saturates saves years of operational overhead.',
+            'Replaying production trace samples against staging before canary promotion caught two subtle serialization regressions for us.',
+            'Solid ROI framework for developer experience initiatives—tying PR cycle time directly to deployment batch size resonated with leadership.',
+            'Crisp walkthrough! Combining signed SLSA provenance attestations with admission policies closed our container integrity gap cleanly.',
         ];
 
-        foreach ($comments as $comment) {
-            Comment::create([
-                'user_id' => $userIds[array_rand($userIds)],
-                'post_id' => $postIds[array_rand($postIds)],
-                'comment' => $comment,
-            ]);
+        foreach ($postIds as $index => $postId) {
+            // Add 1-2 thoughtful comments on the top 25 posts so discussion threads look active and authentic
+            if ($index >= 25) {
+                break;
+            }
+            $countForPost = ($index < 15) ? 2 : 1;
+            for ($c = 0; $c < $countForPost; $c++) {
+                $text = $comments[($index + $c * 7) % count($comments)];
+                $userId = $userIds[($index * 3 + $c) % count($userIds)];
+                Comment::create([
+                    'user_id' => $userId,
+                    'post_id' => $postId,
+                    'comment' => $text,
+                    'status' => true,
+                    'created_at' => now()->subHours(($index * 5) + ($c * 2) + 1),
+                    'updated_at' => now()->subHours(($index * 5) + ($c * 2) + 1),
+                ]);
+            }
         }
     }
 }

@@ -280,7 +280,7 @@
           </div>
           <div class="col-md-6">
             <label class="form-label small fw-bold">Or Image Path / URL</label>
-            <input type="text" name="image_url" class="form-control" value="xivig-blog/images/portfolio/project-nexus-core.webp">
+            <input type="text" name="image_url" class="form-control" value="xivig-public/images/portfolio/project-nexus-core.webp">
           </div>
           <div class="col-12">
             <label class="form-label small fw-bold">Private Download / Package URL (Unlocked on Paid Orders)</label>

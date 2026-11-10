@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\SecurityFileGuard;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ class FileManagerController extends Controller
             'uploads/avatars' => 'User Avatars',
             'uploads/chat' => 'Chat Attachments',
             'uploads/email-attachments' => 'Email Attachments',
-            'admin-dist/img' => 'Template Visuals',
+            'xivig-admin/img' => 'Template Visuals',
             'uploads/trash' => 'Recycle Bin / Trash',
         ];
 
@@ -123,8 +124,8 @@ class FileManagerController extends Controller
         ]);
 
         $folderSlug = Str::slug($request->folder_name);
-        if (empty($folderSlug)) {
-            return back()->with('error', 'Invalid folder name specified.');
+        if (empty($folderSlug) || $folderSlug === 'trash') {
+            return back()->with('error', 'Invalid or reserved folder name specified.');
         }
 
         $newRelPath = 'uploads/' . $folderSlug;
@@ -141,43 +142,44 @@ class FileManagerController extends Controller
     }
 
     /**
-     * Upload a new file.
+     * Upload a new file safely inside allowed upload directories.
      */
     public function upload(Request $request): RedirectResponse
     {
         $request->validate([
-            'file' => 'required|file|max:20480', // 20 MB max
+            'file' => ['required', 'file', 'max:20480', SecurityFileGuard::mediaMimeRule()],
             'folder' => 'required|string',
         ]);
 
-        $folder = $request->folder;
-        $allowedFolders = array_keys($this->getAllowedFolders());
-        if (!in_array($folder, $allowedFolders) || $folder === 'uploads/trash') {
-            $folder = 'uploads/posts';
+        $file = $request->file('file');
+        if (!$file || !SecurityFileGuard::isSafeUploadedFile($file, SecurityFileGuard::MEDIA_EXTENSIONS)) {
+            return back()->with('error', 'File rejected by security policy (disallowed type or invalid image header).');
         }
 
+        $folder = SecurityFileGuard::resolveSafeUploadFolder((string) $request->folder) ?? 'uploads/posts';
         $destDir = public_path($folder);
         if (!File::exists($destDir)) {
             File::makeDirectory($destDir, 0755, true);
         }
 
-        $file = $request->file('file');
-        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $ext = $file->getClientOriginalExtension();
-        $safeName = time() . '_' . Str::slug($originalName) . '.' . $ext;
+        $safeName = SecurityFileGuard::safeStoredFilename(
+            (string) $file->getClientOriginalName(),
+            (string) $file->getClientOriginalExtension()
+        );
 
         $file->move($destDir, $safeName);
 
         try {
             \App\Jobs\OptimizeMediaImageJob::dispatch($folder . '/' . $safeName);
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
 
         return redirect()->route('admin.file-manager.index', ['folder' => $folder])
             ->with('success', 'File "' . $safeName . '" uploaded successfully!');
     }
 
     /**
-     * Duplicate an existing file.
+     * Duplicate an existing file inside allowed asset folders.
      */
     public function duplicate(Request $request): RedirectResponse
     {
@@ -185,14 +187,9 @@ class FileManagerController extends Controller
             'path' => 'required|string',
         ]);
 
-        $relPath = $request->path;
-        if (str_contains($relPath, '..') || str_starts_with($relPath, '/') || str_starts_with($relPath, '\\')) {
-            return back()->with('error', 'Invalid file path specified.');
-        }
-
-        $fullPath = public_path($relPath);
-        if (!File::exists($fullPath) || !is_file($fullPath)) {
-            return back()->with('error', 'File not found to duplicate.');
+        $fullPath = SecurityFileGuard::resolveAllowedPublicPath((string) $request->path, ['uploads/', 'xivig-admin/img/']);
+        if (!$fullPath) {
+            return back()->with('error', 'Invalid or unauthorized file path specified.');
         }
 
         $dir = dirname($fullPath);
@@ -200,8 +197,7 @@ class FileManagerController extends Controller
         $ext = pathinfo($fullPath, PATHINFO_EXTENSION);
         $dotExt = $ext ? ('.' . $ext) : '';
 
-        $copyName = $baseName . '-copy' . $dotExt;
-        $targetPath = $dir . DIRECTORY_SEPARATOR . $copyName;
+        $targetPath = $dir . DIRECTORY_SEPARATOR . $baseName . '-copy' . $dotExt;
         $counter = 2;
 
         while (File::exists($targetPath)) {
@@ -214,7 +210,7 @@ class FileManagerController extends Controller
     }
 
     /**
-     * Soft delete / move a file to Recycle Bin.
+     * Soft delete / move an uploaded file to Recycle Bin.
      */
     public function destroy(Request $request): RedirectResponse
     {
@@ -222,32 +218,19 @@ class FileManagerController extends Controller
             'path' => 'required|string',
         ]);
 
-        $relPath = $request->path;
-        if (str_contains($relPath, '..') || str_starts_with($relPath, '/') || str_starts_with($relPath, '\\')) {
-            return back()->with('error', 'Invalid file path.');
+        $relPath = ltrim(str_replace('\\', '/', (string) $request->path), '/');
+        $fullPath = SecurityFileGuard::resolveAllowedPublicPath($relPath, ['uploads/']);
+        if (!$fullPath || str_starts_with($relPath, 'uploads/trash/')) {
+            return back()->with('error', 'Invalid or protected file path.');
         }
 
-        $fullPath = public_path($relPath);
-        if (!File::exists($fullPath) || !is_file($fullPath)) {
-            return back()->with('error', 'File does not exist.');
-        }
-
-        $trashDir = public_path('uploads/trash');
-        if (!File::exists($trashDir)) {
-            File::makeDirectory($trashDir, 0755, true);
-        }
-
-        $dirSlug = str_replace(['/', '\\'], '_', dirname($relPath));
-        $trashName = $dirSlug . '___' . basename($fullPath);
-        $trashPath = $trashDir . DIRECTORY_SEPARATOR . $trashName;
-
-        File::move($fullPath, $trashPath);
+        $this->moveFileToTrash($fullPath, $relPath);
 
         return back()->with('success', 'File moved to Recycle Bin.');
     }
 
     /**
-     * Restore a file from Recycle Bin.
+     * Restore a file from Recycle Bin back to a confined uploads folder.
      */
     public function restore(Request $request): RedirectResponse
     {
@@ -255,47 +238,19 @@ class FileManagerController extends Controller
             'path' => 'required|string',
         ]);
 
-        $relPath = $request->path;
-        if (!str_starts_with($relPath, 'uploads/trash/')) {
-            return back()->with('error', 'Only trashed files can be restored.');
+        $fullPath = SecurityFileGuard::resolveAllowedPublicPath((string) $request->path, ['uploads/trash/']);
+        if (!$fullPath) {
+            return back()->with('error', 'Trashed file not found or unauthorized.');
         }
 
-        $fullPath = public_path($relPath);
-        if (!File::exists($fullPath) || !is_file($fullPath)) {
-            return back()->with('error', 'Trashed file not found.');
-        }
-
-        $fileName = basename($fullPath);
-
-        $destFolder = 'uploads/posts';
-        $realName = $fileName;
-
-        if (str_contains($fileName, '___')) {
-            [$originSlug, $extractedName] = explode('___', $fileName, 2);
-            $realName = $extractedName;
-            $destFolder = str_replace('_', '/', $originSlug);
-        }
-
-        $targetDir = public_path($destFolder);
-        if (!File::exists($targetDir)) {
-            File::makeDirectory($targetDir, 0755, true);
-        }
-
-        $targetPath = $targetDir . DIRECTORY_SEPARATOR . $realName;
-        if (File::exists($targetPath)) {
-            $ext = pathinfo($realName, PATHINFO_EXTENSION);
-            $base = pathinfo($realName, PATHINFO_FILENAME);
-            $targetPath = $targetDir . DIRECTORY_SEPARATOR . $base . '_restored_' . time() . '.' . $ext;
-        }
-
-        File::move($fullPath, $targetPath);
+        $destFolder = $this->restoreFileFromTrash($fullPath);
 
         return redirect()->route('admin.file-manager.index', ['folder' => $destFolder])
-            ->with('success', 'File "' . basename($targetPath) . '" restored to ' . $destFolder . '!');
+            ->with('success', 'File restored safely to ' . $destFolder . '!');
     }
 
     /**
-     * Force delete a file permanently from trash.
+     * Force delete a file permanently from uploads or trash.
      */
     public function forceDelete(Request $request): RedirectResponse
     {
@@ -303,18 +258,13 @@ class FileManagerController extends Controller
             'path' => 'required|string',
         ]);
 
-        $relPath = $request->path;
-        if (str_contains($relPath, '..')) {
-            return back()->with('error', 'Invalid file path.');
-        }
-
-        $fullPath = public_path($relPath);
-        if (File::exists($fullPath) && is_file($fullPath)) {
+        $fullPath = SecurityFileGuard::resolveAllowedPublicPath((string) $request->path, ['uploads/']);
+        if ($fullPath) {
             File::delete($fullPath);
             return back()->with('success', 'File permanently deleted.');
         }
 
-        return back()->with('error', 'File not found.');
+        return back()->with('error', 'File not found or protected.');
     }
 
     /**
@@ -324,8 +274,7 @@ class FileManagerController extends Controller
     {
         $trashDir = public_path('uploads/trash');
         if (File::exists($trashDir)) {
-            $files = File::files($trashDir);
-            foreach ($files as $file) {
+            foreach (File::files($trashDir) as $file) {
                 File::delete($file->getPathname());
             }
         }
@@ -335,7 +284,7 @@ class FileManagerController extends Controller
     }
 
     /**
-     * Bulk actions for file manager files (delete, restore, force_delete).
+     * Bulk actions for uploaded files (delete, restore, force_delete).
      */
     public function bulkAction(Request $request): RedirectResponse
     {
@@ -349,42 +298,19 @@ class FileManagerController extends Controller
         $paths = $request->input('paths', []);
         $count = 0;
 
-        $trashDir = public_path('uploads/trash');
-        if (!File::exists($trashDir)) {
-            File::makeDirectory($trashDir, 0755, true);
-        }
+        foreach ($paths as $rawPath) {
+            $relPath = ltrim(str_replace('\\', '/', (string) $rawPath), '/');
+            $allowed = $action === 'restore' ? ['uploads/trash/'] : ['uploads/'];
+            $fullPath = SecurityFileGuard::resolveAllowedPublicPath($relPath, $allowed);
+            if (!$fullPath) {
+                continue;
+            }
 
-        foreach ($paths as $relPath) {
-            if (str_contains($relPath, '..')) continue;
-            $fullPath = public_path($relPath);
-            if (!File::exists($fullPath) || !is_file($fullPath)) continue;
-
-            if ($action === 'delete') {
-                $dirSlug = str_replace(['/', '\\'], '_', dirname($relPath));
-                $trashName = $dirSlug . '___' . basename($fullPath);
-                $dest = $trashDir . DIRECTORY_SEPARATOR . $trashName;
-                File::move($fullPath, $dest);
+            if ($action === 'delete' && !str_starts_with($relPath, 'uploads/trash/')) {
+                $this->moveFileToTrash($fullPath, $relPath);
                 $count++;
             } elseif ($action === 'restore') {
-                $fileName = basename($fullPath);
-                $destFolder = 'uploads/posts';
-                $realName = $fileName;
-                if (str_contains($fileName, '___')) {
-                    [$originSlug, $extractedName] = explode('___', $fileName, 2);
-                    $realName = $extractedName;
-                    $destFolder = str_replace('_', '/', $originSlug);
-                }
-                $targetDir = public_path($destFolder);
-                if (!File::exists($targetDir)) {
-                    File::makeDirectory($targetDir, 0755, true);
-                }
-                $targetPath = $targetDir . DIRECTORY_SEPARATOR . $realName;
-                if (File::exists($targetPath)) {
-                    $ext = pathinfo($realName, PATHINFO_EXTENSION);
-                    $base = pathinfo($realName, PATHINFO_FILENAME);
-                    $targetPath = $targetDir . DIRECTORY_SEPARATOR . $base . '_restored_' . time() . '.' . $ext;
-                }
-                File::move($fullPath, $targetPath);
+                $this->restoreFileFromTrash($fullPath);
                 $count++;
             } elseif ($action === 'force_delete') {
                 File::delete($fullPath);
@@ -393,5 +319,47 @@ class FileManagerController extends Controller
         }
 
         return back()->with('success', "Bulk action '{$action}' successfully executed on {$count} file(s).");
+    }
+
+    protected function moveFileToTrash(string $fullPath, string $relPath): void
+    {
+        $trashDir = public_path('uploads/trash');
+        if (!File::exists($trashDir)) {
+            File::makeDirectory($trashDir, 0755, true);
+        }
+
+        $dirSlug = str_replace(['/', '\\'], '_', dirname($relPath));
+        $trashPath = $trashDir . DIRECTORY_SEPARATOR . $dirSlug . '___' . basename($fullPath);
+        File::move($fullPath, $trashPath);
+    }
+
+    protected function restoreFileFromTrash(string $fullPath): string
+    {
+        $fileName = basename($fullPath);
+        $destFolder = 'uploads/posts';
+        $realName = $fileName;
+
+        if (str_contains($fileName, '___')) {
+            [$originSlug, $extractedName] = explode('___', $fileName, 2);
+            $realName = basename($extractedName);
+            $candidateFolder = str_replace('_', '/', $originSlug);
+            $destFolder = SecurityFileGuard::resolveSafeUploadFolder($candidateFolder) ?? 'uploads/posts';
+        }
+
+        $targetDir = public_path($destFolder);
+        if (!File::exists($targetDir)) {
+            File::makeDirectory($targetDir, 0755, true);
+        }
+
+        $targetPath = $targetDir . DIRECTORY_SEPARATOR . $realName;
+        if (File::exists($targetPath)) {
+            $ext = pathinfo($realName, PATHINFO_EXTENSION);
+            $base = pathinfo($realName, PATHINFO_FILENAME);
+            $targetPath = $targetDir . DIRECTORY_SEPARATOR . $base . '_restored_' . time() . ($ext ? '.' . $ext : '');
+        }
+
+        File::move($fullPath, $targetPath);
+
+        return $destFolder;
     }
 }

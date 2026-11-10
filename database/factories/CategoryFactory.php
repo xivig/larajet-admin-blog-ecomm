@@ -17,11 +17,10 @@ class CategoryFactory extends Factory
      */
     public function definition(): array
     {
-
-            return [
-                'name' => fake()->word(),
-                'description' => fake()->sentence(10),
-                'status' => fake()->boolean(0),
-            ];
+        return [
+            'name' => ucwords(fake()->unique()->words(2, true)),
+            'description' => fake()->sentence(12),
+            'status' => true,
+        ];
     }
 }

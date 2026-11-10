@@ -121,20 +121,20 @@ Artisan::command('cms:storage-check', function () {
 
 Artisan::command('blog:populate-images', function () {
     $images = [
-        'admin-dist/img/blog-1-PTDVKJDt.webp',
-        'admin-dist/img/blog-2-DbDLCISq.webp',
-        'admin-dist/img/blog-3-BCh7ZU5G.webp',
-        'admin-dist/img/card-1-DVsHfMAh.webp',
-        'admin-dist/img/card-2-BChm1jqb.webp',
-        'admin-dist/img/card-3-GvyRdp0l.webp',
-        'admin-dist/img/card-horizontal-1-B59MnoQO.webp',
-        'admin-dist/img/card-horizontal-2-SY-zgtGt.webp',
-        'admin-dist/img/slide-hero-1-DvTkwF07.webp',
-        'admin-dist/img/slide-hero-2-CrXQlEOl.webp',
-        'admin-dist/img/slide-hero-3-Ckz1jIOd.webp',
-        'admin-dist/img/album-1-r1zfpAlg.webp',
-        'admin-dist/img/album-2-Cnpqltfz.webp',
-        'admin-dist/img/album-3-BvLZBV-Z.webp',
+        'xivig-admin/img/blog-1-PTDVKJDt.webp',
+        'xivig-admin/img/blog-2-DbDLCISq.webp',
+        'xivig-admin/img/blog-3-BCh7ZU5G.webp',
+        'xivig-admin/img/card-1-DVsHfMAh.webp',
+        'xivig-admin/img/card-2-BChm1jqb.webp',
+        'xivig-admin/img/card-3-GvyRdp0l.webp',
+        'xivig-admin/img/card-horizontal-1-B59MnoQO.webp',
+        'xivig-admin/img/card-horizontal-2-SY-zgtGt.webp',
+        'xivig-admin/img/slide-hero-1-DvTkwF07.webp',
+        'xivig-admin/img/slide-hero-2-CrXQlEOl.webp',
+        'xivig-admin/img/slide-hero-3-Ckz1jIOd.webp',
+        'xivig-admin/img/album-1-r1zfpAlg.webp',
+        'xivig-admin/img/album-2-Cnpqltfz.webp',
+        'xivig-admin/img/album-3-BvLZBV-Z.webp',
     ];
 
     // Ensure Picture records exist with these beautiful images

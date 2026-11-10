@@ -57,17 +57,23 @@ class ChatController extends Controller
             'message' => 'required|string|max:3000',
             'channel' => 'nullable|string',
             'receiver_id' => 'nullable|exists:users,id',
-            'attachment' => 'nullable|file|max:10240',
+            'attachment' => ['nullable', 'file', 'max:10240', \App\Services\SecurityFileGuard::mediaMimeRule()],
         ]);
 
         $attachmentPath = null;
         if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            if (!$file->isValid() || !\App\Services\SecurityFileGuard::isSafeUploadedFile($file, \App\Services\SecurityFileGuard::MEDIA_EXTENSIONS)) {
+                return back()->with('error', 'Attachment type is not permitted.');
+            }
             $dir = public_path('uploads/chat');
             if (!file_exists($dir)) {
                 mkdir($dir, 0755, true);
             }
-            $file = $request->file('attachment');
-            $fileName = time() . '_' . $file->getClientOriginalName();
+            $fileName = \App\Services\SecurityFileGuard::safeStoredFilename(
+                (string) $file->getClientOriginalName(),
+                (string) $file->getClientOriginalExtension()
+            );
             $file->move($dir, $fileName);
             $attachmentPath = 'uploads/chat/' . $fileName;
         }

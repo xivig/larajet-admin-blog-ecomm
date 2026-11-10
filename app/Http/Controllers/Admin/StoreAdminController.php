@@ -366,7 +366,7 @@ class StoreAdminController extends Controller
             'stock_qty' => ['required', 'integer', 'min:-1'],
             'download_url' => ['nullable', 'string', 'max:500'],
             'image_url' => ['nullable', 'string', 'max:500'],
-            'image_file' => ['nullable', 'image', 'max:4096'],
+            'image_file' => ['nullable', 'image', \App\Services\SecurityFileGuard::imageMimeRule(), 'max:4096'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ]);
     }
@@ -384,15 +384,20 @@ class StoreAdminController extends Controller
             $features = $existing->features ?? [];
         }
 
-        $imagePath = $validated['image_url'] ?? ($existing?->image_url ?? 'xivig-blog/images/portfolio/project-nexus-core.webp');
+        $imagePath = $validated['image_url'] ?? ($existing?->image_url ?? 'xivig-public/images/portfolio/project-nexus-core.webp');
 
         if ($request->hasFile('image_file')) {
-            $dir = public_path('uploads/store');
-            File::ensureDirectoryExists($dir);
             $file = $request->file('image_file');
-            $filename = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
-            $file->move($dir, $filename);
-            $imagePath = 'uploads/store/' . $filename;
+            if ($file->isValid() && \App\Services\SecurityFileGuard::isSafeUploadedFile($file, \App\Services\SecurityFileGuard::IMAGE_EXTENSIONS)) {
+                $dir = public_path('uploads/store');
+                File::ensureDirectoryExists($dir);
+                $filename = \App\Services\SecurityFileGuard::safeStoredFilename(
+                    (string) $file->getClientOriginalName(),
+                    (string) $file->getClientOriginalExtension()
+                );
+                $file->move($dir, $filename);
+                $imagePath = 'uploads/store/' . $filename;
+            }
         }
 
         return [

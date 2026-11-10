@@ -57,19 +57,19 @@ class Picture extends Model
     public function getUrlAttribute(): string
     {
         if (empty($this->link)) {
-            return asset('admin-dist/img/blog-1-PTDVKJDt.webp');
+            return asset('xivig-admin/img/blog-1-PTDVKJDt.webp');
         }
 
         if (Str::startsWith($this->link, ['http://', 'https://'])) {
             return $this->link;
         }
 
-        if (Str::startsWith($this->link, ['uploads/', 'admin-dist/', 'xivig-blog/'])) {
+        if (Str::startsWith($this->link, ['uploads/', 'xivig-admin/', 'xivig-public/'])) {
             return asset($this->link);
         }
 
         // Default legacy fallback
-        return asset('xivig-blog/images/blog/' . $this->link);
+        return asset('xivig-public/images/blog/' . $this->link);
     }
 
     /**

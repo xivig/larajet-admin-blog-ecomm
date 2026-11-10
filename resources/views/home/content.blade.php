@@ -8,13 +8,13 @@
         <div class="row align-items-center">
             <div class="col-lg-9 col-md-10">
                 <div class="block">
-                    <span class="badge-elite badge-elite-dark mb-4 animated fadeInDown">
+                    <span class="badge-elite badge-elite-dark mb-3 animated fadeInDown">
                         <span class="badge-dot pulse"></span> Next-Gen Enterprise Architecture
                     </span>
-                    <h1 class="animated fadeInUp mb-4 display-3 font-weight-bold slider-hero-title" style="letter-spacing: -0.03em; line-height: 1.15;">
+                    <h1 class="animated fadeInUp mb-3 display-3 font-weight-bold slider-hero-title" style="letter-spacing: -0.03em; line-height: 1.15;">
                         Engineering <span class="text-gradient">high-performance</span> digital ecosystems.
                     </h1>
-                    <p class="animated fadeInUp text-muted lead mb-5" style="max-width: 680px;">
+                    <p class="animated fadeInUp text-muted lead mb-4" style="max-width: 680px;">
                         Xivig delivers mission-critical software solutions, cutting-edge full-stack frameworks, and horizontally scalable cloud infrastructures built for tomorrow.
                     </p>
                     <div class="d-flex flex-wrap align-items-center animated fadeInUp" style="gap: 16px;">
@@ -33,20 +33,20 @@
 <!-- Hero Slider Section End -->
 
 <!-- Section Intro Start -->
-<section class="section py-5 position-relative" style="margin-top: -40px; z-index: 3;">
+<section class="section position-relative">
     <div class="container">
-        <div class="row mb-5">
+        <div class="row mb-4">
             <div class="col-lg-8">
                 <div class="section-title">
                     <span class="badge-elite mb-2">Pioneering Standards</span>
-                    <h2 class="mt-2 font-weight-bold text-dark" style="letter-spacing: -0.02em;">
+                    <h2 class="mt-2 mb-0 font-weight-bold text-dark" style="letter-spacing: -0.02em;">
                         Engineered for speed, resilience, and maximum business impact
                     </h2>
                 </div>
             </div>
         </div>
-        <div class="row justify-content-center">
-            <div class="col-lg-4 col-md-6 mb-4">
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-4 col-md-6">
                 <div class="intro-item">
                     <div class="icon-box-elite">
                         <i class="ti-desktop"></i>
@@ -55,7 +55,7 @@
                     <p class="text-muted mb-0">Fluid layouts crafted with precision typography, micro-interactions, and flawless cross-platform responsiveness.</p>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-4 col-md-6">
                 <div class="intro-item">
                     <div class="icon-box-elite">
                         <i class="ti-medall"></i>
@@ -64,7 +64,7 @@
                     <p class="text-muted mb-0">Engineered with high security benchmarks, strict automated testing, and bulletproof transactional integrity.</p>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-12 mb-4">
+            <div class="col-lg-4 col-md-12">
                 <div class="intro-item">
                     <div class="icon-box-elite">
                         <i class="ti-layers-alt"></i>
@@ -79,27 +79,27 @@
 <!-- Section Intro END -->
 
 <!-- Section About Start -->
-<section class="section py-5 position-relative">
+<section class="section position-relative">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-6 mb-5 mb-lg-0">
+            <div class="col-lg-6 mb-4 mb-lg-0">
                 <div class="pr-lg-4 position-relative">
-                    <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop&q=60" alt="Team" class="img-fluid rounded-lg shadow-lg" style="border-radius: 20px;">
+                    <img loading="lazy" src="{{ asset('xivig-public/images/about/engineering-team-collaboration.jpg') }}" alt="Xivig Engineering Team Collaboration" class="img-fluid rounded-lg shadow-lg" style="border-radius: 20px;">
                 </div>
             </div>
             <div class="col-lg-6">
                 <div class="about-item">
                     <span class="badge-elite mb-2">Who We Are</span>
-                    <h2 class="mt-2 mb-4 font-weight-bold text-dark" style="letter-spacing: -0.02em;">We are a dynamic team of visionary engineers</h2>
+                    <h2 class="mt-2 mb-3 font-weight-bold text-dark" style="letter-spacing: -0.02em;">We are a dynamic team of visionary engineers</h2>
                     <div class="about-content">
                         <h4 class="mb-3 font-weight-bold text-primary">Precision Engineering Solutions</h4>
-                        <p class="text-muted mb-4 lead" style="font-size: 16px;">
+                        <p class="text-muted mb-3 lead" style="font-size: 16px;">
                             We provide consulting and software craftsmanship across enterprise architectures, helping forward-thinking companies achieve unprecedented scalability and efficiency.
                         </p>
-                        <p class="text-muted mb-5">
+                        <p class="text-muted mb-4">
                             From high-throughput APIs to real-time interactive portals, our workflows streamline development while guaranteeing maximum stability.
                         </p>
-                        <a href="{{ url('/about') }}" class="btn-elite btn-elite-primary">
+                        <a href="{{ route('page.show', 'about-us') }}" class="btn-elite btn-elite-primary">
                             Discover Our Mission <i class="fas fa-chevron-right ml-2" style="font-size: 11px;"></i>
                         </a>
                     </div>
@@ -111,22 +111,22 @@
 <!-- Section About End -->
 
 <!-- Section Counter Start -->
-<section class="section py-5 section-counter">
+<section class="section section-counter">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-3 col-md-6 col-sm-6 mb-4 mb-lg-0">
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6 col-sm-6">
                 <div class="counter-stat">
                     <div class="count-number">1,730+</div>
                     <div class="count-label">Projects Completed</div>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-6 col-sm-6 mb-4 mb-lg-0">
+            <div class="col-lg-3 col-md-6 col-sm-6">
                 <div class="counter-stat">
                     <div class="count-number">125M</div>
                     <div class="count-label">Users Worldwide</div>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-6 col-sm-6 mb-4 mb-lg-0">
+            <div class="col-lg-3 col-md-6 col-sm-6">
                 <div class="counter-stat">
                     <div class="count-number">39</div>
                     <div class="count-label">Available Countries</div>
@@ -144,20 +144,20 @@
 <!-- Section Counter End -->
 
 <!-- Section Services Start -->
-<section class="section py-5">
+<section class="section">
     <div class="container">
-        <div class="row justify-content-center mb-5">
+        <div class="row justify-content-center mb-4">
             <div class="col-lg-7 text-center">
                 <div class="section-title">
                     <span class="badge-elite mb-2">Our Capabilities</span>
                     <h2 class="mt-2 font-weight-bold text-dark" style="letter-spacing: -0.02em;">Comprehensive Engineering Services</h2>
-                    <p class="text-muted">A full-spectrum technology partner accelerating digital transformation.</p>
+                    <p class="text-muted mb-0">A full-spectrum technology partner accelerating digital transformation.</p>
                 </div>
             </div>
         </div>
 
-        <div class="row justify-content-center">
-            <div class="col-lg-4 col-md-6 mb-4">
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-4 col-md-6">
                 <div class="service-item">
                     <div class="icon-box-elite">
                         <i class="ti-desktop"></i>
@@ -167,7 +167,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-4 col-md-6">
                 <div class="service-item">
                     <div class="icon-box-elite">
                         <i class="ti-layers"></i>
@@ -177,7 +177,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-4 col-md-6">
                 <div class="service-item">
                     <div class="icon-box-elite">
                         <i class="ti-bar-chart"></i>
@@ -187,7 +187,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-4 col-md-6">
                 <div class="service-item">
                     <div class="icon-box-elite">
                         <i class="ti-vector"></i>
@@ -197,7 +197,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-4 col-md-6">
                 <div class="service-item">
                     <div class="icon-box-elite">
                         <i class="ti-android"></i>
@@ -207,7 +207,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-4 col-md-6">
                 <div class="service-item">
                     <div class="icon-box-elite">
                         <i class="ti-pencil-alt"></i>
@@ -222,7 +222,7 @@
 <!-- Section Services End -->
 
 <!-- Section CTA Start -->
-<section class="section py-5 position-relative section-cta">
+<section class="section position-relative section-cta">
     <div class="container position-relative" style="z-index: 2;">
         <div class="row align-items-center">
             <div class="col-lg-7 text-white mb-4 mb-lg-0">
@@ -246,19 +246,19 @@
 <!-- Section CTA End -->
 
 <!-- Section Testimonial Start -->
-<section class="section py-5">
+<section class="section">
     <div class="container">
-        <div class="row justify-content-center mb-5">
+        <div class="row justify-content-center mb-4">
             <div class="col-lg-7 text-center">
                 <div class="section-title">
                     <span class="badge-elite mb-2">Partner Feedback</span>
-                    <h2 class="mt-2 font-weight-bold text-dark" style="letter-spacing: -0.02em;">What industry leaders say about Xivig</h2>
+                    <h2 class="mt-2 mb-0 font-weight-bold text-dark" style="letter-spacing: -0.02em;">What industry leaders say about Xivig</h2>
                 </div>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-lg-4 col-md-6 mb-4">
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
                 <div class="p-4 bg-light rounded-lg border h-100 d-flex flex-column" style="border-radius: 18px;">
                     <div class="text-warning mb-3">
                         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
@@ -276,7 +276,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-4 col-md-6">
                 <div class="p-4 bg-light rounded-lg border h-100 d-flex flex-column" style="border-radius: 18px;">
                     <div class="text-warning mb-3">
                         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
@@ -294,7 +294,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-12 mb-4">
+            <div class="col-lg-4 col-md-12">
                 <div class="p-4 bg-light rounded-lg border h-100 d-flex flex-column" style="border-radius: 18px;">
                     <div class="text-warning mb-3">
                         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
@@ -317,12 +317,12 @@
 <!-- Section Testimonial End -->
 
 <!-- Section Latest News Start -->
-<section class="section py-5">
+<section class="section">
     <div class="container">
-        <div class="row justify-content-between align-items-center mb-5">
+        <div class="row justify-content-between align-items-center mb-4">
             <div class="col-lg-7">
                 <span class="badge-elite mb-2">Latest Dispatches</span>
-                <h2 class="mt-2 font-weight-bold text-dark" style="letter-spacing: -0.02em;">From the Xivig Journal</h2>
+                <h2 class="mt-2 mb-0 font-weight-bold text-dark" style="letter-spacing: -0.02em;">From the Xivig Journal</h2>
             </div>
             <div class="col-lg-5 text-lg-right mt-3 mt-lg-0">
                 <a href="{{ url('/blog-list') }}" class="btn-elite btn-elite-outline btn-sm">
@@ -331,11 +331,11 @@
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-lg-4 col-md-6 mb-4">
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
                 <div class="blog-item">
                     <div class="blog-img-wrap">
-                        <img loading="lazy" src="{{ asset('xivig-blog/images/blog/1.jpg') }}" alt="Article 1">
+                        <img loading="lazy" src="{{ asset('xivig-public/images/blog/laravel-hyperscale-architecture.jpg') }}" alt="Laravel Hyperscale Architecture">
                         <span class="blog-category-tag">Architecture</span>
                     </div>
                     <div class="blog-item-content">
@@ -352,10 +352,10 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-4 col-md-6">
                 <div class="blog-item">
                     <div class="blog-img-wrap">
-                        <img loading="lazy" src="{{ asset('xivig-blog/images/blog/2.jpg') }}" alt="Article 2">
+                        <img loading="lazy" src="{{ asset('xivig-public/images/blog/reactive-ui-engineering.jpg') }}" alt="Reactive UI Engineering">
                         <span class="blog-category-tag">UI Engineering</span>
                     </div>
                     <div class="blog-item-content">
@@ -372,10 +372,10 @@
                 </div>
             </div>
 
-            <div class="col-lg-4 col-md-6 mb-4">
+            <div class="col-lg-4 col-md-6">
                 <div class="blog-item">
                     <div class="blog-img-wrap">
-                        <img loading="lazy" src="{{ asset('xivig-blog/images/blog/3.jpg') }}" alt="Article 3">
+                        <img loading="lazy" src="{{ asset('xivig-public/images/blog/fortify-passkey-security.jpg') }}" alt="Fortify Passkey Security">
                         <span class="blog-category-tag">Security</span>
                     </div>
                     <div class="blog-item-content">
@@ -397,9 +397,9 @@
 <!-- Section Latest News End -->
 
 <!-- Section Final CTA -->
-<section class="py-5 section-partners">
+<section class="section section-partners">
     <div class="container">
-        <div class="p-5 rounded-lg text-center" style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(236, 72, 153, 0.06) 100%); border: 1px solid rgba(79, 70, 229, 0.15); border-radius: 24px;">
+        <div class="p-4 p-lg-5 rounded-lg text-center" style="background: linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(236, 72, 153, 0.06) 100%); border: 1px solid rgba(79, 70, 229, 0.15); border-radius: 24px;">
             <span class="badge-elite mb-3">Empowering Innovation</span>
             <h2 class="font-weight-bold text-dark mb-3">Experience the Elite Software Difference</h2>
             <p class="text-muted lead mb-4" style="max-width: 650px; margin: 0 auto;">Connect with our solutions architects today to discuss your next breakthrough project.</p>

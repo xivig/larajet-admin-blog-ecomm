@@ -84,7 +84,7 @@ class ProfileController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:admins,email,' . ($admin ? $admin->id : 0),
-            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:5120',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:5120',
         ]);
 
         $admin->name = $request->name;

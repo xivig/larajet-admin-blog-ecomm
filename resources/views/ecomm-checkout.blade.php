@@ -157,9 +157,9 @@
                         <!-- Inline Promo Code Form (handled cleanly via JS post) -->
                         <div class="mb-3">
                             <label class="small text-muted fw-bold mb-1">Promo Code (e.g. ELITE20)</label>
-                            <div class="input-group input-group-sm">
-                                <input type="text" id="checkoutCouponInput" class="form-control form-control-elite" value="{{ $cart['coupon_code'] }}" placeholder="Enter promo code">
-                                <button type="button" id="checkoutCouponApplyBtn" class="btn btn-outline-primary fw-bold px-3">Apply</button>
+                            <div class="position-relative w-100">
+                                <input type="text" id="checkoutCouponInput" class="form-control form-control-elite" style="height: 46px; border-radius: 999px; padding: 8px 96px 8px 18px; font-size: 14px;" value="{{ $cart['coupon_code'] }}" placeholder="Enter promo code">
+                                <button type="button" id="checkoutCouponApplyBtn" data-coupon-url="{{ route('ecomm.cart.coupon') }}" class="btn-elite btn-elite-primary btn-sm position-absolute" style="top: 50%; right: 5px; transform: translateY(-50%); border-radius: 999px; height: 36px; padding: 0 18px; display: inline-flex; align-items: center; justify-content: center; z-index: 5;">Apply</button>
                             </div>
                         </div>
 
@@ -201,27 +201,4 @@
     </div>
 </section>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var applyBtn = document.getElementById('checkoutCouponApplyBtn');
-    var inputEl = document.getElementById('checkoutCouponInput');
-    var csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-
-    applyBtn?.addEventListener('click', async function() {
-        var code = (inputEl?.value || '').trim();
-        if (!code) return;
-        var res = await fetch("{{ route('ecomm.cart.coupon') }}", {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
-            body: JSON.stringify({ code: code })
-        });
-        var data = await res.json();
-        if (data.success) {
-            window.location.reload();
-        } else {
-            alert(data.message || 'Invalid coupon code.');
-        }
-    });
-});
-</script>
 @endsection

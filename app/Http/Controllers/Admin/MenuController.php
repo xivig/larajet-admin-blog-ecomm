@@ -20,31 +20,39 @@ class MenuController extends Controller
      */
     public function index(Request $request): View
     {
-        $menus = Menu::with('items')->get();
-
-        if ($menus->isEmpty()) {
-            $defaultMenu = Menu::create([
-                'name' => 'Main Navigation',
-                'slug' => 'main-navigation',
-                'location' => 'header',
-            ]);
-
-            // Add sample menu items
-            MenuItem::create(['menu_id' => $defaultMenu->id, 'title' => 'Home', 'url' => '/', 'order' => 1]);
-            MenuItem::create(['menu_id' => $defaultMenu->id, 'title' => 'Articles', 'url' => '/blog', 'order' => 2]);
-            MenuItem::create(['menu_id' => $defaultMenu->id, 'title' => 'About', 'url' => '/about', 'order' => 3]);
-            MenuItem::create(['menu_id' => $defaultMenu->id, 'title' => 'Contact', 'url' => '/contact', 'order' => 4]);
-
-            $menus = Menu::with('items')->get();
+        if (Menu::count() === 0) {
+            Menu::ensureDefaultMenus();
         }
 
-        $selectedMenuId = $request->query('menu', $menus->first()?->id);
+        $menus = Menu::with('items')->orderBy('id', 'asc')->get();
+
+        $selectedMenuId = (int) $request->query('menu', $menus->first()?->id);
         $currentMenu = $menus->firstWhere('id', $selectedMenuId) ?? $menus->first();
+        $hierarchicalItems = $currentMenu ? $currentMenu->hierarchicalItems() : collect();
+        $rootItems = $currentMenu
+            ? $currentMenu->items->whereNull('parent_id')->values()
+            : collect();
 
-        $pages = Page::where('status', true)->get();
-        $categories = Category::all();
+        $slotMenus = [
+            'header' => $menus->where('location', 'header')->sortByDesc('id')->first(),
+            'footer' => $menus->where('location', 'footer')->sortByDesc('id')->first(),
+            'footer_ecosystem' => $menus->where('location', 'footer_ecosystem')->sortByDesc('id')->first(),
+        ];
 
-        return view('admin.menu.index', compact('menus', 'currentMenu', 'pages', 'categories'));
+        $locations = Menu::LOCATIONS;
+        $pages = Page::where('status', true)->orderBy('title')->get();
+        $categories = Category::orderBy('name')->get();
+
+        return view('admin.menu.index', compact(
+            'menus',
+            'currentMenu',
+            'hierarchicalItems',
+            'rootItems',
+            'slotMenus',
+            'locations',
+            'pages',
+            'categories'
+        ));
     }
 
     /**
@@ -57,14 +65,32 @@ class MenuController extends Controller
             'location' => 'required|string|max:50',
         ]);
 
+        $baseSlug = Str::slug($request->name) ?: 'menu';
+        $slug = $baseSlug;
+        $suffix = 1;
+        while (Menu::where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . (++$suffix);
+        }
+
         $menu = Menu::create([
             'name' => $request->name,
-            'slug' => Str::slug($request->name),
+            'slug' => $slug,
             'location' => $request->location,
         ]);
 
         return redirect()->route('admin.menu.index', ['menu' => $menu->id])
-            ->with('success', "Menu '{$menu->name}' created successfully.");
+            ->with('success', "Menu '{$menu->name}' created and synced to " . Menu::locationLabel($menu->location) . '.');
+    }
+
+    /**
+     * Create any missing default Header/Footer menus without altering custom menus.
+     */
+    public function syncDefaults(): RedirectResponse
+    {
+        Menu::ensureDefaultMenus();
+
+        return redirect()->route('admin.menu.index')
+            ->with('success', 'Missing default Header and Footer menus synchronized.');
     }
 
     /**
@@ -76,11 +102,18 @@ class MenuController extends Controller
             'title' => 'required|string|max:100',
             'url' => 'required|string|max:255',
             'target' => 'nullable|in:_self,_blank',
-            'parent_id' => 'nullable|exists:menu_items,id',
+            'parent_id' => 'nullable|integer',
         ]);
 
+        $parentId = null;
+        if ($request->filled('parent_id')) {
+            $candidateParent = (int) $request->input('parent_id');
+            if ($menu->items()->whereNull('parent_id')->whereKey($candidateParent)->exists()) {
+                $parentId = $candidateParent;
+            }
+        }
+
         $maxOrder = $menu->items()->max('order') ?? 0;
-        $parentId = $request->filled('parent_id') ? (int) $request->input('parent_id') : null;
 
         MenuItem::create([
             'menu_id' => $menu->id,
@@ -92,7 +125,49 @@ class MenuController extends Controller
         ]);
 
         return redirect()->route('admin.menu.index', ['menu' => $menu->id])
-            ->with('success', 'Menu link added successfully.');
+            ->with('success', 'Menu link added and synchronized.');
+    }
+
+    /**
+     * Update an existing menu item.
+     */
+    public function updateItem(Request $request, MenuItem $item): RedirectResponse
+    {
+        $request->validate([
+            'title' => 'required|string|max:100',
+            'url' => 'required|string|max:255',
+            'target' => 'nullable|in:_self,_blank',
+            'parent_id' => 'nullable|integer',
+        ]);
+
+        $parentId = null;
+        if ($request->filled('parent_id')) {
+            $candidateParent = (int) $request->input('parent_id');
+            $validParent = MenuItem::where('menu_id', $item->menu_id)
+                ->whereNull('parent_id')
+                ->where('id', '!=', $item->id)
+                ->whereKey($candidateParent)
+                ->exists();
+
+            if ($validParent) {
+                $parentId = $candidateParent;
+            }
+        }
+
+        // Prevent multi-level orphan chains if a parent becomes a child link.
+        if ($parentId !== null) {
+            MenuItem::where('parent_id', $item->id)->update(['parent_id' => null]);
+        }
+
+        $item->update([
+            'title' => $request->title,
+            'url' => $request->url,
+            'target' => $request->input('target', '_self'),
+            'parent_id' => $parentId,
+        ]);
+
+        return redirect()->route('admin.menu.index', ['menu' => $item->menu_id])
+            ->with('success', 'Menu item updated and synchronized.');
     }
 
     /**
@@ -101,6 +176,7 @@ class MenuController extends Controller
     public function deleteItem(MenuItem $item): RedirectResponse
     {
         $menuId = $item->menu_id;
+        MenuItem::where('parent_id', $item->id)->update(['parent_id' => $item->parent_id]);
         $item->delete();
 
         return redirect()->route('admin.menu.index', ['menu' => $menuId])
@@ -113,6 +189,7 @@ class MenuController extends Controller
     public function destroy(Menu $menu): RedirectResponse
     {
         $menu->delete();
+
         return redirect()->route('admin.menu.index')->with('success', 'Menu deleted successfully.');
     }
 
@@ -122,17 +199,28 @@ class MenuController extends Controller
     public function reorder(Request $request): JsonResponse
     {
         $items = $request->input('items', []);
+        $menuId = $request->input('menu_id');
 
         foreach ($items as $index => $itemData) {
-            $itemId = $itemData['id'] ?? null;
-            $parentId = !empty($itemData['parent_id']) ? (int) $itemData['parent_id'] : null;
-
-            if ($itemId) {
-                MenuItem::where('id', $itemId)->update([
-                    'order' => $index + 1,
-                    'parent_id' => $parentId,
-                ]);
+            $itemId = isset($itemData['id']) ? (int) $itemData['id'] : null;
+            if (!$itemId) {
+                continue;
             }
+
+            $parentId = !empty($itemData['parent_id']) ? (int) $itemData['parent_id'] : null;
+            if ($parentId === $itemId) {
+                $parentId = null;
+            }
+
+            $query = MenuItem::whereKey($itemId);
+            if ($menuId) {
+                $query->where('menu_id', (int) $menuId);
+            }
+
+            $query->update([
+                'order' => $index + 1,
+                'parent_id' => $parentId,
+            ]);
         }
 
         return response()->json(['success' => true]);

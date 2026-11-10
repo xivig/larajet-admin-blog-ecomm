@@ -334,12 +334,12 @@ class SeoService
 
         $siteName = $settings->get('site_title', $settings->get('gazette_title', config('app.name', 'Xivig Editorial')));
         $siteDesc = $settings->get('seo_meta_description', 'High-fidelity software engineering architectural insights, developer ergonomics, and modern framework patterns.');
-        $defaultImage = $settings->get('seo_og_image', asset('admin-dist/img/blog-1-PTDVKJDt.webp'));
+        $defaultImage = $settings->get('seo_og_image', asset('xivig-admin/img/blog-1-PTDVKJDt.webp'));
         $defaultRobots = $settings->get('seo_robots_default', 'index, follow');
         $defaultLang = $settings->get('site_locale', 'en');
         $defaultRating = $settings->get('seo_rating_default', 'general');
         $defaultCopyright = $settings->get('seo_copyright', 'Copyright © ' . date('Y') . ' ' . $siteName . '. All rights reserved.');
-        $logoUrl = $settings->get('seo_schema_logo', asset('admin-dist/img/favicon-DgHNGhkV.ico'));
+        $logoUrl = $settings->get('seo_schema_logo', asset('xivig-admin/img/favicon-DgHNGhkV.ico'));
 
         // Social handles
         $twitterSite = $settings->get('seo_twitter_site', '@xivigmaison');

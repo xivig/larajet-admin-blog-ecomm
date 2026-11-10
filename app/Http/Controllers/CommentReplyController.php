@@ -35,18 +35,26 @@ class CommentReplyController extends Controller
             $guestEmail = $request->input('guest_email') ?: 'guest@example.com';
         }
 
+        $status = $userId || filter_var(env('COMMENTS_AUTO_APPROVE', false), FILTER_VALIDATE_BOOLEAN)
+            ? 'approved'
+            : 'pending';
+
         CommentReply::create([
             'comment_id' => $validated['comment_id'],
             'user_id' => $userId,
             'guest_name' => $guestName,
             'guest_email' => $guestEmail,
             'reply' => $validated['reply'],
-            'status' => 'approved',
+            'status' => $status,
             'likes_count' => 0,
             'reports_count' => 0,
         ]);
 
-        return back()->with('success', 'Your reply has been posted successfully!');
+        $flash = $status === 'approved'
+            ? 'Your reply has been posted successfully!'
+            : 'Your reply has been submitted and is awaiting moderation.';
+
+        return back()->with('success', $flash);
     }
 
     /**

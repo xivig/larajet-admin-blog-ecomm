@@ -4,7 +4,7 @@
 
 @push('styles')
 <!-- Cropper.js CSS (Local + CDN Fallback) -->
-<link rel="stylesheet" href="{{ asset('admin-dist/vendor/cropperjs/cropper.min.css') }}?v={{ file_exists(public_path('admin-dist/vendor/cropperjs/cropper.min.css')) ? filemtime(public_path('admin-dist/vendor/cropperjs/cropper.min.css')) : time() }}">
+<link rel="stylesheet" href="{{ asset('xivig-admin/vendor/cropperjs/cropper.min.css') }}?v={{ file_exists(public_path('xivig-admin/vendor/cropperjs/cropper.min.css')) ? filemtime(public_path('xivig-admin/vendor/cropperjs/cropper.min.css')) : time() }}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
 @endpush
 
@@ -57,7 +57,7 @@
                 <!-- Image Viewport Canvas -->
                 <div class="img-container rounded-3 overflow-hidden border bg-light-subtle mb-3 position-relative" 
                      style="height: 480px; max-height: 520px; background-image: radial-gradient(rgba(0,0,0,0.12) 1px, transparent 1px); background-size: 20px 20px;">
-                    <img id="image" src="{{ $defaultImageUrl ?? asset('admin-dist/img/cropper-sample.jpg') }}" alt="Crop Target" style="max-width: 100%;">
+                    <img id="image" src="{{ $defaultImageUrl ?? asset('xivig-admin/img/cropper-sample.jpg') }}" alt="Crop Target" style="max-width: 100%;">
                 </div>
 
                 <!-- Cropper Toolbar Controls -->
@@ -145,7 +145,7 @@
                              style="width: 80px; height: 60px; cursor: pointer;"
                              onclick="switchCropperImage('{{ $rec->url }}', '{{ addslashes($rec->name) }}')"
                              title="{{ $rec->name }}">
-                            <img src="{{ $rec->url }}" alt="{{ $rec->name }}" class="w-100 h-100 object-fit-cover rounded" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                            <img src="{{ $rec->url }}" alt="{{ $rec->name }}" class="w-100 h-100 object-fit-cover rounded" onerror="this.onerror=null; this.src='{{ asset('xivig-admin/img/blog-1-PTDVKJDt.webp') }}'">
                         </div>
                     @endforeach
                 </div>
@@ -265,7 +265,7 @@
 @include('admin.partials.media-picker-modal')
 
 <!-- Cropper.js Script (Local with cache busting + CDN Fallback) -->
-<script src="{{ asset('admin-dist/vendor/cropperjs/cropper.min.js') }}?v={{ file_exists(public_path('admin-dist/vendor/cropperjs/cropper.min.js')) ? filemtime(public_path('admin-dist/vendor/cropperjs/cropper.min.js')) : time() }}"></script>
+<script src="{{ asset('xivig-admin/vendor/cropperjs/cropper.min.js') }}?v={{ file_exists(public_path('xivig-admin/vendor/cropperjs/cropper.min.js')) ? filemtime(public_path('xivig-admin/vendor/cropperjs/cropper.min.js')) : time() }}"></script>
 
 <script>
 (function () {

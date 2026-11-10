@@ -31,7 +31,7 @@
                 <div class="card vf-surface-card p-4 p-md-5 mb-4 shadow-sm border rounded-xl text-center" style="border-radius: 20px;">
                     <div class="mb-3 position-relative d-inline-block mx-auto">
                         @php
-                            $defaultAvatar = asset('admin-dist/img/avatars/avatar-' . (($author->id % 9) + 1) . '.webp');
+                            $defaultAvatar = asset('xivig-admin/img/avatars/avatar-' . (($author->id % 9) + 1) . '.webp');
                             $userPhoto = $author->user->profile_photo_path ?? null;
                             $avatarSrc = $userPhoto ? (Str::startsWith($userPhoto, ['http://', 'https://']) ? $userPhoto : asset($userPhoto)) : $defaultAvatar;
                         @endphp
@@ -91,10 +91,10 @@
                                     <div class="blog-img-wrap-elite" style="height: 180px;">
                                         <a href="{{ route('single-post', $post->slug) }}">
                                             @php
-                                                $postImg = $post->image->link ?? 'admin-dist/img/blog-1-PTDVKJDt.webp';
+                                                $postImg = $post->image->link ?? 'xivig-admin/img/blog-1-PTDVKJDt.webp';
                                                 $imgSrc = Str::startsWith($postImg, ['http://', 'https://']) ? $postImg : asset($postImg);
                                             @endphp
-                                            <img loading="lazy" src="{{ $imgSrc }}" alt="{{ $post->title }}" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                                            <img loading="lazy" src="{{ $imgSrc }}" alt="{{ $post->title }}" onerror="this.onerror=null; this.src='{{ asset('xivig-admin/img/blog-1-PTDVKJDt.webp') }}'">
                                         </a>
 
                                         <div class="blog-card-badges">

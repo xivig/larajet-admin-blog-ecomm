@@ -42,8 +42,18 @@ class PaymentGatewayService
 
         $gateway = PaymentGateway::where('driver', $driver)->first();
 
-        // Explicit sandbox simulation test completion
+        $canUseSandboxDecision = !app()->isProduction()
+            && $gateway
+            && $gateway->is_enabled
+            && $gateway->mode !== 'live'
+            && ($gateway->driver === 'sandbox_test' || !$gateway->hasLiveApiCredentials());
+
+        // Restrict sandbox simulation completion strictly to non-production sandbox gateways without live credentials
         if ($request->filled('sandbox_decision')) {
+            if (!$canUseSandboxDecision) {
+                return false;
+            }
+
             if ($request->input('sandbox_decision') === 'approve') {
                 $txId = 'TXN-' . strtoupper($driver) . '-' . strtoupper(Str::random(10));
                 $this->markOrderPaid($order, $txId, [
@@ -63,6 +73,12 @@ class PaymentGatewayService
                 ],
             ]);
             return false;
+        }
+
+        if ($driver === 'sandbox_test' && $canUseSandboxDecision && $gateway->configValue('auto_approve')) {
+            $txId = 'TXN-TEST-' . strtoupper(Str::random(10));
+            $this->markOrderPaid($order, $txId, ['gateway_mode' => 'auto_approved_sandbox']);
+            return true;
         }
 
         return match ($driver) {

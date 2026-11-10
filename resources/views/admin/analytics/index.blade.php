@@ -106,7 +106,7 @@
                 <tr>
                   <td>
                     <div class="d-flex align-items-center gap-2.5">
-                      <img src="{{ $p->image?->webp_url ?? $p->image?->url ?? asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}" class="rounded-2 flex-shrink-0" style="width: 38px; height: 38px; object-fit: cover;" onerror="this.onerror=null;this.src='{{ asset('admin-dist/img/avatar.png') }}';">
+                      <img src="{{ $p->image?->webp_url ?? $p->image?->url ?? asset('xivig-admin/img/blog-1-PTDVKJDt.webp') }}" class="rounded-2 flex-shrink-0" style="width: 38px; height: 38px; object-fit: cover;" onerror="this.onerror=null;this.src='{{ asset('xivig-admin/img/avatar.png') }}';">
                       <div class="min-w-0">
                         <a href="{{ url('/blog/' . $p->slug) }}" target="_blank" class="fw-bold text-dark text-decoration-none small text-truncate d-block" style="max-width: 280px;">
                           {{ $p->title }}

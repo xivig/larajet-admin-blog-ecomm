@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Picture;
+use App\Services\SecurityFileGuard;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -116,10 +117,11 @@ class MediaController extends Controller
      */
     public function store(Request $request): RedirectResponse|JsonResponse
     {
+        $mimeRule = SecurityFileGuard::mediaMimeRule();
         $request->validate([
             'media_files' => 'nullable|array',
-            'media_files.*' => 'file|max:20480',
-            'media_file' => 'nullable|file|max:20480',
+            'media_files.*' => ['file', 'max:20480', $mimeRule],
+            'media_file' => ['nullable', 'file', 'max:20480', $mimeRule],
             'name' => 'nullable|string|max:255',
             'alt_text' => 'nullable|string|max:255',
             'folder' => 'nullable|string|max:100',
@@ -150,12 +152,19 @@ class MediaController extends Controller
         $createdAssets = [];
 
         foreach ($files as $file) {
+            if (!SecurityFileGuard::isSafeUploadedFile($file, SecurityFileGuard::MEDIA_EXTENSIONS)) {
+                if ($request->expectsJson() || $request->ajax()) {
+                    return response()->json(['success' => false, 'message' => 'Uploaded file failed security type validation.'], 422);
+                }
+                return back()->with('error', 'One or more files were rejected by security validation.');
+            }
+
             $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $extension = strtolower($file->getClientOriginalExtension());
             $name = $request->filled('name') && count($files) === 1 ? $request->name : Str::title(str_replace(['-', '_'], ' ', $originalName));
             $altText = $request->filled('alt_text') && count($files) === 1 ? $request->alt_text : $name;
 
-            $fileName = time() . '_' . Str::random(6) . '_' . Str::slug($originalName) . '.' . $extension;
+            $fileName = SecurityFileGuard::safeStoredFilename((string) $file->getClientOriginalName(), $extension);
             $file->move($targetDir, $fileName);
 
             $relativeLink = $subDir . '/' . $fileName;

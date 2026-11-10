@@ -34,10 +34,7 @@
                             <input type="text" name="slug" id="slug" class="form-control @error('slug') is-invalid @enderror" value="{{ old('slug') }}" placeholder="terms-of-service (leave empty to auto-generate)">
                         </div>
 
-                        <div class="mb-3">
-                            <label for="content" class="form-label fw-semibold">Page Content</label>
-                            <textarea name="content" id="content" rows="12" class="form-control font-monospace" placeholder="Write full HTML or markdown content here...">{{ old('content') }}</textarea>
-                        </div>
+                        @include('admin.pages._content-editor', ['content' => old('content', '')])
 
                         <div class="mb-3">
                             <label for="excerpt" class="form-label fw-semibold">Summary / Excerpt</label>
@@ -78,10 +75,9 @@
                         <div class="mb-3">
                             <label for="template" class="form-label fw-semibold">Layout Template</label>
                             <select name="template" id="template" class="form-select">
-                                <option value="default" selected>Default Page</option>
-                                <option value="fullwidth">Full Width Canvas</option>
-                                <option value="landing">Landing Showcase</option>
-                                <option value="legal">Legal &amp; Policies</option>
+                                @foreach (\App\Models\Page::TEMPLATES as $tplKey => $tplLabel)
+                                    <option value="{{ $tplKey }}" {{ old('template', 'default') === $tplKey ? 'selected' : '' }}>{{ $tplLabel }}</option>
+                                @endforeach
                             </select>
                         </div>
 

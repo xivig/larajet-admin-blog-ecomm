@@ -24,7 +24,7 @@ class ImageCropperController extends Controller
         // Fallback default image
         $defaultImageUrl = $selectedMedia 
             ? $selectedMedia->url 
-            : asset('admin-dist/img/cropper-sample.jpg');
+            : asset('xivig-admin/img/cropper-sample.jpg');
 
         // Recent library items for quick load
         $recentAssets = Picture::latest()->take(12)->get();
@@ -49,11 +49,11 @@ class ImageCropperController extends Controller
 
         $imageData = $request->image_data;
 
-        // Verify and parse Base64 Data URL
-        if (!preg_match('/^data:image\/(\w+);base64,/', $imageData, $type)) {
+        // Verify and parse Base64 Data URL (restrict to safe raster formats)
+        if (!preg_match('/^data:image\/(png|jpeg|jpg|webp|gif);base64,/i', $imageData, $type)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid image data format.',
+                'message' => 'Invalid or unsupported image data format.',
             ], 422);
         }
 
@@ -63,12 +63,12 @@ class ImageCropperController extends Controller
         }
 
         $imageData = substr($imageData, strpos($imageData, ',') + 1);
-        $decodedData = base64_decode($imageData);
+        $decodedData = base64_decode($imageData, true);
 
-        if ($decodedData === false) {
+        if ($decodedData === false || @getimagesizefromstring($decodedData) === false) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to decode base64 image data.',
+                'message' => 'Decoded payload is not a valid raster image.',
             ], 422);
         }
 

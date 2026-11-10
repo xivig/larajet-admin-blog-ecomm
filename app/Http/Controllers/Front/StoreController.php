@@ -333,6 +333,12 @@ class StoreController extends Controller
             return $order->load('items');
         });
 
+        $authorizedOrders = (array) session('ecomm_authorized_orders', []);
+        if (!in_array($order->order_number, $authorizedOrders, true)) {
+            $authorizedOrders[] = $order->order_number;
+            session(['ecomm_authorized_orders' => $authorizedOrders]);
+        }
+
         session()->forget([self::CART_SESSION_KEY, self::COUPON_SESSION_KEY]);
 
         try {
@@ -355,6 +361,15 @@ class StoreController extends Controller
         }
 
         $gateway = PaymentGateway::where('driver', $driver)->firstOrFail();
+
+        $isLiveRazorpayModal = $driver === 'razorpay'
+            && $gateway->hasLiveApiCredentials()
+            && !empty(data_get($order->payment_payload, 'razorpay_order_id'));
+
+        if (!$isLiveRazorpayModal && (app()->isProduction() || $gateway->mode === 'live' || $gateway->hasLiveApiCredentials())) {
+            abort(403, 'Sandbox payment terminal is disabled for live or production gateways.');
+        }
+
         $currencySymbol = Product::currencySymbol($order->currency);
 
         return view('ecomm-gateway', compact('order', 'gateway', 'driver', 'currencySymbol'));
@@ -397,11 +412,13 @@ class StoreController extends Controller
 
         if ($driver === 'stripe') {
             $webhookSecret = (string) $gateway->configValue('webhook_secret');
-            if ($webhookSecret !== '' && !str_contains($webhookSecret, '••')) {
-                $sigHeader = (string) $request->header('Stripe-Signature');
-                if (!$this->verifyStripeSignature($request->getContent(), $sigHeader, $webhookSecret)) {
-                    return response()->json(['error' => 'Invalid signature'], 400);
-                }
+            if ($webhookSecret === '' || str_contains($webhookSecret, '••')) {
+                return response()->json(['error' => 'Stripe webhook secret not configured'], 403);
+            }
+
+            $sigHeader = (string) $request->header('Stripe-Signature');
+            if (!$this->verifyStripeSignature($request->getContent(), $sigHeader, $webhookSecret)) {
+                return response()->json(['error' => 'Invalid signature'], 400);
             }
 
             if (($payload['type'] ?? '') === 'checkout.session.completed') {
@@ -417,12 +434,14 @@ class StoreController extends Controller
 
         if ($driver === 'razorpay') {
             $webhookSecret = (string) $gateway->configValue('webhook_secret');
-            if ($webhookSecret !== '' && !str_contains($webhookSecret, '••')) {
-                $sigHeader = (string) $request->header('X-Razorpay-Signature');
-                $expected = hash_hmac('sha256', $request->getContent(), $webhookSecret);
-                if (!hash_equals($expected, $sigHeader)) {
-                    return response()->json(['error' => 'Invalid signature'], 400);
-                }
+            if ($webhookSecret === '' || str_contains($webhookSecret, '••')) {
+                return response()->json(['error' => 'Razorpay webhook secret not configured'], 403);
+            }
+
+            $sigHeader = (string) $request->header('X-Razorpay-Signature');
+            $expected = hash_hmac('sha256', $request->getContent(), $webhookSecret);
+            if (!hash_equals($expected, $sigHeader)) {
+                return response()->json(['error' => 'Invalid signature'], 400);
             }
 
             if (($payload['event'] ?? '') === 'payment.captured') {
@@ -437,15 +456,24 @@ class StoreController extends Controller
             return response()->json(['received' => true]);
         }
 
-        return response()->json(['received' => true]);
+        return response()->json(['error' => 'Unsupported webhook driver'], 400);
     }
 
     /**
      * Customer Order Receipt, License Key Vault & Bank Transfer Instructions.
      */
-    public function orderReceipt(string $orderNumber): View
+    public function orderReceipt(Request $request, string $orderNumber): View
     {
         $order = Order::with('items')->where('order_number', $orderNumber)->firstOrFail();
+
+        $isAuthorizedAdmin = Auth::guard('admin')->check();
+        $isAuthorizedOwner = Auth::check() && $order->user_id && (int) $order->user_id === (int) Auth::id();
+        $isSessionCheckoutOrder = in_array($order->order_number, (array) session('ecomm_authorized_orders', []), true);
+
+        if (!$isAuthorizedAdmin && !$isAuthorizedOwner && !$isSessionCheckoutOrder && !$request->hasValidSignature()) {
+            abort(403, 'Unauthorized access to order receipt.');
+        }
+
         $gateway = PaymentGateway::where('driver', $order->payment_gateway)->first();
         $currencySymbol = Product::currencySymbol($order->currency);
 

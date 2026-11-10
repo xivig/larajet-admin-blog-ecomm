@@ -281,7 +281,7 @@
 		<div class="row justify-content-center">
 			<div class="col-lg-4 col-md-6 mb-5">
 				<div class="card bg-transparent border-0">
-					<img loading="lazy" src="{{asset('xivig-blog/images/blog/1.jpg')}}" alt="blog" class="img-fluid rounded">
+					<img loading="lazy" src="{{asset('xivig-public/images/blog/laravel-hyperscale-architecture.jpg')}}" alt="blog" class="img-fluid rounded">
 
 					<div class="card-body mt-2">
 						<div class="blog-item-meta">
@@ -299,7 +299,7 @@
 
 			<div class="col-lg-4 col-md-6 mb-5">
 				<div class="card border-0 bg-transparent">
-					<img loading="lazy" src="{{asset('xivig-blog/images/blog/2.jpg')}}" alt="blog" class="img-fluid rounded">
+					<img loading="lazy" src="{{asset('xivig-public/images/blog/reactive-ui-engineering.jpg')}}" alt="blog" class="img-fluid rounded">
 
 					<div class="card-body mt-2">
 						<div class="blog-item-meta">
@@ -318,7 +318,7 @@
 
 			<div class="col-lg-4 col-md-6 mb-5">
 				<div class="card border-0 bg-transparent">
-					<img loading="lazy" src="{{asset('xivig-blog/images/blog/3.jpg')}}" alt="blog" class="img-fluid rounded">
+					<img loading="lazy" src="{{asset('xivig-public/images/blog/fortify-passkey-security.jpg')}}" alt="blog" class="img-fluid rounded">
 
 					<div class="card-body mt-2">
 						<div class="blog-item-meta">

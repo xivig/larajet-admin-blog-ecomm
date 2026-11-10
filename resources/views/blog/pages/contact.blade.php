@@ -24,7 +24,7 @@
 
         <div class="row">
             <div class="col-lg-7 mb-4 mb-lg-0">
-                <div class="card border-0 shadow-sm rounded-lg p-4 p-md-5 bg-light">
+                <div class="card border-0 shadow-sm rounded-lg rounded-4 p-4 p-md-5 bg-light">
                     <h4 class="font-weight-bold mb-3">Send a Message</h4>
                     <form action="{{ route('newsletter.subscribe') }}" method="POST">
                         @csrf
@@ -32,30 +32,30 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="font-weight-bold small text-muted">Full Name *</label>
-                                <input type="text" name="name" class="form-control" placeholder="Jane Doe" required>
+                                <input type="text" name="name" class="form-control form-control-elite" placeholder="Jane Doe" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="font-weight-bold small text-muted">Email Address *</label>
-                                <input type="email" name="email" class="form-control" placeholder="jane@company.com" required>
+                                <input type="email" name="email" class="form-control form-control-elite" placeholder="jane@company.com" required>
                             </div>
                         </div>
                         <div class="form-group mb-3">
                             <label class="font-weight-bold small text-muted">Subject</label>
-                            <input type="text" name="subject" value="{{ request('subject') }}" class="form-control" placeholder="Technical Inquiry / Partnership">
+                            <input type="text" name="subject" value="{{ request('subject') }}" class="form-control form-control-elite" placeholder="Technical Inquiry / Partnership">
                         </div>
                         <div class="form-group mb-4">
                             <label class="font-weight-bold small text-muted">Your Message *</label>
-                            <textarea name="message" rows="5" class="form-control" placeholder="Describe your request..." required></textarea>
+                            <textarea name="message" rows="5" class="form-control form-control-elite" placeholder="Describe your request..." required></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary px-4 font-weight-bold" style="background: linear-gradient(135deg, #4f46e5, #06b6d4); border: none;">
-                            <i class="fas fa-paper-plane mr-2"></i> Dispatch Inquiry
+                        <button type="submit" class="btn-elite btn-elite-primary px-4">
+                            <i class="fas fa-paper-plane mr-2 me-2"></i> Dispatch Inquiry
                         </button>
                     </form>
                 </div>
             </div>
 
             <div class="col-lg-5">
-                <div class="card border-0 shadow-sm rounded-lg p-4 p-md-5 bg-white border">
+                <div class="card border-0 shadow-sm rounded-lg rounded-4 p-4 p-md-5 bg-white border">
                     <h4 class="font-weight-bold mb-4">Contact Information</h4>
                     <div class="d-flex align-items-start mb-4">
                         <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mr-3 flex-shrink-0" style="width: 44px; height: 44px;">

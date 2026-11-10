@@ -157,7 +157,7 @@ class ImageOptimizationService
         $rawPath = public_path($picture->link);
         if (!file_exists($rawPath)) {
             // Check legacy folder
-            $altLegacy = public_path('xivig-blog/images/blog/' . $picture->link);
+            $altLegacy = public_path('xivig-public/images/blog/' . $picture->link);
             if (file_exists($altLegacy)) {
                 $rawPath = $altLegacy;
             } else {

@@ -38,6 +38,10 @@ class CommentController extends Controller
             $guestWebsite = $request->input('guest_website');
         }
 
+        $status = $userId || filter_var(env('COMMENTS_AUTO_APPROVE', false), FILTER_VALIDATE_BOOLEAN)
+            ? 'approved'
+            : 'pending';
+
         Comment::create([
             'post_id' => $validated['post_id'],
             'user_id' => $userId,
@@ -45,13 +49,17 @@ class CommentController extends Controller
             'guest_email' => $guestEmail,
             'guest_website' => $guestWebsite,
             'comment' => $validated['comment'],
-            'status' => 'approved',
+            'status' => $status,
             'ip_address' => $request->ip(),
             'likes_count' => 0,
             'reports_count' => 0,
         ]);
 
-        return back()->with('success', 'Your comment has been published successfully!');
+        $flash = $status === 'approved'
+            ? 'Your comment has been published successfully!'
+            : 'Your comment has been submitted and is awaiting moderation.';
+
+        return back()->with('success', $flash);
     }
 
     /**

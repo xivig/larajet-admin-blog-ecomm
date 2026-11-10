@@ -163,8 +163,11 @@ class AnalyticsService
             ->take(10)
             ->get();
 
-        // 9. Monthly Traffic Trend (Last 6 Months)
-        $monthlyTrend = PageView::selectRaw("strftime('%Y-%m', created_at) as month, count(*) as views, count(distinct ip) as visitors")
+        // 9. Monthly Traffic Trend (Last 6 Months — SQLite & MySQL compatible)
+        $monthExpr = DB::getDriverName() === 'sqlite'
+            ? "strftime('%Y-%m', created_at)"
+            : "DATE_FORMAT(created_at, '%Y-%m')";
+        $monthlyTrend = PageView::selectRaw("{$monthExpr} as month, count(*) as views, count(distinct ip) as visitors")
             ->where('created_at', '>=', Carbon::now()->subMonths(6))
             ->groupBy('month')
             ->orderBy('month', 'asc')

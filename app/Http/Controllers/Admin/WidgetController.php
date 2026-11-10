@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
+use App\Models\Menu;
 use App\Models\Widget;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -13,51 +14,45 @@ use Illuminate\Http\Request;
 class WidgetController extends Controller
 {
     /**
-     * Supported widget types with descriptive labels and icons.
-     */
-    public const WIDGET_TYPES = [
-        'recent_posts' => ['label' => 'Recent Posts', 'icon' => 'fas fa-clock', 'desc' => 'Displays latest published articles'],
-        'trending'     => ['label' => 'Trending Posts', 'icon' => 'fas fa-fire', 'desc' => 'Displays top viewed articles this week'],
-        'popular'      => ['label' => 'Popular Posts', 'icon' => 'fas fa-star', 'desc' => 'Displays all-time most viewed articles'],
-        'ads'          => ['label' => 'Advertisement Banner', 'icon' => 'fas fa-ad', 'desc' => 'Custom display banner or Google AdSense snippet'],
-        'newsletter'   => ['label' => 'Newsletter Subscribe', 'icon' => 'fas fa-envelope-open-text', 'desc' => 'Lead capture subscription card'],
-        'categories'   => ['label' => 'Categories List', 'icon' => 'fas fa-folder', 'desc' => 'List of blog categories with post counters'],
-        'tags'         => ['label' => 'Tags Cloud', 'icon' => 'fas fa-tags', 'desc' => 'Visual cloud of popular tags'],
-        'archive'      => ['label' => 'Monthly Archive', 'icon' => 'fas fa-calendar-alt', 'desc' => 'Monthly post archive links'],
-        'custom_html'  => ['label' => 'Custom HTML / Embed', 'icon' => 'fas fa-code', 'desc' => 'Raw HTML, iframe, or Javascript widget'],
-    ];
-
-    /**
-     * Supported widget placement areas.
-     */
-    public const AREAS = [
-        'sidebar'  => 'Main Blog Sidebar',
-        'footer_1' => 'Footer Column 1',
-        'footer_2' => 'Footer Column 2',
-        'footer_3' => 'Footer Column 3',
-        'header'   => 'Header Notification Bar',
-    ];
-
-    /**
      * Display visual widget management interface.
      */
     public function index(Request $request): View
     {
         $selectedArea = $request->query('area', 'sidebar');
-        if (!array_key_exists($selectedArea, self::AREAS)) {
+        if (!array_key_exists($selectedArea, Widget::AREAS)) {
             $selectedArea = 'sidebar';
         }
 
-        // Auto-seed default widgets if empty
         if (Widget::count() === 0) {
             $this->seedDefaultWidgets();
         }
 
-        $widgets = Widget::where('area', $selectedArea)->orderBy('order', 'asc')->get();
-        $allAreas = self::AREAS;
-        $widgetTypes = self::WIDGET_TYPES;
+        $widgets = Widget::where('area', $selectedArea)
+            ->orderBy('order', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
 
-        return view('admin.widgets.index', compact('widgets', 'selectedArea', 'allAreas', 'widgetTypes'));
+        $areaCounts = Widget::query()
+            ->selectRaw('area, COUNT(*) as total')
+            ->groupBy('area')
+            ->pluck('total', 'area');
+
+        $hasMissingFooterCols = collect(array_keys(Widget::FOOTER_COLUMNS))
+            ->contains(fn (string $area) => (int) ($areaCounts[$area] ?? 0) === 0);
+
+        $allAreas = Widget::AREAS;
+        $widgetTypes = Widget::WIDGET_TYPES;
+        $menuLocations = Menu::LOCATIONS;
+
+        return view('admin.widgets.index', compact(
+            'widgets',
+            'selectedArea',
+            'allAreas',
+            'widgetTypes',
+            'areaCounts',
+            'menuLocations',
+            'hasMissingFooterCols'
+        ));
     }
 
     /**
@@ -65,32 +60,15 @@ class WidgetController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'area' => 'required|string|in:' . implode(',', array_keys(self::AREAS)),
-            'widget_type' => 'required|string|in:' . implode(',', array_keys(self::WIDGET_TYPES)),
-            'title' => 'required|string|max:255',
-            'content' => 'nullable|string',
-            'limit' => 'nullable|integer|min:1|max:50',
-            'ad_code' => 'nullable|string',
-            'status' => 'nullable|boolean',
-        ]);
-
+        $validated = $this->validateWidgetPayload($request);
         $maxOrder = Widget::where('area', $validated['area'])->max('order') ?? 0;
-
-        $settings = [];
-        if ($request->filled('limit')) {
-            $settings['limit'] = (int) $request->limit;
-        }
-        if ($request->filled('ad_code')) {
-            $settings['ad_code'] = $request->ad_code;
-        }
 
         Widget::create([
             'area' => $validated['area'],
             'widget_type' => $validated['widget_type'],
             'title' => $validated['title'],
             'content' => $validated['content'] ?? null,
-            'settings' => $settings,
+            'settings' => $this->buildSettings($request),
             'order' => $maxOrder + 1,
             'status' => $request->boolean('status', true),
         ]);
@@ -98,7 +76,7 @@ class WidgetController extends Controller
         ActivityLog::record('create', 'Widgets', "Added widget '{$validated['title']}' to {$validated['area']}");
 
         return redirect()->route('admin.widgets.index', ['area' => $validated['area']])
-            ->with('success', "Widget '{$validated['title']}' added successfully.");
+            ->with('success', "Widget '{$validated['title']}' added and synchronized.");
     }
 
     /**
@@ -106,31 +84,22 @@ class WidgetController extends Controller
      */
     public function update(Request $request, Widget $widget): RedirectResponse
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'nullable|string',
-            'limit' => 'nullable|integer|min:1|max:50',
-            'ad_code' => 'nullable|string',
-            'status' => 'nullable|boolean',
-        ]);
-
-        $settings = $widget->settings ?? [];
-        if ($request->filled('limit')) {
-            $settings['limit'] = (int) $request->limit;
-        }
-        if ($request->has('ad_code')) {
-            $settings['ad_code'] = $request->ad_code;
-        }
+        $validated = $this->validateWidgetPayload($request, $widget);
+        $targetArea = $validated['area'] ?? $widget->area;
 
         $widget->update([
+            'area' => $targetArea,
+            'widget_type' => $validated['widget_type'] ?? $widget->widget_type,
             'title' => $validated['title'],
             'content' => $validated['content'] ?? null,
-            'settings' => $settings,
-            'status' => $request->has('status'),
+            'settings' => $this->buildSettings($request, $widget->settings ?? []),
+            'status' => $request->boolean('status'),
         ]);
 
-        return redirect()->route('admin.widgets.index', ['area' => $widget->area])
-            ->with('success', "Widget '{$widget->title}' updated successfully.");
+        ActivityLog::record('update', 'Widgets', "Updated widget '{$widget->title}' in {$targetArea}");
+
+        return redirect()->route('admin.widgets.index', ['area' => $targetArea])
+            ->with('success', "Widget '{$widget->title}' updated and synchronized.");
     }
 
     /**
@@ -139,6 +108,7 @@ class WidgetController extends Controller
     public function toggle(Widget $widget): RedirectResponse
     {
         $widget->update(['status' => !$widget->status]);
+
         return back()->with('success', "Widget '{$widget->title}' status toggled.");
     }
 
@@ -158,21 +128,86 @@ class WidgetController extends Controller
     }
 
     /**
-     * Reorder widgets via AJAX drag-and-drop.
+     * Reorder widgets via AJAX.
      */
     public function reorder(Request $request): JsonResponse
     {
         $items = $request->input('order', []);
 
         foreach ($items as $index => $id) {
-            Widget::where('id', $id)->update(['order' => $index + 1]);
+            if ($id) {
+                Widget::whereKey((int) $id)->update(['order' => $index + 1]);
+            }
         }
 
         return response()->json(['success' => true]);
     }
 
     /**
-     * Seed default initial widgets.
+     * Populate any empty footer column slots with their default synchronized widgets.
+     */
+    public function syncFooterDefaults(): RedirectResponse
+    {
+        Widget::ensureDefaultFooterWidgets();
+
+        return redirect()->route('admin.widgets.index', ['area' => 'footer_1'])
+            ->with('success', 'All missing footer column widgets restored and synchronized.');
+    }
+
+    /**
+     * Validate common widget fields for create/update requests.
+     *
+     * @return array<string, mixed>
+     */
+    protected function validateWidgetPayload(Request $request, ?Widget $existing = null): array
+    {
+        $rules = [
+            'area' => ($existing ? 'nullable' : 'required') . '|string|in:' . implode(',', array_keys(Widget::AREAS)),
+            'widget_type' => ($existing ? 'nullable' : 'required') . '|string|in:' . implode(',', array_keys(Widget::WIDGET_TYPES)),
+            'title' => 'required|string|max:255',
+            'content' => 'nullable|string',
+            'limit' => 'nullable|integer|min:1|max:50',
+            'ad_code' => 'nullable|string',
+            'menu_location' => 'nullable|string|max:60',
+            'email' => 'nullable|string|max:150',
+            'phone' => 'nullable|string|max:60',
+            'status' => 'nullable|boolean',
+        ];
+
+        return $request->validate($rules);
+    }
+
+    /**
+     * Extract structured settings payload cleanly without overwriting omitted keys unnecessarily.
+     *
+     * @param  array<string, mixed>  $existing
+     * @return array<string, mixed>
+     */
+    protected function buildSettings(Request $request, array $existing = []): array
+    {
+        $settings = $existing;
+
+        if ($request->has('limit')) {
+            $settings['limit'] = $request->filled('limit') ? (int) $request->input('limit') : null;
+        }
+        if ($request->has('ad_code')) {
+            $settings['ad_code'] = $request->input('ad_code');
+        }
+        if ($request->has('menu_location')) {
+            $settings['menu_location'] = $request->input('menu_location') ?: null;
+        }
+        if ($request->has('email')) {
+            $settings['email'] = $request->input('email') ?: null;
+        }
+        if ($request->has('phone')) {
+            $settings['phone'] = $request->input('phone') ?: null;
+        }
+
+        return array_filter($settings, static fn ($val) => $val !== null && $val !== '');
+    }
+
+    /**
+     * Seed default initial sidebar and footer widgets.
      */
     protected function seedDefaultWidgets(): void
     {
@@ -187,5 +222,7 @@ class WidgetController extends Controller
         foreach ($defaults as $def) {
             Widget::create(array_merge($def, ['status' => true]));
         }
+
+        Widget::ensureDefaultFooterWidgets();
     }
 }

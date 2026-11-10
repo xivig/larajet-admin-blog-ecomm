@@ -173,10 +173,14 @@
         </li>
 
         <!-- Notifications Center -->
+        @php
+          $sidebarUnreadCount = \App\Models\AdminNotification::where('is_read', false)->count();
+        @endphp
         <li class="nav-item">
           <a class="nav-link {{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}" href="{{ route('admin.notifications.index') }}">
             <span class="nav-icon"><i class="ph-light ph-bell"></i></span>
             <span class="nav-text">Notifications</span>
+            <span id="sidebarNotifBadge" class="badge rounded-pill bg-danger ms-auto {{ $sidebarUnreadCount > 0 ? '' : 'd-none' }}" style="font-size: 0.65rem;">{{ $sidebarUnreadCount > 99 ? '99+' : $sidebarUnreadCount }}</span>
           </a>
         </li>
 
@@ -304,7 +308,7 @@
             $adminUser = Auth::guard('admin')->user();
             $avatarUrl = ($adminUser && $adminUser->profile_photo_path) 
               ? asset($adminUser->profile_photo_path) 
-              : asset('admin-dist/img/1-DZLDOIIi.jpg');
+              : asset('xivig-admin/img/1-DZLDOIIi.jpg');
           @endphp
           <img src="{{ $avatarUrl }}" alt="{{ $adminUser->name ?? 'Admin' }}" class="sidebar-account-avatar">
           <div class="sidebar-account-meta">

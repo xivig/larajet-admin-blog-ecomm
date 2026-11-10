@@ -331,7 +331,7 @@
                 <input type="checkbox" name="paths[]" value="{{ $file['path'] }}" class="form-check-input fm-item-checkbox fm-file-check">
 
                 @if ($file['is_image'])
-                  <img src="{{ asset($file['path']) }}" alt="{{ $file['name'] }}" class="fm-item-thumbnail" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                  <img src="{{ asset($file['path']) }}" alt="{{ $file['name'] }}" class="fm-item-thumbnail" onerror="this.onerror=null; this.src='{{ asset('xivig-admin/img/blog-1-PTDVKJDt.webp') }}'">
                 @else
                   <div class="fm-item-icon {{ $file['extension'] === 'pdf' ? 'pdf' : ($file['extension'] === 'zip' ? 'archive' : 'document') }}">
                     <i class="bi {{ $file['extension'] === 'pdf' ? 'bi-file-earmark-pdf' : ($file['extension'] === 'zip' ? 'bi-file-earmark-zip' : 'bi-file-earmark-text') }}"></i>

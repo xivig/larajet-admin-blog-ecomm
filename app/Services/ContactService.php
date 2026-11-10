@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Models\AdminNotification;
 use App\Models\Contact;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ContactService
@@ -23,6 +25,18 @@ class ContactService
             'status' => 'new',
             'ip_address' => $ip,
         ]);
+
+        try {
+            AdminNotification::create([
+                'type' => 'contact',
+                'title' => 'New Contact Inquiry',
+                'message' => "{$contact->name}: " . Str::limit($contact->subject ?: $contact->message, 55),
+                'link' => '/admin/contacts',
+                'is_read' => false,
+            ]);
+        } catch (\Throwable $e) {
+            // Keep contact submission non-blocking
+        }
 
         // Send email notification to admin if SMTP configured
         try {

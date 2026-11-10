@@ -9,10 +9,10 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
   <!-- Favicons -->
-  <link rel="icon" type="image/x-icon" href="{{ asset('admin-dist/img/favicon-DgHNGhkV.ico') }}">
-  <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('admin-dist/img/favicon-32x32-ChisqE3Y.png') }}">
-  <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('admin-dist/img/favicon-16x16-BokJ4EXI.png') }}">
-  <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('admin-dist/img/apple-touch-icon-D_uz1V6f.png') }}">
+  <link rel="icon" type="image/x-icon" href="{{ asset('xivig-admin/img/favicon-DgHNGhkV.ico') }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('xivig-admin/img/favicon-32x32-ChisqE3Y.png') }}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('xivig-admin/img/favicon-16x16-BokJ4EXI.png') }}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('xivig-admin/img/apple-touch-icon-D_uz1V6f.png') }}">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,8 +20,8 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Core CSS Files -->
-  <link rel="stylesheet" href="{{ asset('admin-dist/vendor/bootstrap-icons/bootstrap-icons.css') }}">
-  <link rel="stylesheet" href="{{ asset('admin-dist/css/main-BBIlupvD.css') }}">
+  <link rel="stylesheet" href="{{ asset('xivig-admin/vendor/bootstrap-icons/bootstrap-icons.css') }}">
+  <link rel="stylesheet" href="{{ asset('xivig-admin/css/main-BBIlupvD.css') }}?v={{ file_exists(public_path('xivig-admin/css/main-BBIlupvD.css')) ? filemtime(public_path('xivig-admin/css/main-BBIlupvD.css')) : '1' }}">
 
   <style>
     .auth-code-input {
@@ -66,7 +66,7 @@
       <div class="fauth-brand-center">
         <a href="{{ url('/') }}" class="fauth-brand" aria-label="XivigAdmin home">
           <span class="fauth-brand-logo">
-            <img src="{{ asset('admin-dist/img/xivig-logo-CDpcaf-E.png') }}" alt="XivigAdmin" class="brand-logo-img">
+            <img src="{{ asset('xivig-admin/img/xivig-logo-CDpcaf-E.png') }}" alt="XivigAdmin" class="brand-logo-img">
           </span>
           <span class="fauth-brand-text">
             <strong class="brand-title">Xivig<span class="brand-gradient">Admin</span></strong>
@@ -151,7 +151,7 @@
     </footer>
   </div>
 
-  <script src="{{ asset('admin-dist/js/main-FIhSewOI.js') }}"></script>
+  <script src="{{ asset('xivig-admin/js/main-FIhSewOI.js') }}"></script>
   <script>
     let isRecoveryMode = false;
     const totpSection = document.getElementById('totpSection');

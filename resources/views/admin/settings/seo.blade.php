@@ -256,7 +256,7 @@
               <label for="seo_og_image" class="form-label fw-semibold">Default Social Sharing Banner (OG:Image)</label>
               <div class="input-group">
                 <input type="text" name="seo_og_image" id="seo_og_image" class="form-control rounded-start-3" 
-                       value="{{ old('seo_og_image', $settings->get('seo_og_image', url('/xivig-blog/images/blog/blog-post-1.jpg'))) }}" 
+                       value="{{ old('seo_og_image', $settings->get('seo_og_image', url('/xivig-public/images/blog/laravel-hyperscale-architecture.jpg'))) }}" 
                        placeholder="https://.../banner.jpg">
                 <button type="button" class="btn btn-outline-secondary rounded-end-3 px-3" onclick="openMediaPickerModal('seo_og_image', 'ogImagePreview')">
                   <i class="bi bi-images me-1"></i> Choose from Media
@@ -269,7 +269,7 @@
             <div class="col-md-4">
               <label class="form-label fw-semibold">Banner Preview</label>
               <div class="border rounded-3 p-1 text-center bg-body-secondary" style="height: 100px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                <img id="ogImagePreview" src="{{ $settings->get('seo_og_image', url('/xivig-blog/images/blog/blog-post-1.jpg')) }}" alt="OG Banner" style="max-height: 100%; max-width: 100%; object-fit: cover; border-radius: 6px;">
+                <img id="ogImagePreview" src="{{ $settings->get('seo_og_image', url('/xivig-public/images/blog/laravel-hyperscale-architecture.jpg')) }}" alt="OG Banner" style="max-height: 100%; max-width: 100%; object-fit: cover; border-radius: 6px;">
               </div>
             </div>
 
@@ -467,7 +467,7 @@
             <div class="col-md-4">
               <label for="seo_schema_logo" class="form-label fw-semibold">Organization Logo URL</label>
               <input type="text" name="seo_schema_logo" id="seo_schema_logo" class="form-control rounded-3" 
-                     value="{{ old('seo_schema_logo', $settings->get('seo_schema_logo', url('/admin-dist/img/favicon-DgHNGhkV.ico'))) }}">
+                     value="{{ old('seo_schema_logo', $settings->get('seo_schema_logo', url('/xivig-admin/img/favicon-DgHNGhkV.ico'))) }}">
             </div>
 
             <div class="col-md-6">
@@ -563,7 +563,7 @@
 
                 <div class="google-serp-preview p-2" style="font-family: Arial, sans-serif;">
                   <div class="d-flex align-items-center gap-2 mb-1">
-                    <img src="{{ asset('admin-dist/img/favicon-DgHNGhkV.ico') }}" alt="Favicon" style="width: 18px; height: 18px; border-radius: 4px;">
+                    <img src="{{ asset('xivig-admin/img/favicon-DgHNGhkV.ico') }}" alt="Favicon" style="width: 18px; height: 18px; border-radius: 4px;">
                     <div class="d-flex flex-column" style="line-height: 1.2;">
                       <span class="fw-semibold text-dark" style="font-size: 13px;" id="simSiteName">XIVIG Maison</span>
                       <span class="text-muted" style="font-size: 11px;" id="simUrl">{{ url('/') }}</span>
@@ -589,7 +589,7 @@
 
                 <div class="border rounded-3 overflow-hidden shadow-xs">
                   <div style="height: 180px; background: #e2e8f0; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-                    <img id="simOgImg" src="{{ $settings->get('seo_og_image', url('/xivig-blog/images/blog/blog-post-1.jpg')) }}" alt="OG Preview" style="width: 100%; height: 100%; object-fit: cover;">
+                    <img id="simOgImg" src="{{ $settings->get('seo_og_image', url('/xivig-public/images/blog/laravel-hyperscale-architecture.jpg')) }}" alt="OG Preview" style="width: 100%; height: 100%; object-fit: cover;">
                   </div>
                   <div class="p-3 bg-light">
                     <span class="text-uppercase text-muted d-block small" style="font-size: 11px;" id="simOgDomain">{{ parse_url(url('/'), PHP_URL_HOST) }}</span>

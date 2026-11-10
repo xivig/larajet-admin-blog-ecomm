@@ -26,7 +26,7 @@ class SitemapController extends Controller
             return response($content, 200)->header('Content-Type', 'text/xml');
         }
 
-        $xml = $this->buildSitemapXml();
+        $xml = Cache::remember('cms_sitemap_xml', 3600, fn () => $this->buildSitemapXml());
 
         return response($xml, 200)->header('Content-Type', 'text/xml');
     }

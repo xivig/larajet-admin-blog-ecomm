@@ -53,7 +53,7 @@ class SearchApiController extends Controller
                     'url' => url('/blog/' . $p->slug),
                     'category' => $p->category?->name ?? 'Article',
                     'reading_time' => $p->reading_time . ' min read',
-                    'thumbnail' => $p->image?->webp_url ?? $p->image?->url ?? asset('admin-dist/img/blog-1-PTDVKJDt.webp'),
+                    'thumbnail' => $p->image?->webp_url ?? $p->image?->url ?? asset('xivig-admin/img/blog-1-PTDVKJDt.webp'),
                     'date' => $p->published_at ? $p->published_at->format('M d, Y') : '',
                 ];
             });

@@ -15,8 +15,8 @@
             'sector' => 'Enterprise FinOps',
             'metric' => '< 12ms P99',
             'version' => 'v4.2 Cluster',
-            'image' => 'xivig-blog/images/portfolio/project-nexus-core.webp',
-            'fallback' => 'xivig-blog/images/portfolio/project-nexus-core.jpg',
+            'image' => 'xivig-public/images/portfolio/project-nexus-core.webp',
+            'fallback' => 'xivig-public/images/portfolio/project-nexus-core.jpg',
             'summary' => 'Distributed high-throughput transaction platform handling millions of asynchronous events daily with sub-second finality and automated dead-letter recovery.',
             'overview' => 'Architected for high-volume payment clearing and cross-region order orchestration. Decouples ingestion gateways from settlement workers via partitioned Kafka brokers and Redis atomic locks.',
             'stack' => ['Laravel 13', 'Apache Kafka', 'Redis Cluster', 'Octane Swoole', 'gRPC'],
@@ -40,8 +40,8 @@
             'sector' => 'Capital Markets',
             'metric' => '$4.1B+ Settled',
             'version' => 'v3.8 Core',
-            'image' => 'xivig-blog/images/portfolio/project-apex-financial.webp',
-            'fallback' => 'xivig-blog/images/portfolio/project-apex-financial.jpg',
+            'image' => 'xivig-public/images/portfolio/project-apex-financial.webp',
+            'fallback' => 'xivig-public/images/portfolio/project-apex-financial.jpg',
             'summary' => 'Real-time double-entry asset accounting, multi-currency FX liquidity routing, and automated regulatory audit compliance reporting.',
             'overview' => 'Engineered to power institutional treasury desks requiring immutable audit trails, sub-cent rounding safety, and instant balance reconciliation across 42 fiat and synthetic settlement corridors.',
             'stack' => ['Livewire 3', 'PostgreSQL', 'Laravel Sanctum', 'Immutable Ledger', 'Tailwind / BS5'],
@@ -65,8 +65,8 @@
             'sector' => 'IAM & Compliance',
             'metric' => 'FIDO2 / WebAuthn',
             'version' => 'v5.0 Shield',
-            'image' => 'xivig-blog/images/portfolio/project-cybermatrix.webp',
-            'fallback' => 'xivig-blog/images/portfolio/project-cybermatrix.jpg',
+            'image' => 'xivig-public/images/portfolio/project-cybermatrix.webp',
+            'fallback' => 'xivig-public/images/portfolio/project-cybermatrix.jpg',
             'summary' => 'Zero-trust enterprise authentication gateway supporting hardware FIDO2 passkeys, adaptive TOTP 2FA, SAML 2.0 federation, and strict RBAC enforcement.',
             'overview' => 'Centralizes workforce and customer identity verification behind an isolated policy engine. Enforces risk-scored step-up challenges, hardware key binding, and continuous session attestation.',
             'stack' => ['Laravel Fortify', 'Jetstream', 'WebAuthn / FIDO2', 'OAuth2 / OIDC', 'RBAC Policy'],
@@ -90,8 +90,8 @@
             'sector' => 'Design Engineering',
             'metric' => '60 FPS Edge UI',
             'version' => 'v2.9 Studio',
-            'image' => 'xivig-blog/images/portfolio/project-velocity-studio.webp',
-            'fallback' => 'xivig-blog/images/portfolio/project-velocity-studio.jpg',
+            'image' => 'xivig-public/images/portfolio/project-velocity-studio.webp',
+            'fallback' => 'xivig-public/images/portfolio/project-velocity-studio.jpg',
             'summary' => 'Instantaneous server-driven workspace canvas featuring optimistic state synchronization, multiplayer cursors, and WebSocket broadcast pipelines.',
             'overview' => 'Bridges server-rendered resilience with desktop-class reactivity. Built for enterprise product operations teams collaborating simultaneously across design tokens, workflows, and live previews.',
             'stack' => ['Laravel Echo', 'Reverb / Pusher', 'Vite 6', 'Livewire 3', 'Alpine.js'],
@@ -115,8 +115,8 @@
             'sector' => 'Industrial IoT',
             'metric' => 'Timescale Edge',
             'version' => 'v3.4 Grid',
-            'image' => 'xivig-blog/images/portfolio/project-horizon-iot.webp',
-            'fallback' => 'xivig-blog/images/portfolio/project-horizon-iot.jpg',
+            'image' => 'xivig-public/images/portfolio/project-horizon-iot.webp',
+            'fallback' => 'xivig-public/images/portfolio/project-horizon-iot.jpg',
             'summary' => 'Time-series ingestion platform processing 50,000 live edge sensor pulses per second with continuous rolling aggregations and automated anomaly alerting.',
             'overview' => 'Connects globally distributed industrial hardware arrays into a real-time observability fabric. Performs window-based Z-score anomaly detection before persisting compressed hypertables.',
             'stack' => ['TimescaleDB', 'MQTT Broker', 'Laravel Horizon', 'WebSockets', 'Prometheus'],
@@ -140,8 +140,8 @@
             'sector' => 'Platform Infra',
             'metric' => '0s Downtime',
             'version' => 'v6.1 Mesh',
-            'image' => 'xivig-blog/images/portfolio/project-sovereign-cloud.webp',
-            'fallback' => 'xivig-blog/images/portfolio/project-sovereign-cloud.jpg',
+            'image' => 'xivig-public/images/portfolio/project-sovereign-cloud.webp',
+            'fallback' => 'xivig-public/images/portfolio/project-sovereign-cloud.jpg',
             'summary' => 'Automated multi-region Kubernetes failover mesh featuring geopolitical data residency pinning, encrypted service-to-service mTLS, and Canary releases.',
             'overview' => 'Empowers regulated enterprises to deploy sovereign cloud footprints across US, EU, and APAC availability zones using declarative Infrastructure-as-Code and automated progressive delivery.',
             'stack' => ['Kubernetes', 'Docker', 'Terraform', 'Envoy mTLS', 'GitHub Actions'],
@@ -482,133 +482,5 @@
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var projectsData = @json($projects);
-    var filterButtons = document.querySelectorAll('.portfolio-filter-btn');
-    var searchInput = document.getElementById('portfolioSearchInput');
-    var gridItems = document.querySelectorAll('.portfolio-grid-item');
-    var emptyState = document.getElementById('portfolioEmptyState');
-    var resetBtn = document.getElementById('resetPortfolioFilterBtn');
-    var activeFilter = 'all';
-
-    function applyPortfolioFilters() {
-        var query = (searchInput ? searchInput.value : '').trim().toLowerCase();
-        var visibleCount = 0;
-
-        gridItems.forEach(function(item) {
-            var cat = item.getAttribute('data-category');
-            var haystack = item.getAttribute('data-search') || '';
-            var matchesCategory = (activeFilter === 'all' || cat === activeFilter);
-            var matchesSearch = (!query || haystack.indexOf(query) !== -1);
-
-            if (matchesCategory && matchesSearch) {
-                item.classList.remove('d-none');
-                visibleCount++;
-            } else {
-                item.classList.add('d-none');
-            }
-        });
-
-        if (emptyState) {
-            if (visibleCount === 0) {
-                emptyState.classList.remove('d-none');
-            } else {
-                emptyState.classList.add('d-none');
-            }
-        }
-    }
-
-    filterButtons.forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            filterButtons.forEach(function(b) { b.classList.remove('active'); });
-            this.classList.add('active');
-            activeFilter = this.getAttribute('data-filter') || 'all';
-            applyPortfolioFilters();
-        });
-    });
-
-    if (searchInput) {
-        searchInput.addEventListener('input', applyPortfolioFilters);
-    }
-
-    if (resetBtn) {
-        resetBtn.addEventListener('click', function() {
-            activeFilter = 'all';
-            if (searchInput) searchInput.value = '';
-            filterButtons.forEach(function(b) {
-                b.classList.toggle('active', b.getAttribute('data-filter') === 'all');
-            });
-            applyPortfolioFilters();
-        });
-    }
-
-    // Case Study Modal Handler (Bootstrap 5 native + jQuery fallback)
-    var modalEl = document.getElementById('portfolioCaseStudyModal');
-    var bsModal = null;
-
-    function openCaseStudyModal(project) {
-        if (!project || !modalEl) return;
-
-        var baseAsset = "{{ asset('') }}";
-        var modalImg = document.getElementById('caseStudyModalImg');
-        modalImg.onerror = function() {
-            this.onerror = null;
-            this.src = baseAsset + (project.fallback || project.image);
-        };
-        modalImg.src = baseAsset + project.image;
-        modalImg.alt = project.title;
-        document.getElementById('caseStudyModalStatus').innerHTML = '<span class="badge-dot pulse" style="background: #34d399;"></span> ' + project.status;
-        document.getElementById('caseStudyModalDomain').textContent = project.domain;
-        document.getElementById('caseStudyModalSector').textContent = project.sector;
-        document.getElementById('caseStudyModalVersion').innerHTML = '<i class="bi bi-git"></i> ' + project.version;
-        document.getElementById('caseStudyModalTitle').textContent = project.title;
-        document.getElementById('caseStudyModalOverview').textContent = project.overview;
-
-        var statsHtml = '';
-        (project.stats || []).forEach(function(stat) {
-            statsHtml += '<div class="col-4">' +
-                '<div class="portfolio-modal-stat">' +
-                    '<div class="font-weight-bold text-primary" style="font-size: 1.25rem; font-family: var(--font-heading);">' + stat.value + '</div>' +
-                    '<div class="small text-muted" style="font-size: 11.5px;">' + stat.label + '</div>' +
-                '</div>' +
-            '</div>';
-        });
-        document.getElementById('caseStudyModalStats').innerHTML = statsHtml;
-
-        var delivHtml = '';
-        (project.deliverables || []).forEach(function(item) {
-            delivHtml += '<li class="d-flex align-items-start small text-muted">' +
-                '<i class="bi bi-check-circle-fill text-success me-2 mr-2 mt-1 flex-shrink-0"></i>' +
-                '<span>' + item + '</span>' +
-            '</li>';
-        });
-        document.getElementById('caseStudyModalDeliverables').innerHTML = delivHtml;
-
-        var stackHtml = '';
-        (project.stack || []).forEach(function(tech) {
-            stackHtml += '<span class="portfolio-tech-chip">' + tech + '</span>';
-        });
-        document.getElementById('caseStudyModalStack').innerHTML = stackHtml;
-
-        document.getElementById('caseStudyModalQuoteLink').href = "{{ url('/contact') }}?subject=" + encodeURIComponent('Architecture Inquiry: ' + project.title);
-
-        if (window.bootstrap && window.bootstrap.Modal) {
-            bsModal = bsModal || window.bootstrap.Modal.getOrCreateInstance(modalEl);
-            bsModal.show();
-        } else if (window.jQuery && window.jQuery(modalEl).modal) {
-            window.jQuery(modalEl).modal('show');
-        }
-    }
-
-    document.querySelectorAll('.open-case-study-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            var idx = parseInt(this.getAttribute('data-project-index'), 10);
-            if (!isNaN(idx) && projectsData[idx]) {
-                openCaseStudyModal(projectsData[idx]);
-            }
-        });
-    });
-});
-</script>
+<script id="portfolioProjectsData" type="application/json" data-asset-base="{{ asset('') }}" data-contact-url="{{ url('/contact') }}">@json($projects)</script>
 @endsection

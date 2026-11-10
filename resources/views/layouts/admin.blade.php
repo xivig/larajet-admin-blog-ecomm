@@ -50,10 +50,10 @@
   </main>
 
   <!-- Vendor JS Files -->
-  <script src="{{ asset('admin-dist/vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
-  <script src="{{ asset('admin-dist/vendor/simple-datatables/simple-datatables.js') }}"></script>
-  <script src="{{ asset('admin-dist/vendor/quill/quill.js') }}"></script>
-  <script src="{{ asset('admin-dist/vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
+  <script src="{{ asset('xivig-admin/vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ asset('xivig-admin/vendor/simple-datatables/simple-datatables.js') }}"></script>
+  <script src="{{ asset('xivig-admin/vendor/quill/quill.js') }}"></script>
+  <script src="{{ asset('xivig-admin/vendor/sweetalert2/sweetalert2.all.min.js') }}"></script>
   <script>
     if (typeof window.Swal === 'undefined' && typeof window.Sweetalert2 !== 'undefined') {
       window.Swal = window.Sweetalert2;
@@ -64,7 +64,7 @@
   </script>
 
   <!-- Template Main JS File -->
-  <script src="{{ asset('admin-dist/js/main-FIhSewOI.js') }}"></script>
+  <script src="{{ asset('xivig-admin/js/main-FIhSewOI.js') }}"></script>
 
   <!-- SweetAlert2 Helper Suite & Theme Toggle Script -->
   <script>
@@ -174,6 +174,24 @@
 
     var showConfirmDialog = window.showConfirmDialog;
     var showToast = window.showToast;
+
+    document.addEventListener('submit', function(e) {
+      const form = e.target && e.target.closest ? e.target.closest('form.js-swal-confirm') : null;
+      if (!form || form.dataset.swalConfirmed === '1') {
+        return;
+      }
+      e.preventDefault();
+      window.showConfirmDialog({
+        title: form.dataset.confirmTitle || 'Are you sure?',
+        text: form.dataset.confirmText || 'This action cannot be undone.',
+        icon: form.dataset.confirmIcon || 'warning',
+        confirmButtonText: form.dataset.confirmButton || 'Yes, Delete',
+        confirmButtonColor: '#dc2626'
+      }, function() {
+        form.dataset.swalConfirmed = '1';
+        HTMLFormElement.prototype.submit.call(form);
+      });
+    });
 
     document.addEventListener('DOMContentLoaded', function() {
       // Dark/Light Theme Switching

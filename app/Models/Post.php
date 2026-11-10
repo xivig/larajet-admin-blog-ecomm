@@ -266,6 +266,7 @@ class Post extends Model
                 $toc[] = [
                     'id' => $slug,
                     'text' => $headingText,
+                    'title' => $headingText,
                     'level' => ($tag === 'h2') ? 2 : 3,
                 ];
             }

@@ -77,7 +77,7 @@ class MagazinePortalTest extends TestCase
         $tag = Tag::first() ?? Tag::create(['name' => 'Architecture']);
         $picture = Picture::first() ?? Picture::create([
             'name' => 'sample',
-            'link' => 'admin-dist/img/blog-1-PTDVKJDt.webp',
+            'link' => 'xivig-admin/img/blog-1-PTDVKJDt.webp',
         ]);
         $author = Author::first() ?? Author::create(['user_id' => $user->id, 'nickname' => 'ed-' . Str::random(5)]);
 

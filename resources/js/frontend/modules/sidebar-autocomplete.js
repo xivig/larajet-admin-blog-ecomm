@@ -1,0 +1,87 @@
+/**
+ * Sidebar live search autocomplete widget.
+ */
+function escapeHtml(str) {
+    return String(str || '').replace(/[&<>"']/g, (m) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+    })[m]);
+}
+
+export function initSidebarAutocomplete() {
+    const wrapper = document.getElementById('sidebarSearchWrapper');
+    const searchInput = document.getElementById('sidebarSearchInput');
+    const dropdown = document.getElementById('sidebarAutocompleteDropdown');
+    const resultsBox = document.getElementById('autocompleteResultsContent');
+
+    if (!wrapper || !searchInput || !dropdown || !resultsBox) return;
+
+    const autocompleteUrl = wrapper.dataset.autocompleteUrl || '/api/search/autocomplete';
+    const fallbackAvatar = wrapper.dataset.fallbackAvatar || '/xivig-admin/img/avatar.png';
+    let debounceTimer = null;
+
+    function fetchResults(query) {
+        fetch(`${autocompleteUrl}?q=${encodeURIComponent(query)}`)
+            .then((res) => res.json())
+            .then((data) => {
+                if (!data.success) return;
+
+                let html = '';
+
+                if (data.posts && data.posts.length > 0) {
+                    html += '<div class="small font-weight-bold text-uppercase text-muted mb-2" style="font-size: 10px; letter-spacing: 0.5px;">Articles</div>';
+                    data.posts.forEach((p) => {
+                        html += `<a href="${escapeHtml(p.url)}" class="d-flex align-items-center mb-2 pb-2 border-bottom text-decoration-none text-dark hover-item">`
+                            + `<img src="${escapeHtml(p.thumbnail)}" class="rounded mr-2 flex-shrink-0" style="width: 36px; height: 36px; object-fit: cover;" onerror="this.onerror=null;this.src='${escapeHtml(fallbackAvatar)}';">`
+                            + '<div class="min-w-0 flex-grow-1" style="line-height: 1.25;">'
+                            + `<div class="font-weight-bold text-truncate" style="font-size: 12.5px;">${escapeHtml(p.title)}</div>`
+                            + `<small class="text-muted" style="font-size: 10.5px;">${escapeHtml(p.category)} · ${escapeHtml(p.reading_time)}</small>`
+                            + '</div>'
+                            + '</a>';
+                    });
+                }
+
+                if (data.categories && data.categories.length > 0) {
+                    html += '<div class="small font-weight-bold text-uppercase text-muted mt-2 mb-1" style="font-size: 10px;">Categories</div><div class="d-flex flex-wrap gap-1 mb-2">';
+                    data.categories.forEach((c) => {
+                        html += `<a href="${escapeHtml(c.url)}" class="badge badge-light border text-primary mr-1 mb-1 px-2 py-1 text-decoration-none" style="font-size: 11px;"><i class="far fa-folder mr-1"></i>${escapeHtml(c.name)}</a>`;
+                    });
+                    html += '</div>';
+                }
+
+                if (data.tags && data.tags.length > 0) {
+                    html += '<div class="small font-weight-bold text-uppercase text-muted mt-2 mb-1" style="font-size: 10px;">Tags</div><div class="d-flex flex-wrap gap-1">';
+                    data.tags.forEach((t) => {
+                        html += `<a href="${escapeHtml(t.url)}" class="badge badge-light border text-secondary mr-1 mb-1 px-2 py-1 text-decoration-none" style="font-size: 11px;">#${escapeHtml(t.name)}</a>`;
+                    });
+                    html += '</div>';
+                }
+
+                if (!html) {
+                    html = `<div class="text-center py-3 text-muted small"><i class="fas fa-search mr-1"></i> No matching results for "<strong>${escapeHtml(query)}</strong>"</div>`;
+                }
+
+                resultsBox.innerHTML = html;
+                dropdown.classList.remove('d-none');
+            });
+    }
+
+    searchInput.addEventListener('input', function () {
+        const q = this.value.trim();
+        clearTimeout(debounceTimer);
+        if (q.length < 2) {
+            dropdown.classList.add('d-none');
+            return;
+        }
+        debounceTimer = setTimeout(() => fetchResults(q), 250);
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!wrapper.contains(e.target)) {
+            dropdown.classList.add('d-none');
+        }
+    });
+}

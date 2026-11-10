@@ -70,7 +70,7 @@ class SeoSettingController extends Controller
         // Generate JSON-LD preview
         $schemaType = $settings->get('seo_schema_type', 'NewsMediaOrganization');
         $schemaName = $settings->get('seo_schema_name', $settings->get('gazette_title', 'XIVIG Maison Gazette'));
-        $schemaLogo = $settings->get('seo_schema_logo', url('/admin-dist/img/favicon-DgHNGhkV.ico'));
+        $schemaLogo = $settings->get('seo_schema_logo', url('/xivig-admin/img/favicon-DgHNGhkV.ico'));
         $sameAsRaw = $settings->get('seo_schema_same_as', "https://twitter.com/xivigmaison\nhttps://instagram.com/xivigmaison\nhttps://linkedin.com/company/xivigmaison");
         $sameAsList = array_values(array_filter(array_map('trim', explode("\n", $sameAsRaw))));
 

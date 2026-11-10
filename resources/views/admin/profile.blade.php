@@ -55,7 +55,7 @@
           @php
             $currentAvatar = ($admin && $admin->profile_photo_path) 
               ? asset($admin->profile_photo_path) 
-              : asset('admin-dist/img/1-DZLDOIIi.jpg');
+              : asset('xivig-admin/img/1-DZLDOIIi.jpg');
           @endphp
           <div class="position-relative d-inline-block">
             <img id="avatarDisplay" src="{{ $currentAvatar }}" alt="{{ $admin->name ?? 'Admin' }}" class="rounded-circle shadow mb-3 border border-3 border-primary" style="width: 110px; height: 110px; object-fit: cover;">

@@ -25,6 +25,6 @@ class HomeController extends Controller
             ->take(8)
             ->get();
 
-        return view('welcome', compact('featuredPosts', 'categories'));
+        return view('home.content', compact('featuredPosts', 'categories'));
     }
 }

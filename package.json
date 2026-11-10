@@ -2,7 +2,8 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
+        "build:scss": "sass resources/scss/frontend/main.scss resources/css/frontend.css --no-source-map && sass resources/scss/frontend/main.scss public/xivig-public/css/elite-design.css --no-source-map --style=compressed",
+        "build": "npm run build:scss && vite build",
         "dev": "vite"
     },
     "devDependencies": {

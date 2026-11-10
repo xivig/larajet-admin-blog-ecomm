@@ -1,8 +1,10 @@
 <header class="header">
   <div class="header-left">
     <a href="{{ route('admin.dashboard') }}" class="header-brand" aria-label="XivigAdmin home">
-      <span class="header-logo">
-        <img src="{{ asset('admin-dist/img/xivig-logo-CDpcaf-E.png') }}" alt="XivigAdmin" class="brand-logo-img">
+      <span class="header-logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 5l14 14M19 5L5 19" />
+        </svg>
       </span>
       <span class="header-context">
         <strong class="header-context-title">Xivig<span class="brand-gradient">Admin</span></strong>
@@ -69,34 +71,39 @@
       @php
         $navNotifications = \App\Models\AdminNotification::latest()->take(5)->get();
         $navUnreadCount = \App\Models\AdminNotification::where('is_read', false)->count();
+        $navBadgeText = $navUnreadCount > 99 ? '99+' : (string) $navUnreadCount;
       @endphp
-      <div class="header-action-wrap dropdown notifications-dropdown">
-        <button class="header-action dropdown-toggle position-relative" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
+      <div class="header-action-wrap dropdown notifications-dropdown" id="adminHeaderNotifications" data-feed-url="{{ route('admin.notifications.feed') }}" data-mark-all-url="{{ route('admin.notifications.mark-all-read') }}">
+        <button class="header-action dropdown-toggle position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
           <i class="bi bi-bell"></i>
-          @if($navUnreadCount > 0)
-            <span class="header-badge">{{ $navUnreadCount }}</span>
-          @endif
+          <span id="headerNotifBadge" class="header-badge {{ $navUnreadCount > 0 ? 'is-active' : 'd-none' }}">{{ $navBadgeText }}</span>
         </button>
         <div class="dropdown-menu dropdown-menu-end notifications-menu" style="min-width: 320px;">
-          <div class="notification-header d-flex justify-content-between align-items-center p-3 border-bottom">
+          <div class="notification-header d-flex justify-content-between align-items-center p-3 border-bottom gap-2">
             <div>
               <h6 class="mb-0 fw-bold">Notifications</h6>
-              <span class="small text-muted">{{ $navUnreadCount }} unread alert{{ $navUnreadCount === 1 ? '' : 's' }}</span>
+              <span id="headerNotifCountLabel" class="small text-muted">{{ $navUnreadCount }} unread alert{{ $navUnreadCount === 1 ? '' : 's' }}</span>
             </div>
-            <a href="{{ route('admin.notifications.index') }}" class="small text-primary text-decoration-none fw-semibold">View Center</a>
+            <div class="d-flex align-items-center gap-2">
+              <button type="button" id="headerMarkAllReadBtn" class="btn btn-link btn-sm p-0 text-decoration-none fw-semibold text-secondary {{ $navUnreadCount > 0 ? '' : 'd-none' }}" style="font-size: 0.76rem;">Mark all read</button>
+              <a href="{{ route('admin.notifications.index') }}" class="small text-primary text-decoration-none fw-semibold">View Center</a>
+            </div>
           </div>
-          <div class="notification-list" style="max-height: 280px; overflow-y: auto;">
+          <div id="headerNotifList" class="notification-list" style="max-height: 280px; overflow-y: auto;">
             @forelse($navNotifications as $notif)
               @php
                 $iconClass = match($notif->type) {
                   'comment' => 'bi-chat-dots text-primary',
                   'user' => 'bi-person-check text-success',
-                  'system' => 'bi-shield-check text-info',
+                  'contact' => 'bi-envelope-exclamation text-primary',
+                  'order' => 'bi-bag-check text-success',
+                  'system', 'alert' => 'bi-shield-check text-info',
+                  'info' => 'bi-info-circle text-info',
                   'warning' => 'bi-exclamation-triangle text-warning',
                   default => 'bi-bell text-secondary',
                 };
               @endphp
-              <a href="{{ route('admin.notifications.read', $notif->id) }}" class="dropdown-item d-flex gap-2 p-2.5 border-bottom text-wrap {{ !$notif->is_read ? 'bg-light-subtle' : '' }}">
+              <a href="{{ route('admin.notifications.read', $notif->id) }}" class="dropdown-item d-flex gap-2 px-3 py-2 border-bottom text-wrap {{ !$notif->is_read ? 'bg-light-subtle' : '' }}">
                 <div class="flex-shrink-0 mt-1">
                   <i class="bi {{ $iconClass }} fs-5"></i>
                 </div>
@@ -130,7 +137,7 @@
         $headerAdmin = Auth::guard('admin')->user();
         $headerAvatar = ($headerAdmin && $headerAdmin->profile_photo_path) 
           ? asset($headerAdmin->profile_photo_path) 
-          : asset('admin-dist/img/1-DZLDOIIi.jpg');
+          : asset('xivig-admin/img/1-DZLDOIIi.jpg');
       @endphp
       <div class="header-action-wrap dropdown user-dropdown">
         <button class="dropdown-toggle user-trigger" data-bs-toggle="dropdown" aria-expanded="false">
@@ -170,7 +177,7 @@
           <div class="user-menu-footer">
             <form action="{{ route('admin.logout') }}" method="POST" id="adminHeaderLogoutForm" class="d-inline w-100">
               @csrf
-              <button type="submit" class="user-menu-logout btn border-0 text-start w-100 bg-transparent">
+              <button type="submit" class="user-menu-logout w-100">
                 <i class="bi bi-box-arrow-right"></i>
                 <span>Sign Out</span>
               </button>
@@ -182,6 +189,10 @@
     </div>
 
     <div class="header-actions-mobile">
+      <a href="{{ route('admin.notifications.index') }}" class="header-action position-relative notifications-mobile-btn" title="Notifications">
+        <i class="bi bi-bell"></i>
+        <span id="headerMobileNotifBadge" class="header-badge {{ $navUnreadCount > 0 ? 'is-active' : 'd-none' }}">{{ $navBadgeText }}</span>
+      </a>
       <button class="header-action theme-toggle" type="button" title="Toggle Theme">
         <i class="ph-light ph-moon-stars theme-icon-dark"></i>
         <i class="ph-light ph-sun theme-icon-light"></i>
@@ -192,3 +203,150 @@
     </div>
   </div>
 </header>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const wrap = document.getElementById('adminHeaderNotifications');
+    if (!wrap) return;
+
+    const feedUrl = wrap.dataset.feedUrl;
+    const markAllUrl = wrap.dataset.markAllUrl;
+    const badgeDesktop = document.getElementById('headerNotifBadge');
+    const badgeMobile = document.getElementById('headerMobileNotifBadge');
+    const badgeSidebar = document.getElementById('sidebarNotifBadge');
+    const countLabel = document.getElementById('headerNotifCountLabel');
+    const listEl = document.getElementById('headerNotifList');
+    const markAllBtn = document.getElementById('headerMarkAllReadBtn');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+    const iconClassFor = (type) => ({
+      comment: 'bi-chat-dots text-primary',
+      user: 'bi-person-check text-success',
+      contact: 'bi-envelope-exclamation text-primary',
+      order: 'bi-bag-check text-success',
+      system: 'bi-shield-check text-info',
+      alert: 'bi-shield-check text-info',
+      info: 'bi-info-circle text-info',
+      warning: 'bi-exclamation-triangle text-warning',
+    }[type] || 'bi-bell text-secondary');
+
+    const syncBadges = (unreadCount) => {
+      const count = Number(unreadCount) || 0;
+      const text = count > 99 ? '99+' : String(count);
+
+      [badgeDesktop, badgeMobile].forEach((el) => {
+        if (!el) return;
+        el.textContent = text;
+        el.classList.toggle('d-none', count <= 0);
+        el.classList.toggle('is-active', count > 0);
+      });
+
+      if (badgeSidebar) {
+        badgeSidebar.textContent = text;
+        badgeSidebar.classList.toggle('d-none', count <= 0);
+      }
+
+      if (countLabel) {
+        countLabel.textContent = count + ' unread alert' + (count === 1 ? '' : 's');
+      }
+
+      if (markAllBtn) {
+        markAllBtn.classList.toggle('d-none', count <= 0);
+      }
+    };
+
+    const renderNotifications = (items) => {
+      if (!listEl || !Array.isArray(items)) return;
+      listEl.replaceChildren();
+
+      if (items.length === 0) {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'p-3 text-center text-muted small';
+        const emptyIcon = document.createElement('i');
+        emptyIcon.className = 'bi bi-bell-slash fs-4 d-block mb-1 text-muted';
+        emptyDiv.appendChild(emptyIcon);
+        emptyDiv.appendChild(document.createTextNode('No notifications right now.'));
+        listEl.appendChild(emptyDiv);
+        return;
+      }
+
+      items.forEach((n) => {
+        const link = document.createElement('a');
+        link.href = n.read_url || '#';
+        link.className = 'dropdown-item d-flex gap-2 px-3 py-2 border-bottom text-wrap' + (!n.is_read ? ' bg-light-subtle' : '');
+
+        const iconWrap = document.createElement('div');
+        iconWrap.className = 'flex-shrink-0 mt-1';
+        const icon = document.createElement('i');
+        icon.className = 'bi ' + iconClassFor(n.type) + ' fs-5';
+        iconWrap.appendChild(icon);
+
+        const bodyWrap = document.createElement('div');
+        bodyWrap.className = 'flex-grow-1';
+
+        const titleEl = document.createElement('div');
+        titleEl.className = 'fw-semibold small text-body';
+        titleEl.textContent = n.title || 'Notification';
+
+        const msgEl = document.createElement('div');
+        msgEl.className = 'text-muted small lh-sm';
+        msgEl.textContent = n.message || '';
+
+        const timeEl = document.createElement('small');
+        timeEl.className = 'text-muted';
+        timeEl.style.fontSize = '0.72rem';
+        timeEl.textContent = n.time_ago || 'Just now';
+
+        bodyWrap.append(titleEl, msgEl, timeEl);
+        link.append(iconWrap, bodyWrap);
+        listEl.appendChild(link);
+      });
+    };
+
+    const refreshNotifications = async () => {
+      if (!feedUrl || document.visibilityState === 'hidden') return;
+      try {
+        const res = await fetch(feedUrl, {
+          headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        syncBadges(data.unread_count);
+        renderNotifications(data.notifications);
+      } catch (e) {
+        // Ignore transient polling failures
+      }
+    };
+
+    if (markAllBtn && markAllUrl) {
+      markAllBtn.addEventListener('click', async function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        try {
+          const res = await fetch(markAllUrl, {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': csrfToken,
+              'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: '{}',
+          });
+          if (res.ok) {
+            syncBadges(0);
+            if (listEl) {
+              listEl.querySelectorAll('.dropdown-item.bg-light-subtle').forEach((item) => {
+                item.classList.remove('bg-light-subtle');
+              });
+            }
+          }
+        } catch (err) {
+          // Fallback silently
+        }
+      });
+    }
+
+    setInterval(refreshNotifications, 30000);
+  });
+</script>

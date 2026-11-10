@@ -769,7 +769,7 @@ class BlogController extends Controller
     private function resolveVisualTelemetry(Post $post): array
     {
         $pic = $post->image;
-        $src = $pic?->url ?? asset('admin-dist/img/blog-1-PTDVKJDt.webp');
+        $src = $pic?->url ?? asset('xivig-admin/img/blog-1-PTDVKJDt.webp');
         $webpUrl = $pic?->webp_url ?? $src;
         $alt = $pic?->display_alt ?? $post->title;
         $caption = $pic?->caption ?: ($pic?->title ?: $post->title);

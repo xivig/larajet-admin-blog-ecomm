@@ -33,7 +33,7 @@
         <div class="row">
             @forelse($authors as $author)
                 @php
-                    $defaultAvatar = asset('admin-dist/img/avatars/avatar-' . (($author->id % 9) + 1) . '.webp');
+                    $defaultAvatar = asset('xivig-admin/img/avatars/avatar-' . (($author->id % 9) + 1) . '.webp');
                     $userPhoto = $author->user->profile_photo_path ?? null;
                     $avatarSrc = $userPhoto ? (Str::startsWith($userPhoto, ['http://', 'https://']) ? $userPhoto : asset($userPhoto)) : $defaultAvatar;
                 @endphp

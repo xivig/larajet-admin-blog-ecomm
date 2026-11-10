@@ -485,11 +485,11 @@
                                     <tr>
                                         <td class="ps-4">
                                             <div class="d-flex align-items-center gap-3">
-                                                <img src="{{ $u->profile_photo_url ?? asset('admin-dist/img/avatar-1-K2kaIzYo.webp') }}" 
+                                                <img src="{{ $u->profile_photo_url ?? asset('xivig-admin/img/avatar-1-K2kaIzYo.webp') }}" 
                                                      alt="{{ $u->name }}" 
                                                      class="rounded-circle object-fit-cover" 
                                                      width="38" height="38"
-                                                     onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/avatar-1-K2kaIzYo.webp') }}'">
+                                                     onerror="this.onerror=null; this.src='{{ asset('xivig-admin/img/avatar-1-K2kaIzYo.webp') }}'">
                                                 <div>
                                                     <div class="fw-semibold text-body">{{ $u->name }}</div>
                                                     <small class="text-muted">{{ $u->email }}</small>

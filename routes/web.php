@@ -50,7 +50,7 @@ Route::get('/', function () {
     return view('home.content', ['title' => $title]);
 })->name('home');
 
-Route::get('/about', static fn() => view('home.about'))->name('about');
+Route::get('/about', static fn() => redirect()->route('page.show', ['slug' => 'about-us'], 301))->name('about');
 Route::get('/contact', static fn() => view('home.contact'))->name('contact');
 Route::get('/services', static fn() => view('home.services'))->name('services');
 Route::get('/pricing', static fn() => view('home.pricing'))->name('pricing');
@@ -62,9 +62,9 @@ Route::get('/ecomm/cart', [StoreController::class, 'getCart'])->name('ecomm.cart
 Route::post('/ecomm/cart/add', [StoreController::class, 'addToCart'])->name('ecomm.cart.add');
 Route::post('/ecomm/cart/update', [StoreController::class, 'updateCart'])->name('ecomm.cart.update');
 Route::post('/ecomm/cart/clear', [StoreController::class, 'clearCart'])->name('ecomm.cart.clear');
-Route::post('/ecomm/cart/coupon', [StoreController::class, 'applyCoupon'])->name('ecomm.cart.coupon');
+Route::post('/ecomm/cart/coupon', [StoreController::class, 'applyCoupon'])->middleware('throttle:15,1')->name('ecomm.cart.coupon');
 Route::get('/ecomm/checkout', [StoreController::class, 'checkout'])->name('ecomm.checkout');
-Route::post('/ecomm/checkout', [StoreController::class, 'processCheckout'])->name('ecomm.checkout.process');
+Route::post('/ecomm/checkout', [StoreController::class, 'processCheckout'])->middleware('throttle:15,1')->name('ecomm.checkout.process');
 Route::get('/ecomm/gateway/{driver}/checkout/{orderNumber}', [StoreController::class, 'sandboxGateway'])->name('ecomm.gateway.sandbox');
 Route::match(['get', 'post'], '/ecomm/callback/{driver}/{orderNumber}', [StoreController::class, 'gatewayCallback'])->name('ecomm.callback');
 Route::get('/ecomm/order/{orderNumber}', [StoreController::class, 'orderReceipt'])->name('ecomm.order.receipt');
@@ -109,28 +109,30 @@ Route::get('/category/{id}', [BlogController::class, 'category']);
 
 Route::get('/blog/{slug}', [BlogController::class, 'singlePost'])->name('single-post');
 Route::get('/post/{slug}', [BlogController::class, 'singlePost'])->name('blog.single');
-Route::post('/blog/{slug}/unlock', [BlogController::class, 'unlock'])->name('blog.unlock');
+Route::post('/blog/{slug}/unlock', [BlogController::class, 'unlock'])->middleware('throttle:15,1')->name('blog.unlock');
 Route::get('/single-post/{slug}', [BlogController::class, 'singlePost']);
 
-// Comments & replies
-Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
-Route::post('/comments/{id}/like', [CommentController::class, 'like'])->name('comments.like');
-Route::post('/comments/{id}/report', [CommentController::class, 'report'])->name('comments.report');
-Route::post('/comment-replies', [CommentReplyController::class, 'store'])->name('comment-replies.store');
-Route::post('/comment-replies/{id}/like', [CommentReplyController::class, 'like'])->name('comment-replies.like');
-Route::post('/comment-replies/{id}/report', [CommentReplyController::class, 'report'])->name('comment-replies.report');
+// Comments & replies (rate-limited against spam)
+Route::middleware('throttle:20,1')->group(function () {
+    Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::post('/comments/{id}/like', [CommentController::class, 'like'])->name('comments.like');
+    Route::post('/comments/{id}/report', [CommentController::class, 'report'])->name('comments.report');
+    Route::post('/comment-replies', [CommentReplyController::class, 'store'])->name('comment-replies.store');
+    Route::post('/comment-replies/{id}/like', [CommentReplyController::class, 'like'])->name('comment-replies.like');
+    Route::post('/comment-replies/{id}/report', [CommentReplyController::class, 'report'])->name('comment-replies.report');
+});
 
 // Newsletter subscription
-Route::post('/newsletter/subscribe', [AdminNewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+Route::post('/newsletter/subscribe', [AdminNewsletterController::class, 'subscribe'])->middleware('throttle:10,1')->name('newsletter.subscribe');
 
 // Dynamic Static & Content Pages
 Route::get('/page/{slug}', [FrontendPageController::class, 'show'])->name('page.show');
 
 // Live Autocomplete API
-Route::get('/api/search/autocomplete', [SearchApiController::class, 'autocomplete'])->name('api.search.autocomplete');
+Route::get('/api/search/autocomplete', [SearchApiController::class, 'autocomplete'])->middleware('throttle:60,1')->name('api.search.autocomplete');
 
-// General previews
-Route::get('/user', static fn() => view('user'));
+// Authenticated user views
+Route::get('/user', static fn() => view('user'))->middleware('auth');
 Route::get('/admin', static fn() => redirect()->route('admin.dashboard'))->name('admin');
 
 // Fortify & Jetstream Authenticated User Routes
@@ -188,8 +190,10 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     // Navigation Menu Builder
     Route::get('menu', [AdminMenuController::class, 'index'])->name('admin.menu.index');
     Route::post('menu', [AdminMenuController::class, 'store'])->name('admin.menu.store');
+    Route::post('menu/sync-defaults', [AdminMenuController::class, 'syncDefaults'])->name('admin.menu.sync-defaults');
     Route::delete('menu/{menu}', [AdminMenuController::class, 'destroy'])->name('admin.menu.destroy');
     Route::post('menu/{menu}/items', [AdminMenuController::class, 'addItem'])->name('admin.menu.items.add');
+    Route::put('menu/items/{item}', [AdminMenuController::class, 'updateItem'])->name('admin.menu.items.update');
     Route::post('menu/items/reorder', [AdminMenuController::class, 'reorder'])->name('admin.menu.items.reorder');
     Route::delete('menu/items/{item}', [AdminMenuController::class, 'deleteItem'])->name('admin.menu.items.delete');
 
@@ -229,6 +233,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
     // Notifications Center
     Route::get('notifications', [AdminNotificationController::class, 'index'])->name('admin.notifications.index');
+    Route::get('notifications/feed', [AdminNotificationController::class, 'feed'])->name('admin.notifications.feed');
     Route::match(['get', 'post'], 'notifications/{notification}/read', [AdminNotificationController::class, 'markAsRead'])->name('admin.notifications.read');
     Route::match(['get', 'post'], 'notifications/mark-all-read', [AdminNotificationController::class, 'markAllAsRead'])->name('admin.notifications.mark-all-read');
     Route::match(['get', 'post'], 'notifications/clear-read', [AdminNotificationController::class, 'clearRead'])->name('admin.notifications.clear-read');
@@ -367,10 +372,11 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     // Modular Widgets Manager
     Route::get('widgets', [AdminWidgetController::class, 'index'])->name('admin.widgets.index');
     Route::post('widgets', [AdminWidgetController::class, 'store'])->name('admin.widgets.store');
+    Route::post('widgets/sync-footer-defaults', [AdminWidgetController::class, 'syncFooterDefaults'])->name('admin.widgets.sync-footer-defaults');
+    Route::post('widgets/reorder', [AdminWidgetController::class, 'reorder'])->name('admin.widgets.reorder');
     Route::put('widgets/{widget}', [AdminWidgetController::class, 'update'])->name('admin.widgets.update');
     Route::delete('widgets/{widget}', [AdminWidgetController::class, 'destroy'])->name('admin.widgets.destroy');
     Route::post('widgets/{widget}/toggle', [AdminWidgetController::class, 'toggle'])->name('admin.widgets.toggle');
-    Route::post('widgets/reorder', [AdminWidgetController::class, 'reorder'])->name('admin.widgets.reorder');
 
     // Search Intelligence & Analytics
     Route::get('search-analytics', [AdminSearchAnalyticsController::class, 'index'])->name('admin.search-analytics.index');
@@ -409,9 +415,7 @@ Route::get('/feed.xml', [AdminSettingController::class, 'feedXml'])->name('feed.
 Route::get('/sitemap.xml', [\App\Http\Controllers\Frontend\SitemapController::class, 'index'])->name('sitemap.xml');
 Route::get('/robots.txt', [AdminSeoSettingController::class, 'robotsTxt'])->name('robots.txt');
 
-// Auth logout & user dashboard subpages
-Route::get('logout', [AuthController::class, 'logout'])->name('logout');
-
+// User dashboard subpages (POST /logout handled by Fortify)
 Route::prefix('dashboard')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile'])->middleware('auth')->name('user-profile');
     Route::get('/inbox', [AuthController::class, 'inbox'])->middleware('auth')->name('user-inbox');

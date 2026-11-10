@@ -93,7 +93,7 @@ class Product extends Model
     {
         $raw = $this->image_url;
         if (empty($raw)) {
-            return asset('xivig-blog/images/portfolio/project-nexus-core.webp');
+            return asset('xivig-public/images/portfolio/project-nexus-core.webp');
         }
         if (Str::startsWith($raw, ['http://', 'https://', '//'])) {
             return $raw;

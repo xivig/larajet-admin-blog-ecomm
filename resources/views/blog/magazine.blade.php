@@ -2,7 +2,7 @@
 @section('title', 'Magazine Portal - Breaking News, Technology & Architecture Insights')
 @section('content')
 @php
-    $fallbackThumb = asset('admin-dist/img/blog-1-PTDVKJDt.webp');
+    $fallbackThumb = asset('xivig-admin/img/blog-1-PTDVKJDt.webp');
     $resolveImg = fn ($post) => $post?->image?->url ?? $fallbackThumb;
     $resolveCat = fn ($post) => $post?->category?->name ?? 'General';
     $resolveCatId = fn ($post) => $post?->category?->id ?? 1;

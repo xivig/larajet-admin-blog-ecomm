@@ -86,9 +86,9 @@
               <div class="col-md-4">
                 <label class="form-label small text-muted d-block">Current Cover:</label>
                 @if ($post->image && $post->image->link)
-                  <img id="currentCoverImg" src="{{ Str::startsWith($post->image->link, ['http', 'https', 'uploads/']) ? asset($post->image->link) : asset('xivig-blog/images/blog/' . $post->image->link) }}" alt="Cover" class="img-fluid rounded border" style="max-height: 140px;" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                  <img id="currentCoverImg" src="{{ Str::startsWith($post->image->link, ['http', 'https', 'uploads/', 'xivig-admin/', 'xivig-public/']) ? asset($post->image->link) : asset('xivig-public/images/blog/' . $post->image->link) }}" alt="Cover" class="img-fluid rounded border" style="max-height: 140px;" onerror="this.onerror=null; this.src='{{ asset('xivig-admin/img/blog-1-PTDVKJDt.webp') }}'">
                 @else
-                  <img id="currentCoverImg" src="{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}" alt="Cover" class="img-fluid rounded border" style="max-height: 140px;">
+                  <img id="currentCoverImg" src="{{ asset('xivig-admin/img/blog-1-PTDVKJDt.webp') }}" alt="Cover" class="img-fluid rounded border" style="max-height: 140px;">
                 @endif
               </div>
               <div class="col-md-8">
@@ -287,9 +287,9 @@
         <div class="row g-3">
           @foreach ($pictures as $pic)
             <div class="col-md-3 col-sm-4 col-6">
-              <div class="card h-100 border text-center p-2 cursor-pointer" data-id="{{ $pic->id }}" data-src="{{ Str::startsWith($pic->link, ['http', 'https', 'uploads/']) ? asset($pic->link) : asset('xivig-blog/images/blog/' . $pic->link) }}" onclick="selectMediaItem(this)">
+              <div class="card h-100 border text-center p-2 cursor-pointer" data-id="{{ $pic->id }}" data-src="{{ Str::startsWith($pic->link, ['http', 'https', 'uploads/', 'xivig-admin/', 'xivig-public/']) ? asset($pic->link) : asset('xivig-public/images/blog/' . $pic->link) }}" onclick="selectMediaItem(this)">
                 <div class="ratio ratio-1x1 mb-2 bg-light rounded overflow-hidden">
-                  <img src="{{ Str::startsWith($pic->link, ['http', 'https', 'uploads/']) ? asset($pic->link) : asset('xivig-blog/images/blog/' . $pic->link) }}" alt="{{ $pic->name }}" class="object-fit-cover w-100 h-100" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                  <img src="{{ Str::startsWith($pic->link, ['http', 'https', 'uploads/', 'xivig-admin/', 'xivig-public/']) ? asset($pic->link) : asset('xivig-public/images/blog/' . $pic->link) }}" alt="{{ $pic->name }}" class="object-fit-cover w-100 h-100" onerror="this.onerror=null; this.src='{{ asset('xivig-admin/img/blog-1-PTDVKJDt.webp') }}'">
                 </div>
                 <div class="small text-truncate fw-semibold">{{ $pic->name ?? 'Image #' . $pic->id }}</div>
               </div>

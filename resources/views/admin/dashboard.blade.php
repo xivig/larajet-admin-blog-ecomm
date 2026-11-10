@@ -100,9 +100,9 @@
                   <tr>
                     <td>
                       @if ($post->image && $post->image->link)
-                        <img src="{{ Str::startsWith($post->image->link, ['http', 'https', 'uploads/']) ? asset($post->image->link) : asset('xivig-blog/images/blog/' . $post->image->link) }}" alt="" class="post-thumb-sm" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                        <img src="{{ Str::startsWith($post->image->link, ['http', 'https', 'uploads/', 'xivig-admin/', 'xivig-public/']) ? asset($post->image->link) : asset('xivig-public/images/blog/' . $post->image->link) }}" alt="" class="post-thumb-sm" onerror="this.onerror=null; this.src='{{ asset('xivig-admin/img/blog-1-PTDVKJDt.webp') }}'">
                       @else
-                        <img src="{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}" alt="" class="post-thumb-sm">
+                        <img src="{{ asset('xivig-admin/img/blog-1-PTDVKJDt.webp') }}" alt="" class="post-thumb-sm">
                       @endif
                     </td>
                     <td>

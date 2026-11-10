@@ -31,7 +31,7 @@
                         <!-- 16:9 Video Embed Player -->
                         @php
                             $vidUrl = trim($mainVideo->video_url ?? '');
-                            $postHeroImg = $mainVideo->image->link ?? 'dist-front/images/hero-image.jpg';
+                            $postHeroImg = $mainVideo->image->link ?? 'xivig-public/images/blog/video-feature-fallback.jpg';
                             $posterSrc = Str::startsWith($postHeroImg, ['http://', 'https://']) ? $postHeroImg : asset($postHeroImg);
 
                             $isIframe = Str::startsWith($vidUrl, '<iframe');
@@ -95,7 +95,7 @@
 
                             <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
                                 @php
-                                    $defaultAvatar = asset('admin-dist/img/avatars/avatar-' . ((($mainVideo->author_id ?? 1) % 9) + 1) . '.webp');
+                                    $defaultAvatar = asset('xivig-admin/img/avatars/avatar-' . ((($mainVideo->author_id ?? 1) % 9) + 1) . '.webp');
                                     $authorPhoto = $mainVideo->author->user->profile_photo_path ?? null;
                                     $authorSrc = $authorPhoto ? (Str::startsWith($authorPhoto, ['http://', 'https://']) ? $authorPhoto : asset($authorPhoto)) : $defaultAvatar;
                                 @endphp
@@ -132,10 +132,10 @@
                                 <div class="card p-0 h-100 shadow-sm border rounded-xl overflow-hidden bg-white" style="border-radius: 16px;">
                                     <div class="position-relative" style="height: 170px; background: #000;">
                                         @php
-                                            $vImg = $vid->image->link ?? 'admin-dist/img/blog-1-PTDVKJDt.webp';
+                                            $vImg = $vid->image->link ?? 'xivig-admin/img/blog-1-PTDVKJDt.webp';
                                             $vSrc = Str::startsWith($vImg, ['http://', 'https://']) ? $vImg : asset($vImg);
                                         @endphp
-                                        <img src="{{ $vSrc }}" alt="{{ $vid->title }}" class="w-100 h-100 object-fit-cover opacity-75" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                                        <img src="{{ $vSrc }}" alt="{{ $vid->title }}" class="w-100 h-100 object-fit-cover opacity-75" onerror="this.onerror=null; this.src='{{ asset('xivig-admin/img/blog-1-PTDVKJDt.webp') }}'">
                                         <a href="{{ route('blog.video', $vid->slug) }}" class="position-absolute top-50 start-50 translate-middle d-flex align-items-center justify-content-center bg-danger text-white rounded-circle shadow" style="width: 50px; height: 50px; transform: translate(-50%, -50%);" title="Watch Video">
                                             <i class="fas fa-play" style="font-size: 1.1rem; margin-left: 3px;"></i>
                                         </a>

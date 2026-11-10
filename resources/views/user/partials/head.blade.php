@@ -24,7 +24,7 @@
     <!-- Custom CSS -->
     <link href="{{ asset('xivig-public/dist/css/style.min.css')}}" rel="stylesheet">
     <!-- Elite Design Tokens & BS5 Bridging -->
-    <link rel="stylesheet" href="{{ asset('xivig-blog/css/elite-design.css') }}">
+    <link rel="stylesheet" href="{{ asset('xivig-public/css/elite-design.css') }}">
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>

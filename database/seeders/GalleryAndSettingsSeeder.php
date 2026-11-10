@@ -60,10 +60,10 @@ class GalleryAndSettingsSeeder extends Seeder
             }
         } else {
             $sampleImages = [
-                'admin-dist/img/1-DZLDOIIi.jpg',
-                'admin-dist/img/2-BNc2f0YF.jpg',
-                'admin-dist/img/3-DE3WfE1M.jpg',
-                'admin-dist/img/4-DTxV8-r7.jpg',
+                'xivig-admin/img/1-DZLDOIIi.jpg',
+                'xivig-admin/img/2-BNc2f0YF.jpg',
+                'xivig-admin/img/3-DE3WfE1M.jpg',
+                'xivig-admin/img/4-DTxV8-r7.jpg',
             ];
         }
 

@@ -160,22 +160,38 @@ class BackupService
             throw new \RuntimeException("Unable to open backup archive {$backup->filename}");
         }
 
-        // Restore Database if present
+        // Restore Database safely via direct stream write (no raw extractTo Zip-Slip)
         $sqliteIndex = $zip->locateName('database/database.sqlite');
         if ($sqliteIndex !== false) {
             $sqliteTarget = config('database.connections.sqlite.database');
-            // Create a safety copy before restoring
-            if (file_exists($sqliteTarget)) {
+            if ($sqliteTarget && file_exists($sqliteTarget)) {
                 copy($sqliteTarget, $sqliteTarget . '.pre_restore.bak');
             }
-            $zip->extractTo(dirname($sqliteTarget), 'database/database.sqlite');
+            if ($sqliteTarget && ($sqliteBytes = $zip->getFromIndex($sqliteIndex)) !== false) {
+                $dbDir = dirname($sqliteTarget);
+                if (!is_dir($dbDir)) {
+                    mkdir($dbDir, 0755, true);
+                }
+                file_put_contents($sqliteTarget, $sqliteBytes);
+            }
         }
 
-        // Restore Uploads if present
+        // Restore Uploads safely via Zip-Slip and extension allowlist verification
         for ($i = 0; $i < $zip->numFiles; $i++) {
-            $entry = $zip->getNameIndex($i);
-            if (str_starts_with($entry, 'uploads/')) {
-                $zip->extractTo(public_path(), $entry);
+            $entry = (string) $zip->getNameIndex($i);
+            if (!SecurityFileGuard::isSafeZipEntry($entry, ['uploads/'], SecurityFileGuard::SAFE_RESTORE_EXTENSIONS)) {
+                continue;
+            }
+
+            $destPath = public_path($entry);
+            $destDir = dirname($destPath);
+            if (!is_dir($destDir)) {
+                mkdir($destDir, 0755, true);
+            }
+
+            $bytes = $zip->getFromIndex($i);
+            if ($bytes !== false) {
+                file_put_contents($destPath, $bytes);
             }
         }
 

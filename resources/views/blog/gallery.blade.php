@@ -54,7 +54,7 @@
                     @endphp
 
                     <div class="gallery-item {{ $sizeClass }}" onclick="openGalleryLightbox('{{ $imgUrl }}', '{{ addslashes($imgCaption) }}', '{{ addslashes($postTitle) }}', '{{ $postSlug ? route('single-post', $postSlug) : '' }}')">
-                        <img loading="lazy" src="{{ $imgUrl }}" class="lazy-img" alt="{{ $imgCaption }}" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
+                        <img loading="lazy" src="{{ $imgUrl }}" class="lazy-img" alt="{{ $imgCaption }}" onerror="this.onerror=null; this.src='{{ asset('xivig-admin/img/blog-1-PTDVKJDt.webp') }}'">
                         <div class="gallery-caption">
                             <h4>{{ $imgCaption }}</h4>
                             @if($postTitle)
@@ -101,28 +101,4 @@
         </div>
     </div>
 </div>
-
-<script>
-function openGalleryLightbox(url, caption, title, postLink) {
-    document.getElementById('lightboxImg').src = url;
-    document.getElementById('lightboxCaption').innerText = caption;
-    document.getElementById('lightboxSubtitle').innerText = title;
-    
-    const postLinkBtn = document.getElementById('lightboxPostLink');
-    if (postLink) {
-        postLinkBtn.href = postLink;
-        postLinkBtn.style.display = 'inline-flex';
-    } else {
-        postLinkBtn.style.display = 'none';
-    }
-
-    if (window.bootstrap && bootstrap.Modal) {
-        const modal = new bootstrap.Modal(document.getElementById('galleryLightboxModal'));
-        modal.show();
-    } else if (window.$) {
-        $('#galleryLightboxModal').modal('show');
-    }
-}
-</script>
-
 @endsection

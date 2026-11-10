@@ -24,7 +24,7 @@ class SeoSettingSeeder extends Seeder
             // Social & OpenGraph
             'seo_og_title' => 'XIVIG Maison Gazette',
             'seo_og_description' => 'Chronicles of bespoke craftsmanship, luxury timepieces, and contemporary aesthetics.',
-            'seo_og_image' => url('/xivig-blog/images/blog/blog-post-1.jpg'),
+            'seo_og_image' => url('/xivig-public/images/blog/laravel-hyperscale-architecture.jpg'),
             'seo_og_type' => 'website',
             'seo_og_locale' => 'en_US',
             'seo_og_site_name' => 'XIVIG Maison',
@@ -43,7 +43,7 @@ class SeoSettingSeeder extends Seeder
             // Schema.org
             'seo_schema_type' => 'NewsMediaOrganization',
             'seo_schema_name' => 'XIVIG Maison Gazette',
-            'seo_schema_logo' => url('/admin-dist/img/favicon-DgHNGhkV.ico'),
+            'seo_schema_logo' => url('/xivig-admin/img/favicon-DgHNGhkV.ico'),
             'seo_schema_same_as' => "https://twitter.com/xivigmaison\nhttps://instagram.com/xivigmaison\nhttps://linkedin.com/company/xivigmaison\nhttps://github.com/xivig",
 
             // Webmaster Verifications

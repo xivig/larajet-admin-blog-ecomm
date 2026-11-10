@@ -35,6 +35,6 @@ class Gallery extends Model
             return asset($firstItem->image_path);
         }
 
-        return asset('admin-dist/img/1-DZLDOIIi.jpg');
+        return asset('xivig-admin/img/1-DZLDOIIi.jpg');
     }
 }

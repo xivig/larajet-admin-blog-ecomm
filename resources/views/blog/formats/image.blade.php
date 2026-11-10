@@ -9,7 +9,7 @@
     $pubDate = ($post->published_at ?? $post->created_at ?? now())->format('M d, Y');
     $catId = $post->category?->id ?? 1;
     $catName = $post->category?->name ?? 'Visual Feature';
-    $fallbackThumb = asset('admin-dist/img/blog-1-PTDVKJDt.webp');
+    $fallbackThumb = asset('xivig-admin/img/blog-1-PTDVKJDt.webp');
 @endphp
 
 <!-- Fixed Reading Progress Bar -->
@@ -233,7 +233,7 @@
                                     @foreach($tableOfContents as $toc)
                                         <li style="padding-left: {{ max(0, ($toc['level'] - 2) * 14) }}px;">
                                             <a href="#{{ $toc['id'] }}" class="text-decoration-none text-muted small fw-medium">
-                                                <i class="fas fa-chevron-right text-primary me-1" style="font-size: 9px;"></i> {{ $toc['title'] }}
+                                                <i class="fas fa-chevron-right text-primary me-1" style="font-size: 9px;"></i> {{ $toc['text'] ?? ($toc['title'] ?? '') }}
                                             </a>
                                         </li>
                                     @endforeach
@@ -473,115 +473,5 @@
     <i class="fas fa-check-circle text-success me-2"></i> Visual essay link copied to clipboard
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const frames = @json($visualFrames->values());
-    let currentFrame = 0;
-
-    // 1. Scroll reading progress bar
-    const progressBar = document.getElementById('vfProgressBar');
-    function updateProgress() {
-        if (!progressBar) return;
-        const scrollTop = window.scrollY || document.documentElement.scrollTop;
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const pct = docHeight > 0 ? Math.min(100, Math.max(0, (scrollTop / docHeight) * 100)) : 0;
-        progressBar.style.width = pct + '%';
-    }
-    window.addEventListener('scroll', updateProgress, { passive: true });
-    updateProgress();
-
-    // 2. Zen Mode toggle
-    const zenToggle = document.getElementById('vfZenToggle');
-    const zenLabel = document.getElementById('vfZenLabel');
-    const articleRoot = document.getElementById('vfArticleRoot');
-    if (zenToggle && articleRoot) {
-        zenToggle.addEventListener('click', function () {
-            const active = articleRoot.classList.toggle('vf-zen-mode');
-            if (zenLabel) {
-                zenLabel.textContent = active ? 'Exit Zen' : 'Zen Mode';
-            }
-        });
-    }
-
-    // 3. Filmstrip stage switching + Cinema Lightbox
-    const heroBg = document.getElementById('vfHeroBg');
-    const activeCaption = document.getElementById('vfActivePlateCaption');
-    const filmBtns = document.querySelectorAll('.vf-filmstrip-btn');
-    const lightbox = document.getElementById('vfLightbox');
-    const lightboxImg = document.getElementById('vfLightboxImg');
-    const lightboxTitle = document.getElementById('vfLightboxTitle');
-    const lightboxCounter = document.getElementById('vfLightboxCounter');
-
-    function setActiveFrame(idx) {
-        if (!frames.length) return;
-        currentFrame = (idx + frames.length) % frames.length;
-        const f = frames[currentFrame];
-        if (heroBg) heroBg.src = f.url;
-        if (activeCaption) activeCaption.textContent = f.title || '';
-        filmBtns.forEach((btn, i) => btn.classList.toggle('active', i === currentFrame));
-        if (lightboxImg) {
-            lightboxImg.src = f.url;
-            lightboxImg.alt = f.alt || f.title || '';
-            lightboxImg.classList.remove('zoomed');
-        }
-        if (lightboxTitle) lightboxTitle.textContent = f.title || '';
-        if (lightboxCounter) lightboxCounter.textContent = (currentFrame + 1) + ' / ' + frames.length;
-    }
-
-    filmBtns.forEach((btn) => {
-        btn.addEventListener('click', function () {
-            const idx = parseInt(this.dataset.frameIdx || '0', 10);
-            setActiveFrame(idx);
-        });
-        btn.addEventListener('dblclick', function () {
-            openLightbox(parseInt(this.dataset.frameIdx || '0', 10));
-        });
-    });
-
-    function openLightbox(idx) {
-        if (!lightbox) return;
-        if (typeof idx === 'number') setActiveFrame(idx);
-        lightbox.classList.add('open');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeLightbox() {
-        if (!lightbox) return;
-        lightbox.classList.remove('open');
-        document.body.style.overflow = '';
-        if (lightboxImg) lightboxImg.classList.remove('zoomed');
-    }
-
-    document.getElementById('vfOpenLightboxBtn')?.addEventListener('click', () => openLightbox(currentFrame));
-    document.getElementById('vfDockLightboxBtn')?.addEventListener('click', () => openLightbox(currentFrame));
-    document.getElementById('vfCloseLightboxBtn')?.addEventListener('click', closeLightbox);
-    document.getElementById('vfPrevFrameBtn')?.addEventListener('click', () => setActiveFrame(currentFrame - 1));
-    document.getElementById('vfNextFrameBtn')?.addEventListener('click', () => setActiveFrame(currentFrame + 1));
-
-    const toggleZoom = () => lightboxImg?.classList.toggle('zoomed');
-    document.getElementById('vfLightboxZoomBtn')?.addEventListener('click', toggleZoom);
-    lightboxImg?.addEventListener('click', toggleZoom);
-
-    document.addEventListener('keydown', function (e) {
-        if (!lightbox || !lightbox.classList.contains('open')) return;
-        if (e.key === 'Escape') closeLightbox();
-        if (e.key === 'ArrowLeft') setActiveFrame(currentFrame - 1);
-        if (e.key === 'ArrowRight') setActiveFrame(currentFrame + 1);
-    });
-});
-
-function vfCopyShareLink() {
-    const showToast = () => {
-        const toast = document.getElementById('vfToast');
-        if (!toast) return;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 2600);
-    };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(window.location.href).then(showToast).catch(showToast);
-    } else {
-        showToast();
-    }
-}
-</script>
+<script id="vfFramesData" type="application/json">@json($visualFrames->values())</script>
 @endsection

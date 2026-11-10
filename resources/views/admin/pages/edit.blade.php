@@ -13,9 +13,16 @@
                 <span class="breadcrumb-item active">{{ $page->title }}</span>
             </nav>
         </div>
-        <a href="{{ route('admin.pages.index') }}" class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-arrow-left me-1"></i> Back to Pages
-        </a>
+        <div class="d-flex gap-2">
+            @if ($page->status)
+                <a href="{{ route('page.show', $page->slug) }}" target="_blank" class="btn btn-success btn-sm">
+                    <i class="bi bi-box-arrow-up-right me-1"></i> View Live Page
+                </a>
+            @endif
+            <a href="{{ route('admin.pages.index') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to Pages
+            </a>
+        </div>
     </div>
 
     <form action="{{ route('admin.pages.update', $page->id) }}" method="POST">
@@ -35,10 +42,7 @@
                             <input type="text" name="slug" id="slug" class="form-control @error('slug') is-invalid @enderror" value="{{ old('slug', $page->slug) }}">
                         </div>
 
-                        <div class="mb-3">
-                            <label for="content" class="form-label fw-semibold">Page Content</label>
-                            <textarea name="content" id="content" rows="12" class="form-control font-monospace">{{ old('content', $page->content) }}</textarea>
-                        </div>
+                        @include('admin.pages._content-editor', ['content' => old('content', $page->content)])
 
                         <div class="mb-3">
                             <label for="excerpt" class="form-label fw-semibold">Summary / Excerpt</label>
@@ -77,12 +81,25 @@
                         </div>
 
                         <div class="mb-3">
+                            <label class="form-label fw-semibold small text-muted mb-1">Front Page URL</label>
+                            <div class="p-2 rounded border bg-light-subtle small text-break">
+                                @if ($page->status)
+                                    <a href="{{ route('page.show', $page->slug) }}" target="_blank" class="text-decoration-none">
+                                        <code>{{ route('page.show', $page->slug) }}</code> <i class="bi bi-box-arrow-up-right ms-1"></i>
+                                    </a>
+                                @else
+                                    <code class="text-muted">{{ route('page.show', $page->slug) }}</code>
+                                    <div class="text-muted mt-1" style="font-size: 0.75rem;">Publish this page to link it in the Front Header &amp; Footer.</div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
                             <label for="template" class="form-label fw-semibold">Layout Template</label>
                             <select name="template" id="template" class="form-select">
-                                <option value="default" {{ $page->template === 'default' ? 'selected' : '' }}>Default Page</option>
-                                <option value="fullwidth" {{ $page->template === 'fullwidth' ? 'selected' : '' }}>Full Width Canvas</option>
-                                <option value="landing" {{ $page->template === 'landing' ? 'selected' : '' }}>Landing Showcase</option>
-                                <option value="legal" {{ $page->template === 'legal' ? 'selected' : '' }}>Legal &amp; Policies</option>
+                                @foreach (\App\Models\Page::TEMPLATES as $tplKey => $tplLabel)
+                                    <option value="{{ $tplKey }}" {{ old('template', $page->template) === $tplKey ? 'selected' : '' }}>{{ $tplLabel }}</option>
+                                @endforeach
                             </select>
                         </div>
 

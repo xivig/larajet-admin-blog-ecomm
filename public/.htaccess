@@ -1,9 +1,23 @@
-<IfModule mod_rewrite.c>
-    <IfModule mod_negotiation.c>
-        Options -MultiViews -Indexes
-    </IfModule>
+<IfModule mod_negotiation.c>
+    Options -MultiViews -Indexes
+</IfModule>
 
+# Block access to hidden dotfiles (except ACME verification) and build manifests
+<FilesMatch "^\.(?!well-known/)">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
     RewriteEngine On
+
+    # Block accidental exposure of package/config files if placed inside webroot
+    RewriteRule ^(composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml|artisan)$ - [F,L]
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .

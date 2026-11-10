@@ -69,7 +69,7 @@ class EmailController extends Controller
             'bcc_email' => 'nullable|email|max:255',
             'subject' => 'required|string|max:255',
             'body' => 'required|string',
-            'attachments.*' => 'nullable|file|max:20480',
+            'attachments.*' => ['nullable', 'file', 'max:20480', \App\Services\SecurityFileGuard::mediaMimeRule()],
             'is_draft' => 'nullable',
         ]);
 
@@ -83,7 +83,7 @@ class EmailController extends Controller
             }
 
             foreach ($request->file('attachments') as $file) {
-                if ($file->isValid()) {
+                if ($file->isValid() && \App\Services\SecurityFileGuard::isSafeUploadedFile($file, \App\Services\SecurityFileGuard::MEDIA_EXTENSIONS)) {
                     $originalName = $file->getClientOriginalName();
                     $extension = strtolower($file->getClientOriginalExtension());
                     $rawSize = $file->getSize();
@@ -94,7 +94,7 @@ class EmailController extends Controller
                     $pow = min($pow, count($units) - 1);
                     $formattedSize = round($rawSize / pow(1024, $pow), 1) . ' ' . $units[$pow];
 
-                    $safeFileName = time() . '_' . uniqid() . '.' . $extension;
+                    $safeFileName = \App\Services\SecurityFileGuard::safeStoredFilename($originalName, $extension);
                     $file->move($uploadDir, $safeFileName);
 
                     $storedAttachments[] = [

@@ -43,7 +43,7 @@
                                 {{ __('Logout') }}
                             </a>
 
-                            <form id="logout-form" action="{{ route('logout') }}" method="GET" class="d-none">
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                                 @csrf
                             </form>
 {{--                            <a class="sidebar-link waves-effect waves-dark sidebar-link" href="authentication-login1.html" aria-expanded="false">--}}

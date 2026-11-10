@@ -13,11 +13,22 @@
                 <span class="breadcrumb-item active">Pages</span>
             </nav>
         </div>
-        <div>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ url('/') }}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-box-arrow-up-right me-1"></i> Front Page
+            </a>
+            <a href="{{ route('admin.menu.index') }}" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-list-nested me-1"></i> Menu Builder
+            </a>
             <a href="{{ route('admin.pages.create') }}" class="btn btn-primary btn-sm">
                 <i class="bi bi-plus-lg me-1"></i> Create New Page
             </a>
         </div>
+    </div>
+
+    <div class="alert alert-info border-0 shadow-sm d-flex align-items-center gap-2 py-2 px-3 mb-4 small">
+        <i class="bi bi-link-45deg fs-5 text-primary"></i>
+        <span>Published pages live at <code>/page/{slug}</code> and automatically appear in the front-end <strong>Pages</strong> navbar dropdown &amp; Footer.</span>
     </div>
 
     <!-- Filter / Search Card -->
@@ -67,11 +78,19 @@
                         @forelse ($pages as $page)
                             <tr>
                                 <td class="ps-4">
-                                    <div class="fw-semibold text-dark">{{ $page->title }}</div>
-                                    <small class="text-muted"><code>/page/{{ $page->slug }}</code></small>
+                                    <div class="fw-semibold text-body">{{ $page->title }}</div>
+                                    <div class="d-flex align-items-center gap-2 mt-1">
+                                        @if ($page->status)
+                                            <a href="{{ route('page.show', $page->slug) }}" target="_blank" class="small text-primary text-decoration-none">
+                                                <code>/page/{{ $page->slug }}</code> <i class="bi bi-box-arrow-up-right" style="font-size: 0.7rem;"></i>
+                                            </a>
+                                        @else
+                                            <small class="text-muted"><code>/page/{{ $page->slug }}</code> (unpublished)</small>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td>
-                                    <span class="badge bg-light text-dark border">{{ ucfirst($page->template) }}</span>
+                                    <span class="badge bg-light text-dark border">{{ $page->template_name }}</span>
                                 </td>
                                 <td>
                                     @if ($page->status)
@@ -85,10 +104,27 @@
                                 </td>
                                 <td class="text-end pe-4">
                                     <div class="btn-group btn-group-sm">
+                                        @if ($page->status)
+                                            <a href="{{ route('page.show', $page->slug) }}" target="_blank" class="btn btn-outline-success" title="View on Front Site">
+                                                <i class="bi bi-box-arrow-up-right"></i>
+                                            </a>
+                                        @else
+                                            <button type="button" class="btn btn-outline-secondary" disabled title="Publish page first to view on front site">
+                                                <i class="bi bi-eye-slash"></i>
+                                            </button>
+                                        @endif
+                                        <button type="button" class="btn btn-outline-secondary copy-page-link-btn" data-url="{{ route('page.show', $page->slug) }}" title="Copy Page URL">
+                                            <i class="bi bi-link-45deg"></i>
+                                        </button>
                                         <a href="{{ route('admin.pages.edit', $page->id) }}" class="btn btn-outline-primary" title="Edit Page">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <form action="{{ route('admin.pages.destroy', $page->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this page?')">
+                                        <form action="{{ route('admin.pages.destroy', $page->id) }}"
+                                              method="POST"
+                                              class="d-inline js-swal-confirm"
+                                              data-confirm-title="Delete Page?"
+                                              data-confirm-text="Move page &quot;{{ $page->title }}&quot; to Trash?"
+                                              data-confirm-button="Yes, Delete Page">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-outline-danger" title="Delete Page">
@@ -119,3 +155,21 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.querySelectorAll('.copy-page-link-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        const url = btn.dataset.url;
+        if (!url) return;
+        navigator.clipboard?.writeText(url).then(function () {
+            const icon = btn.querySelector('i');
+            if (!icon) return;
+            const prev = icon.className;
+            icon.className = 'bi bi-check2 text-success';
+            setTimeout(function () { icon.className = prev; }, 1600);
+        });
+    });
+});
+</script>
+@endpush

@@ -117,10 +117,10 @@ class PostController extends Controller
             'password' => 'nullable|string|max:255',
             'is_sticky' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
-            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:5120',
+            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:5120',
             // Gallery files
             'gallery_images' => 'nullable|array',
-            'gallery_images.*' => 'image|mimes:jpeg,png,jpg,webp,gif,svg|max:5120',
+            'gallery_images.*' => 'image|mimes:jpeg,png,jpg,webp,gif|max:5120',
             // SEO Meta Validation
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
@@ -320,10 +320,10 @@ class PostController extends Controller
             'password' => 'nullable|string|max:255',
             'is_sticky' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
-            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,svg|max:5120',
+            'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:5120',
             // Gallery files
             'gallery_images' => 'nullable|array',
-            'gallery_images.*' => 'image|mimes:jpeg,png,jpg,webp,gif,svg|max:5120',
+            'gallery_images.*' => 'image|mimes:jpeg,png,jpg,webp,gif|max:5120',
             // SEO Meta Validation
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
