@@ -3794,3 +3794,84 @@ textarea.form-control-elite {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+
+/* ==========================================================
+   Sidebar & Layout Flex Overflow Protections
+   ========================================================== */
+.min-w-0 {
+  min-width: 0 !important;
+}
+
+.blog-sidebar-elite {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+.sidebar-widget-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  box-sizing: border-box !important;
+}
+
+.sidebar-widget-card .tab-content,
+.sidebar-widget-card .tab-pane {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+.sidebar-mini-article {
+  display: flex !important;
+  align-items: flex-start !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.sidebar-mini-article > div {
+  min-width: 0 !important;
+  max-width: calc(100% - 80px) !important;
+  overflow: hidden !important;
+}
+
+.sidebar-article-title {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  word-break: break-word !important;
+  white-space: normal !important;
+  line-height: 1.35 !important;
+  font-size: 13.5px !important;
+}
+
+.sidebar-category-badge {
+  display: inline-block !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  vertical-align: middle !important;
+}
+
+.sidebar-cat-row {
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.sidebar-tag-chip {
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  display: inline-block !important;
+}

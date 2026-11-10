@@ -6,9 +6,9 @@
     $sidebarTags = $sidebarTags ?? ($tags ?? \App\Models\Tag::withCount('posts')->orderByDesc('posts_count')->take(25)->get());
 @endphp
 
-<aside class="blog-sidebar-elite">
+<aside class="blog-sidebar-elite w-100" style="max-width: 100%; overflow: hidden;">
     <!-- Search Widget -->
-    <div class="sidebar-widget-card mb-4">
+    <div class="sidebar-widget-card mb-4" style="overflow: hidden; max-width: 100%;">
         <h5 class="sidebar-card-title">
             <i class="fas fa-search mr-2 text-primary"></i> Search Insights
         </h5>
@@ -21,7 +21,7 @@
     </div>
 
     <!-- Interactive Tabs Widget: Popular / Recent / Comments -->
-    <div class="sidebar-widget-card mb-4">
+    <div class="sidebar-widget-card mb-4" style="overflow: hidden; max-width: 100%;">
         <ul class="nav nav-tabs nav-tabs-elite" id="sidebarStoryTabs" role="tablist">
             <li class="nav-item flex-fill text-center" role="presentation">
                 <button class="nav-link active w-100" id="tab-popular-btn" data-bs-toggle="tab" data-toggle="tab" data-bs-target="#tab-popular" data-target="#tab-popular" type="button" role="tab" aria-controls="tab-popular" aria-selected="true">
@@ -40,25 +40,25 @@
             </li>
         </ul>
 
-        <div class="tab-content pt-3" id="sidebarStoryTabsContent">
+        <div class="tab-content pt-3" id="sidebarStoryTabsContent" style="overflow: hidden; max-width: 100%;">
             <!-- Popular Tab -->
             <div class="tab-pane fade show active" id="tab-popular" role="tabpanel" aria-labelledby="tab-popular-btn">
-                <div class="d-flex flex-column" style="gap: 14px;">
+                <div class="d-flex flex-column" style="gap: 14px; max-width: 100%; overflow: hidden;">
                     @forelse($sidebarPopular as $pItem)
                         @php
                             $pImg = $pItem->image->link ?? 'admin-dist/img/blog-1-PTDVKJDt.webp';
                             $pSrc = Str::startsWith($pImg, ['http://', 'https://']) ? $pImg : asset($pImg);
                         @endphp
-                        <div class="sidebar-mini-article d-flex align-items-center">
-                            <a href="{{ route('single-post', $pItem->slug) }}" class="flex-shrink-0 mr-3 me-3" style="width: 72px; height: 60px; border-radius: 10px; overflow: hidden; display: block;">
+                        <div class="sidebar-mini-article d-flex align-items-start" style="width: 100%; max-width: 100%; min-width: 0; overflow: hidden;">
+                            <a href="{{ route('single-post', $pItem->slug) }}" class="flex-shrink-0 mr-3 me-3" style="width: 68px; height: 58px; border-radius: 10px; overflow: hidden; display: block;">
                                 <img src="{{ $pSrc }}" alt="{{ $pItem->title }}" class="w-100 h-100 object-fit-cover" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                             </a>
-                            <div class="flex-grow-1 min-w-0">
-                                <span class="badge badge-light text-primary small py-1 px-2 font-weight-bold" style="font-size: 11px;">
+                            <div class="flex-grow-1 min-w-0" style="min-width: 0; max-width: calc(100% - 80px); overflow: hidden;">
+                                <span class="badge badge-light text-primary small py-1 px-2 font-weight-bold d-inline-block text-truncate" style="font-size: 11px; max-width: 100%;">
                                     {{ $pItem->category->name ?? 'Article' }}
                                 </span>
-                                <h6 class="mb-1 mt-1 font-weight-bold" style="font-size: 13.5px; line-height: 1.35;">
-                                    <a href="{{ route('single-post', $pItem->slug) }}" class="text-body text-decoration-none d-block text-truncate" title="{{ $pItem->title }}">
+                                <h6 class="mb-1 mt-1 font-weight-bold" style="font-size: 13.5px; line-height: 1.35; overflow: hidden;">
+                                    <a href="{{ route('single-post', $pItem->slug) }}" class="text-body text-decoration-none sidebar-article-title d-block" title="{{ $pItem->title }}" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; word-break: break-word; white-space: normal;">
                                         {{ $pItem->title }}
                                     </a>
                                 </h6>
@@ -76,19 +76,22 @@
 
             <!-- Recent Tab -->
             <div class="tab-pane fade" id="tab-recent" role="tabpanel" aria-labelledby="tab-recent-btn">
-                <div class="d-flex flex-column" style="gap: 14px;">
+                <div class="d-flex flex-column" style="gap: 14px; max-width: 100%; overflow: hidden;">
                     @forelse($sidebarRecent as $rItem)
                         @php
                             $rImg = $rItem->image->link ?? 'admin-dist/img/blog-1-PTDVKJDt.webp';
                             $rSrc = Str::startsWith($rImg, ['http://', 'https://']) ? $rImg : asset($rImg);
                         @endphp
-                        <div class="sidebar-mini-article d-flex align-items-center">
-                            <a href="{{ route('single-post', $rItem->slug) }}" class="flex-shrink-0 mr-3 me-3" style="width: 72px; height: 60px; border-radius: 10px; overflow: hidden; display: block;">
+                        <div class="sidebar-mini-article d-flex align-items-start" style="width: 100%; max-width: 100%; min-width: 0; overflow: hidden;">
+                            <a href="{{ route('single-post', $rItem->slug) }}" class="flex-shrink-0 mr-3 me-3" style="width: 68px; height: 58px; border-radius: 10px; overflow: hidden; display: block;">
                                 <img src="{{ $rSrc }}" alt="{{ $rItem->title }}" class="w-100 h-100 object-fit-cover" onerror="this.onerror=null; this.src='{{ asset('admin-dist/img/blog-1-PTDVKJDt.webp') }}'">
                             </a>
-                            <div class="flex-grow-1 min-w-0">
-                                <h6 class="mb-1 font-weight-bold" style="font-size: 13.5px; line-height: 1.35;">
-                                    <a href="{{ route('single-post', $rItem->slug) }}" class="text-body text-decoration-none d-block text-truncate" title="{{ $rItem->title }}">
+                            <div class="flex-grow-1 min-w-0" style="min-width: 0; max-width: calc(100% - 80px); overflow: hidden;">
+                                <span class="badge badge-light text-primary small py-1 px-2 font-weight-bold d-inline-block text-truncate mb-1" style="font-size: 11px; max-width: 100%;">
+                                    {{ $rItem->category->name ?? 'Article' }}
+                                </span>
+                                <h6 class="mb-1 mt-1 font-weight-bold" style="font-size: 13.5px; line-height: 1.35; overflow: hidden;">
+                                    <a href="{{ route('single-post', $rItem->slug) }}" class="text-body text-decoration-none sidebar-article-title d-block" title="{{ $rItem->title }}" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; word-break: break-word; white-space: normal;">
                                         {{ $rItem->title }}
                                     </a>
                                 </h6>
@@ -106,20 +109,20 @@
 
             <!-- Comments Tab -->
             <div class="tab-pane fade" id="tab-comments" role="tabpanel" aria-labelledby="tab-comments-btn">
-                <div class="d-flex flex-column" style="gap: 12px;">
+                <div class="d-flex flex-column" style="gap: 12px; max-width: 100%; overflow: hidden;">
                     @forelse($sidebarComments as $cItem)
-                        <div class="p-2 rounded bg-light-subtle border border-light-subtle">
-                            <div class="d-flex align-items-center mb-1">
-                                <span class="badge badge-secondary mr-2 me-2 py-0 px-2" style="font-size: 10px;">
+                        <div class="p-2 rounded bg-light-subtle border border-light-subtle" style="overflow: hidden; word-break: break-word;">
+                            <div class="d-flex align-items-center mb-1 flex-wrap">
+                                <span class="badge badge-secondary mr-2 me-2 py-0 px-2 text-truncate" style="font-size: 10px; max-width: 140px;">
                                     <i class="far fa-user mr-1"></i> {{ $cItem->user->name ?? 'Reader' }}
                                 </span>
                                 <small class="text-muted" style="font-size: 11px;">{{ $cItem->created_at ? $cItem->created_at->diffForHumans() : 'Recently' }}</small>
                             </div>
-                            <p class="mb-1 small text-body font-italic" style="font-size: 12.5px; line-height: 1.4;">
+                            <p class="mb-1 small text-body font-italic" style="font-size: 12.5px; line-height: 1.4; word-break: break-word;">
                                 "{{ Str::limit($cItem->comment, 75) }}"
                             </p>
                             @if($cItem->post)
-                                <a href="{{ route('single-post', $cItem->post->slug) }}" class="small text-primary font-weight-bold text-decoration-none" style="font-size: 11.5px;">
+                                <a href="{{ route('single-post', $cItem->post->slug) }}" class="small text-primary font-weight-bold text-decoration-none d-block text-truncate" style="font-size: 11.5px;">
                                     on {{ Str::limit($cItem->post->title, 32) }} <i class="fas fa-angle-right"></i>
                                 </a>
                             @endif
@@ -133,30 +136,31 @@
     </div>
 
     <!-- Categories Widget -->
-    <div class="sidebar-widget-card mb-4">
+    <div class="sidebar-widget-card mb-4" style="overflow: hidden; max-width: 100%;">
         <h5 class="sidebar-card-title">
             <i class="fas fa-folder-open mr-2 text-primary"></i> Topic Categories
         </h5>
         <div class="d-flex flex-column" style="gap: 8px;">
             @foreach($sidebarCategories->take(10) as $cat)
-                <a href="{{ url('/blog-list?category=' . ($cat->name ?? $cat->id)) }}" class="sidebar-cat-row d-flex align-items-center justify-content-between p-2 rounded text-decoration-none">
-                    <span class="d-inline-flex align-items-center font-weight-bold" style="font-size: 13.5px; color: inherit;">
-                        <i class="fas fa-chevron-right mr-2 me-2 text-muted" style="font-size: 10px;"></i> {{ $cat->name }}
+                <a href="{{ url('/blog-list?category=' . ($cat->name ?? $cat->id)) }}" class="sidebar-cat-row d-flex align-items-center justify-content-between p-2 rounded text-decoration-none" style="min-width: 0; max-width: 100%; overflow: hidden;">
+                    <span class="d-inline-flex align-items-center font-weight-bold text-truncate mr-2 me-2" style="font-size: 13.5px; color: inherit; min-width: 0; max-width: calc(100% - 40px);">
+                        <i class="fas fa-chevron-right mr-2 me-2 text-muted flex-shrink-0" style="font-size: 10px;"></i> 
+                        <span class="text-truncate">{{ $cat->name }}</span>
                     </span>
-                    <span class="badge badge-elite-count">{{ $cat->posts_count ?? 0 }}</span>
+                    <span class="badge badge-elite-count flex-shrink-0">{{ $cat->posts_count ?? 0 }}</span>
                 </a>
             @endforeach
         </div>
     </div>
 
     <!-- Trending Tags Cloud -->
-    <div class="sidebar-widget-card mb-4">
+    <div class="sidebar-widget-card mb-4" style="overflow: hidden; max-width: 100%;">
         <h5 class="sidebar-card-title">
             <i class="fas fa-tags mr-2 text-primary"></i> Trending Tags
         </h5>
         <div class="d-flex flex-wrap" style="gap: 8px;">
             @foreach($sidebarTags->take(25) as $tItem)
-                <a href="{{ url('/blog/tag/' . $tItem->id) }}" class="sidebar-tag-chip">
+                <a href="{{ url('/blog/tag/' . $tItem->id) }}" class="sidebar-tag-chip" style="max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                     #{{ $tItem->name }}
                     @if(!empty($tItem->posts_count))
                         <span class="tag-chip-count">{{ $tItem->posts_count }}</span>
@@ -167,7 +171,7 @@
     </div>
 
     <!-- Newsletter Widget -->
-    <div class="sidebar-widget-card sidebar-newsletter-card mb-4 text-center">
+    <div class="sidebar-widget-card sidebar-newsletter-card mb-4 text-center" style="overflow: hidden; max-width: 100%;">
         <div class="mb-3">
             <div class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-circle" style="width: 52px; height: 52px; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);">
                 <i class="fas fa-paper-plane" style="font-size: 1.25rem;"></i>
@@ -190,7 +194,7 @@
     </div>
 
     <!-- Stay Connected Social -->
-    <div class="sidebar-widget-card mb-4">
+    <div class="sidebar-widget-card mb-4" style="overflow: hidden; max-width: 100%;">
         <h5 class="sidebar-card-title">
             <i class="fas fa-share-alt mr-2 text-primary"></i> Connect
         </h5>
