@@ -22,6 +22,9 @@ class PostFactory extends Factory
      */
     public function definition(): array
     {
+        $isPublished = fake()->boolean(85);
+        $content = fake()->paragraphs(4, true);
+
         return [
             'user_id' => User::inRandomOrder()->value('id') ?? User::factory(),
             'category_id' => Category::inRandomOrder()->value('id') ?? Category::factory(),
@@ -30,9 +33,14 @@ class PostFactory extends Factory
             'author_id' => Author::inRandomOrder()->value('id') ?? Author::factory(),
             'title' => fake()->sentence(8),
             'slug' => fake()->unique()->slug(4),
-            'content' => fake()->paragraphs(4, true),
+            'content' => $content,
             'excerpt' => fake()->sentence(15),
-            'status' => fake()->boolean(85),
+            'status' => $isPublished,
+            'post_status' => $isPublished ? 'published' : 'draft',
+            'published_at' => $isPublished ? fake()->dateTimeBetween('-30 days', 'now') : null,
+            'reading_time' => max(1, (int) ceil(str_word_count(strip_tags($content)) / 200)),
+            'views_count' => $isPublished ? fake()->numberBetween(18, 1450) : 0,
+            'is_featured' => $isPublished ? fake()->boolean(25) : false,
         ];
     }
 }

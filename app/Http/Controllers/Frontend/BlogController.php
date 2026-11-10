@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Author;
 use App\Models\Category;
 use App\Models\Comment;
+use App\Models\GalleryItem;
 use App\Models\Picture;
 use App\Models\Post;
 use App\Models\PostImage;
@@ -13,6 +14,7 @@ use App\Models\Tag;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class BlogController extends Controller
@@ -339,93 +341,146 @@ class BlogController extends Controller
     }
 
     /**
-     * Magazine Plus / Elite News Portal Home.
+     * Magazine Edition Home — every portal section populated dynamically with
+     * non-overlapping story selection and cyclic fallback when datasets are small.
      */
     public function magazine(Request $request): View
     {
-        $tickerPosts = Post::published()->latest('published_at')->take(5)->get();
-
-        // Hero carousel & stack items
-        $heroFeatured = Post::published()
-            ->where('is_featured', 1)
-            ->with(['category', 'image', 'author.user'])
+        $allPool = Post::published()
+            ->with(['category', 'image', 'author.user', 'tag'])
             ->latest('published_at')
-            ->take(6)
+            ->latest('id')
+            ->take(60)
             ->get();
 
-        if ($heroFeatured->count() < 6) {
-            $fallback = Post::published()
-                ->whereNotIn('id', $heroFeatured->pluck('id'))
-                ->with(['category', 'image', 'author.user'])
-                ->latest('published_at')
-                ->take(6 - $heroFeatured->count())
-                ->get();
-            $heroFeatured = $heroFeatured->concat($fallback);
+        $popularPool = Post::published()
+            ->with(['category', 'image', 'author.user', 'tag'])
+            ->orderByDesc('views_count')
+            ->latest('published_at')
+            ->take(24)
+            ->get();
+
+        $usedIds = [];
+
+        // 1. Ticker & Hero Showcase (Left 2, Center Carousel 3, Right 2)
+        $tickerPosts = $allPool->take(6)->values();
+
+        $heroPool = $this->selectMagazineSlice(
+            $allPool,
+            $usedIds,
+            7,
+            fn (Post $post) => (bool) ($post->is_featured || $post->is_sticky)
+        );
+        $heroLeft = $heroPool->slice(0, 2)->values();
+        $heroCenter = $heroPool->slice(2, 3)->values();
+        $heroRight = $heroPool->slice(5, 2)->values();
+
+        // 2. Popular Stories (4-column views-ranked showcase)
+        $popularStories = $popularPool->take(4)->values();
+        foreach ($popularStories as $pop) {
+            $usedIds[] = $pop->id;
+        }
+        $usedIds = array_values(array_unique($usedIds));
+
+        // 3. Recent Stories (4-column fresh dispatches)
+        $recentStories = $this->selectMagazineSlice($allPool, $usedIds, 4);
+
+        // 4. Featured Block Posts (full 2x2 grid = 4 cards)
+        $blockPosts = $this->selectMagazineSlice($allPool, $usedIds, 4);
+
+        // 5. Analysis Matrix (4 items) & Dynamic Visual Briefs (6 DB gallery/media tiles)
+        $matrixPosts = $this->selectMagazineSlice($allPool, $usedIds, 4);
+        $visualBriefs = $this->buildVisualBriefs($allPool, 6);
+
+        // 6. Editorial Spotlight Block Post (1 flagship 21:9 + 2 sub cards)
+        $spotlightGroup = $this->selectMagazineSlice($allPool, $usedIds, 3);
+        $spotlightMain = $spotlightGroup->first();
+        $spotlightSub = $spotlightGroup->slice(1, 2)->values();
+
+        // 7. Two-Column Dispatches (3 left + 3 right = 6 items)
+        $columnPosts = $this->selectMagazineSlice($allPool, $usedIds, 6);
+        $columnLeft = $columnPosts->slice(0, 3)->values();
+        $columnRight = $columnPosts->slice(3, 3)->values();
+
+        // 8. Deep-Dive Dispatch Grid (1 large left + 4 stacked right)
+        $stickyCandidate = $allPool->firstWhere('is_sticky', true);
+        if ($stickyCandidate && !in_array($stickyCandidate->id, $usedIds, true)) {
+            $gridHero = $stickyCandidate;
+            $usedIds[] = $stickyCandidate->id;
+        } else {
+            $gridHero = $this->selectMagazineSlice($allPool, $usedIds, 1)->first() ?? $allPool->first();
+        }
+        $gridStack = $this->selectMagazineSlice(
+            $allPool,
+            $usedIds,
+            4,
+            fn (Post $post) => !$gridHero || $post->id !== $gridHero->id
+        );
+
+        // 9. Business & Commerce Feature Showcase (1 large top + 6 3-col list items)
+        $businessMatcher = fn (Post $post) => Str::contains(
+            Str::lower($post->category?->name ?? ''),
+            ['business', 'bank', 'retail', 'commerce', 'finance', 'real estate', 'websites', 'restaurant', 'service', 'memorabilia', 'collect']
+        );
+        $businessShowcase = $this->selectMagazineSlice($allPool, $usedIds, 7, $businessMatcher);
+        $businessHero = $businessShowcase->first();
+        $businessPosts = $businessShowcase->slice(1, 6)->values();
+
+        // 10. Technology & Engineering Intelligence (2 blocks + 4 list items = 6)
+        $techMatcher = fn (Post $post) => Str::contains(
+            Str::lower($post->category?->name ?? ''),
+            ['tech', 'computer', 'laptop', 'printer', 'network', 'monitor', 'software', 'robot', 'electronic', 'science', 'digital', 'laravel']
+        );
+        $techPosts = $this->selectMagazineSlice($allPool, $usedIds, 6, $techMatcher);
+
+        // 11. Video & Multimedia Dispatches (3 cards, prioritizing native video URLs)
+        $videoDirect = Post::published()
+            ->whereNotNull('video_url')
+            ->where('video_url', '!=', '')
+            ->with(['category', 'image', 'author.user'])
+            ->latest('published_at')
+            ->take(3)
+            ->get();
+
+        $videoPosts = $videoDirect->values();
+        if ($videoPosts->count() < 3) {
+            $videoIds = $videoPosts->pluck('id')->all();
+            $filler = $allPool->whereNotIn('id', $videoIds)->take(3 - $videoPosts->count());
+            $videoPosts = $videoPosts->concat($filler)->values();
         }
 
-        $heroLeft = $heroFeatured->slice(0, 2);
-        $heroCenter = $heroFeatured->slice(2, 2);
-        $heroRight = $heroFeatured->slice(4, 2);
+        // 12. Editor's Picks ("You Missed" 4-col grid)
+        $editorsPicks = $this->selectMagazineSlice($allPool, $usedIds, 4);
 
-        // Popular Stories (4-column grid)
-        $popularStories = Post::published()
-            ->with(['category', 'image', 'author.user'])
-            ->orderByDesc('views_count')
-            ->take(4)
+        // 13. Active Channels / Categories Strip
+        $featuredCategories = Category::withCount(['posts' => fn ($q) => $q->published()])
+            ->orderByDesc('posts_count')
+            ->take(8)
             ->get();
 
-        // Recent Stories (4-column grid)
-        $recentStories = Post::published()
-            ->with(['category', 'image', 'author.user'])
-            ->latest('published_at')
-            ->take(4)
+        // Edition telemetry summary
+        $magazineStats = [
+            'published_posts' => Post::published()->count(),
+            'active_categories' => Category::whereHas('posts', fn ($q) => $q->published())->count(),
+            'gallery_assets' => max(GalleryItem::count(), Picture::count()),
+            'video_dispatches' => max(
+                Post::published()->whereNotNull('video_url')->where('video_url', '!=', '')->count(),
+                $videoPosts->count()
+            ),
+        ];
+
+        // Sidebar data — strictly capped at <= 10 categories & <= 25 tags
+        $sidebarPopular = $popularPool->take(4)->values();
+        $sidebarRecent = $allPool->take(4)->values();
+        $sidebarComments = Comment::with(['user', 'post'])->latest()->take(4)->get();
+        $sidebarCategories = Category::withCount(['posts' => fn ($q) => $q->published()])
+            ->orderByDesc('posts_count')
+            ->take(10)
             ->get();
-
-        // Block Posts (2x2)
-        $blockPosts = Post::published()
-            ->with(['category', 'image', 'author.user'])
-            ->latest('published_at')
-            ->skip(4)
-            ->take(2)
+        $sidebarTags = Tag::withCount(['posts' => fn ($q) => $q->published()])
+            ->orderByDesc('posts_count')
+            ->take(25)
             ->get();
-
-        // Matrix & Grid Posts
-        $matrixPosts = Post::published()
-            ->with(['category', 'image'])
-            ->latest('published_at')
-            ->skip(6)
-            ->take(2)
-            ->get();
-
-        $gridHero = Post::published()
-            ->with(['category', 'image', 'author.user'])
-            ->where('is_sticky', 1)
-            ->first() ?? Post::published()->first();
-
-        $gridStack = Post::published()
-            ->with(['category', 'image'])
-            ->where('id', '!=', $gridHero ? $gridHero->id : 0)
-            ->latest('published_at')
-            ->skip(8)
-            ->take(4)
-            ->get();
-
-        // Category showcases
-        $techPosts = Post::published()
-            ->with(['category', 'image'])
-            ->latest('published_at')
-            ->take(6)
-            ->get();
-
-        $businessPosts = Post::published()
-            ->with(['category', 'image'])
-            ->latest('published_at')
-            ->skip(2)
-            ->take(6)
-            ->get();
-
-        $sidebarCategories = Category::withCount('posts')->orderByDesc('posts_count')->take(10)->get();
-        $sidebarTags = Tag::withCount('posts')->orderByDesc('posts_count')->take(25)->get();
 
         return view('blog.magazine', compact(
             'tickerPosts',
@@ -436,13 +491,132 @@ class BlogController extends Controller
             'recentStories',
             'blockPosts',
             'matrixPosts',
+            'visualBriefs',
+            'spotlightMain',
+            'spotlightSub',
+            'columnLeft',
+            'columnRight',
             'gridHero',
             'gridStack',
-            'techPosts',
+            'businessHero',
             'businessPosts',
+            'techPosts',
+            'videoPosts',
+            'editorsPicks',
+            'featuredCategories',
+            'magazineStats',
+            'sidebarPopular',
+            'sidebarRecent',
+            'sidebarComments',
             'sidebarCategories',
             'sidebarTags'
         ));
+    }
+
+    /**
+     * Pick `$count` items for a magazine section, preferring unseen posts matching `$filter`,
+     * then unseen pool items, then circular wrap-around so sections are never empty.
+     */
+    private function selectMagazineSlice(Collection $pool, array &$usedIds, int $count, ?callable $filter = null): Collection
+    {
+        if ($pool->isEmpty() || $count <= 0) {
+            return collect();
+        }
+
+        $selected = collect();
+        $pickedNow = [];
+
+        if ($filter !== null) {
+            foreach ($pool->filter($filter) as $post) {
+                if (in_array($post->id, $usedIds, true)) {
+                    continue;
+                }
+                $selected->push($post);
+                $pickedNow[] = $post->id;
+                if ($selected->count() >= $count) {
+                    break;
+                }
+            }
+        }
+
+        if ($selected->count() < $count) {
+            foreach ($pool as $post) {
+                if (in_array($post->id, $usedIds, true) || in_array($post->id, $pickedNow, true)) {
+                    continue;
+                }
+                $selected->push($post);
+                $pickedNow[] = $post->id;
+                if ($selected->count() >= $count) {
+                    break;
+                }
+            }
+        }
+
+        $usedIds = array_values(array_unique(array_merge($usedIds, $pickedNow)));
+
+        // Circular wrap-around when dataset has fewer remaining items than requested
+        if ($selected->count() < $count) {
+            $cursor = count($usedIds);
+            $poolValues = $pool->values();
+            $poolSize = $poolValues->count();
+            $guard = 0;
+            while ($selected->count() < $count && $guard < ($poolSize * 2 + $count)) {
+                $candidate = $poolValues->get($cursor % $poolSize);
+                if ($candidate && ($selected->count() >= $poolSize || !$selected->contains('id', $candidate->id))) {
+                    $selected->push($candidate);
+                }
+                $cursor++;
+                $guard++;
+            }
+        }
+
+        return $selected->values();
+    }
+
+    /**
+     * Assemble visual photography briefs from GalleryItem and Post cover imagery.
+     */
+    private function buildVisualBriefs(Collection $allPool, int $count = 6): Collection
+    {
+        $items = collect();
+
+        $galleryItems = GalleryItem::with('gallery')
+            ->orderBy('order')
+            ->latest('id')
+            ->take($count * 2)
+            ->get();
+
+        foreach ($galleryItems as $item) {
+            if ($items->count() >= $count) {
+                break;
+            }
+            $items->push([
+                'url' => $item->url,
+                'title' => $item->caption ?: ($item->gallery?->title ?? 'Visual Dispatch'),
+                'subtitle' => $item->gallery?->title ?? 'Curated Gallery',
+                'link' => route('blog.gallery'),
+            ]);
+        }
+
+        if ($items->count() < $count) {
+            foreach ($allPool as $post) {
+                if ($items->count() >= $count) {
+                    break;
+                }
+                $imgUrl = $post->image?->url;
+                if (!$imgUrl) {
+                    continue;
+                }
+                $items->push([
+                    'url' => $imgUrl,
+                    'title' => Str::limit($post->title, 42),
+                    'subtitle' => $post->category?->name ?? 'Editorial Photo',
+                    'link' => route('blog.single-magazine', $post->slug),
+                ]);
+            }
+        }
+
+        return $items->values();
     }
 
     /**
