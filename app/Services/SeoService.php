@@ -434,7 +434,7 @@ class SeoService
         }
 
         // Respect per-page Blade @section('title') on non-home static routes (e.g. /project, /about, /services)
-        $sectionTitle = trim(app('view')->getSection('title', ''));
+        $sectionTitle = trim(html_entity_decode(app('view')->getSection('title', ''), ENT_QUOTES, 'UTF-8'));
         $isNamedNonHome = request()->route()?->getName() !== 'home';
         $resolvedGlobalTitle = ($sectionTitle !== '' && $isNamedNonHome)
             ? $sectionTitle

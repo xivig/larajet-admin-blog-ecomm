@@ -540,25 +540,46 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .icon-box-elite {
-  width: 68px;
-  height: 68px;
+  width: 64px;
+  height: 64px;
   border-radius: var(--border-radius-md);
-  background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(124, 58, 237, 0.15) 100%);
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.12) 0%, rgba(124, 58, 237, 0.16) 100%);
   color: var(--color-primary);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
-  margin-bottom: 24px;
+  font-size: 26px;
+  margin-bottom: 22px;
   transition: var(--transition-smooth);
+  position: relative;
+}
+
+.service-item {
+  padding: 36px 30px !important;
+}
+
+.service-item .icon-box-elite i,
+.service-card-elite .icon-box-elite i {
+  position: static !important;
+  opacity: 1 !important;
+  font-size: 26px !important;
+  line-height: 1 !important;
+  color: inherit !important;
 }
 
 .intro-item:hover .icon-box-elite,
-.service-item:hover .icon-box-elite {
+.service-item:hover .icon-box-elite,
+.service-card-elite:hover .icon-box-elite {
   background: var(--gradient-primary);
-  color: #ffffff;
-  transform: scale(1.08);
+  color: #ffffff !important;
+  transform: scale(1.06);
   box-shadow: var(--shadow-glow);
+}
+
+[data-bs-theme="dark"] .icon-box-elite,
+[data-theme="dark"] .icon-box-elite {
+  background: rgba(99, 102, 241, 0.18) !important;
+  color: #a5b4fc !important;
 }
 
 /* Counter & Stats Section */
@@ -4509,4 +4530,129 @@ textarea.form-control-elite {
   background: #0f172a !important;
   border-color: rgba(129, 140, 248, 0.45) !important;
   color: #34d399 !important;
+}
+
+/* ==========================================================================
+   ELITE SERVICES & CAPABILITIES SUITE (/services)
+   ========================================================================== */
+.service-card-elite {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 28px 26px 24px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.service-card-elite:hover {
+  transform: translateY(-7px);
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 22px 42px -12px rgba(79, 70, 229, 0.18), 0 8px 18px -4px rgba(15, 23, 42, 0.06);
+}
+
+.service-card-accent-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-primary);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.service-card-elite:hover .service-card-accent-line {
+  opacity: 1;
+}
+
+.service-num-pill {
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: rgba(79, 70, 229, 0.09);
+  color: #4f46e5;
+}
+
+.service-deliverables-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 18px 0;
+  display: grid;
+  gap: 8px;
+}
+
+.service-deliverables-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #475569;
+}
+
+.service-deliverables-list li i {
+  color: #10b981;
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.service-engagement-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 28px 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+}
+
+.service-engagement-card.recommended {
+  border-color: rgba(79, 70, 229, 0.45);
+  box-shadow: 0 16px 36px -10px rgba(79, 70, 229, 0.16);
+}
+
+.service-engagement-card:hover {
+  transform: translateY(-5px);
+}
+
+[data-bs-theme="dark"] .service-card-elite,
+[data-theme="dark"] .service-card-elite,
+[data-bs-theme="dark"] .service-engagement-card,
+[data-theme="dark"] .service-engagement-card {
+  background: #13192b !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 8px 28px -6px rgba(0, 0, 0, 0.45) !important;
+}
+
+[data-bs-theme="dark"] .service-card-elite:hover,
+[data-theme="dark"] .service-card-elite:hover {
+  border-color: rgba(99, 102, 241, 0.48) !important;
+  box-shadow: 0 22px 42px -10px rgba(0, 0, 0, 0.65), 0 0 28px rgba(99, 102, 241, 0.22) !important;
+}
+
+[data-bs-theme="dark"] .service-engagement-card.recommended,
+[data-theme="dark"] .service-engagement-card.recommended {
+  border-color: rgba(129, 140, 248, 0.5) !important;
+  background: linear-gradient(160deg, #161e35 0%, #13192b 100%) !important;
+}
+
+[data-bs-theme="dark"] .service-num-pill,
+[data-theme="dark"] .service-num-pill {
+  background: rgba(99, 102, 241, 0.2) !important;
+  color: #a5b4fc !important;
+}
+
+[data-bs-theme="dark"] .service-deliverables-list li,
+[data-theme="dark"] .service-deliverables-list li {
+  color: #cbd5e1 !important;
 }
