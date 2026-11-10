@@ -675,27 +675,192 @@ class BlogController extends Controller
     }
 
     /**
-     * Full-screen Hero Image Post Format.
+     * Immersive Visual / Photography Feature Post Format (/blog/format/image/{slug?}).
      */
     public function formatImage(Request $request, ?string $slug = null): View
     {
+        $relations = ['category', 'author.user', 'image', 'user', 'tag', 'images', 'comments.user', 'comments.replies.user'];
+
         if ($slug) {
-            $post = Post::where('slug', $slug)
-                ->with(['category', 'author.user', 'image', 'user', 'tag'])
-                ->firstOrFail();
+            $post = Post::where('slug', $slug)->with($relations)->firstOrFail();
         } else {
             $post = Post::published()
                 ->whereNotNull('image_id')
-                ->with(['category', 'author.user', 'image', 'user', 'tag'])
+                ->with($relations)
                 ->latest('published_at')
-                ->first() ?? Post::published()->with(['category', 'author.user', 'image'])->firstOrFail();
+                ->latest('id')
+                ->first() ?? Post::published()->with($relations)->firstOrFail();
         }
 
-        $relatedPosts = $post->getRelatedPosts(8);
-        $sidebarCategories = Category::withCount('posts')->orderByDesc('posts_count')->take(10)->get();
-        $sidebarTags = Tag::withCount('posts')->orderByDesc('posts_count')->take(25)->get();
+        $user = auth()->user();
+        $isPreview = $request->boolean('preview');
+        $isPublished = ($post->post_status === 'published' || $post->status) && (!$post->published_at || $post->published_at <= now());
+        if (!$isPublished && !$isPreview && (!$user || !$user->hasRole(['super-admin', 'admin', 'editor', 'author']))) {
+            abort(404, 'Article is not available for public viewing.');
+        }
 
-        return view('blog.formats.image', compact('post', 'relatedPosts', 'sidebarCategories', 'sidebarTags'));
+        if ($isPublished && !$isPreview) {
+            $post->increment('views_count');
+        }
+
+        $isLocked = $post->isLockedForUser($user);
+        $tableOfContents = $post->table_of_contents;
+        $contentWithAnchors = $post->content_with_anchors;
+        $previousPost = $post->previousPost();
+        $nextPost = $post->nextPost();
+
+        // Build real image metadata telemetry (falling back to file metrics on disk if needed)
+        $visualTelemetry = $this->resolveVisualTelemetry($post);
+
+        // Multi-frame plate collection for filmstrip + Cinema Lightbox
+        $visualFrames = $this->buildVisualFormatFrames($post, $visualTelemetry, 6);
+
+        // Other featured image editions for quick exploration bar
+        $visualSwitcherPosts = Post::published()
+            ->where('id', '!=', $post->id)
+            ->whereNotNull('image_id')
+            ->with(['category', 'image', 'author.user'])
+            ->latest('published_at')
+            ->take(6)
+            ->get();
+
+        // Related stories grid (guarantee rich 8 cards when available)
+        $relatedPosts = $post->getRelatedPosts(8);
+        if ($relatedPosts->count() < 8) {
+            $excludeIds = $relatedPosts->pluck('id')->push($post->id)->all();
+            $filler = Post::published()
+                ->whereNotIn('id', $excludeIds)
+                ->with(['category', 'image', 'author.user'])
+                ->latest('published_at')
+                ->take(8 - $relatedPosts->count())
+                ->get();
+            $relatedPosts = $relatedPosts->concat($filler)->values();
+        }
+
+        $sidebarCategories = Category::withCount(['posts' => fn ($q) => $q->published()])
+            ->orderByDesc('posts_count')
+            ->take(10)
+            ->get();
+        $sidebarTags = Tag::withCount(['posts' => fn ($q) => $q->published()])
+            ->orderByDesc('posts_count')
+            ->take(25)
+            ->get();
+
+        return view('blog.formats.image', compact(
+            'post',
+            'isLocked',
+            'isPreview',
+            'tableOfContents',
+            'contentWithAnchors',
+            'previousPost',
+            'nextPost',
+            'visualTelemetry',
+            'visualFrames',
+            'visualSwitcherPosts',
+            'relatedPosts',
+            'sidebarCategories',
+            'sidebarTags'
+        ));
+    }
+
+    /**
+     * Extract authentic resolution, MIME format, byte size, and WebP telemetry for a post's cover plate.
+     */
+    private function resolveVisualTelemetry(Post $post): array
+    {
+        $pic = $post->image;
+        $src = $pic?->url ?? asset('admin-dist/img/blog-1-PTDVKJDt.webp');
+        $webpUrl = $pic?->webp_url ?? $src;
+        $alt = $pic?->display_alt ?? $post->title;
+        $caption = $pic?->caption ?: ($pic?->title ?: $post->title);
+
+        $dimensions = $pic?->dimensions;
+        $mimeType = $pic?->mime_type;
+        $fileSizeBytes = (int) ($pic?->file_size ?? 0);
+
+        $relPath = $pic?->link ? ltrim((string) $pic->link, '/') : null;
+        if ($relPath && !Str::startsWith($relPath, ['http://', 'https://'])) {
+            $diskPath = public_path($relPath);
+            if (is_file($diskPath)) {
+                if ($fileSizeBytes <= 0) {
+                    $fileSizeBytes = (int) @filesize($diskPath);
+                }
+                if (empty($dimensions)) {
+                    $info = @getimagesize($diskPath);
+                    if (is_array($info) && !empty($info[0]) && !empty($info[1])) {
+                        $dimensions = $info[0] . 'x' . $info[1];
+                    }
+                    if (empty($mimeType) && is_array($info) && !empty($info['mime'])) {
+                        $mimeType = $info['mime'];
+                    }
+                }
+            }
+        }
+
+        $formattedSize = $fileSizeBytes >= 1048576
+            ? number_format($fileSizeBytes / 1048576, 2) . ' MB'
+            : ($fileSizeBytes >= 1024 ? number_format($fileSizeBytes / 1024, 1) . ' KB' : ($fileSizeBytes > 0 ? $fileSizeBytes . ' B' : 'HD Stream'));
+
+        $formatExt = strtoupper(pathinfo(parse_url($src, PHP_URL_PATH) ?: 'image.jpg', PATHINFO_EXTENSION) ?: 'IMG');
+
+        return [
+            'src' => $src,
+            'webp_url' => $webpUrl,
+            'alt' => $alt,
+            'caption' => $caption,
+            'dimensions' => $dimensions ?: '1920x1080',
+            'mime_type' => $mimeType ?: 'image/jpeg',
+            'format_badge' => $formatExt === 'WEBP' ? 'WebP Optimized' : $formatExt . ' Master',
+            'formatted_size' => $formattedSize,
+        ];
+    }
+
+    /**
+     * Build ordered image plates for the Visual Format lightbox & filmstrip.
+     */
+    private function buildVisualFormatFrames(Post $post, array $telemetry, int $limit = 6): Collection
+    {
+        $frames = collect([
+            [
+                'url' => $telemetry['src'],
+                'title' => $telemetry['caption'],
+                'alt' => $telemetry['alt'],
+                'badge' => 'Primary Plate · ' . $telemetry['dimensions'],
+            ],
+        ]);
+
+        foreach ($post->images ?? collect() as $pi) {
+            if ($frames->count() >= $limit) {
+                break;
+            }
+            if (!empty($pi->url) && !$frames->contains('url', $pi->url)) {
+                $frames->push([
+                    'url' => $pi->url,
+                    'title' => $pi->caption ?: $post->title,
+                    'alt' => $pi->caption ?: $post->title,
+                    'badge' => 'Essay Plate #' . ($frames->count() + 1),
+                ]);
+            }
+        }
+
+        if ($frames->count() < $limit) {
+            $galleryExtras = GalleryItem::orderBy('order')->latest('id')->take($limit * 2)->get();
+            foreach ($galleryExtras as $gi) {
+                if ($frames->count() >= $limit) {
+                    break;
+                }
+                if (!$frames->contains('url', $gi->url)) {
+                    $frames->push([
+                        'url' => $gi->url,
+                        'title' => $gi->caption ?: 'Curated Visual Study',
+                        'alt' => $gi->caption ?: 'Curated Visual Study',
+                        'badge' => 'Archive Plate #' . ($frames->count() + 1),
+                    ]);
+                }
+            }
+        }
+
+        return $frames->values();
     }
 
     /**
