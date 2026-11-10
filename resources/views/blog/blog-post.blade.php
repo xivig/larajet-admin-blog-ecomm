@@ -16,7 +16,7 @@
 @endif
 
 <!-- Header Breadcrumb & Article Hero Banner -->
-<section class="page-title" style="padding: 90px 0 45px 0;">
+<section class="page-title py-4">
     <div class="container">
         <div class="row">
             <div class="col-lg-10 mx-auto text-center">

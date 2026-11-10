@@ -30,10 +30,10 @@
 </div>
 @endif
 
-<main class="container my-5" style="padding-top: 15px;">
+<main class="container pt-3 pb-5">
     <!-- Breadcrumbs -->
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb bg-transparent p-0 small">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb bg-transparent p-0 mb-0 small">
             <li class="breadcrumb-item"><a href="{{ url('/') }}" class="text-muted">Home</a></li>
             <li class="breadcrumb-item"><a href="{{ route('blog.magazine') }}" class="text-muted">Magazine</a></li>
             @if($post->category)

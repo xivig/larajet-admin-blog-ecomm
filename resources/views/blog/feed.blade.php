@@ -4,7 +4,7 @@
 @section('content')
 
 <!-- Feed Hero Banner -->
-<section class="page-title py-5" style="padding-top: 90px !important;">
+<section class="page-title py-4">
     <div class="container-fluid px-xl-5 px-lg-4 px-3">
         <div class="row align-items-center">
             <div class="col-lg-7">

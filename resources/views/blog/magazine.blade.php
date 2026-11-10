@@ -34,7 +34,7 @@
 </div>
 @endif
 
-<div class="container my-4 my-lg-5">
+<div class="container pt-3 pb-5">
     <!-- Magazine Edition Masthead & Telemetry Band -->
     <div class="mag-masthead-band mb-4 mb-lg-5">
         <div class="row align-items-center g-3">

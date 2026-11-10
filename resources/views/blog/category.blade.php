@@ -4,7 +4,7 @@
 @section('content')
 
 <!-- Category Hero Banner -->
-<section class="page-title py-5" style="padding-top: 90px !important;">
+<section class="page-title py-4">
     <div class="container">
         <div class="row">
             <div class="col-12">
@@ -38,7 +38,7 @@
 </section>
 
 <!-- Category Main Content Area -->
-<section class="section pb-5">
+<section class="section pt-4 pb-5">
     <div class="container">
         <div class="row g-4">
             <!-- Left 8 Cols: Filtered Articles -->
@@ -50,7 +50,7 @@
                                 $postImg = $post->image->link ?? 'dist-front/images/business-1.jpg';
                                 $imgSrc = Str::startsWith($postImg, ['http://', 'https://']) ? $postImg : asset($postImg);
                             @endphp
-                            <div class="col-md-6 mb-4">
+                            <div class="{{ $posts->count() === 1 ? 'col-12' : 'col-md-6' }} mb-4">
                                 <article class="mag-card shadow-sm border-0 rounded-4 overflow-hidden h-100 transition-hover">
                                     <div class="card-img-wrapper position-relative" style="height: 200px;">
                                         <a href="{{ route('single-post', $post->slug) }}">

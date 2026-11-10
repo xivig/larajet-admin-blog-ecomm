@@ -1,4 +1,4 @@
-<section class="page-title" style="padding: 110px 0 60px 0;">
+<section class="page-title" style="padding: 44px 0 38px 0;">
     <div class="container">
         <div class="row">
             <div class="col-md-12">

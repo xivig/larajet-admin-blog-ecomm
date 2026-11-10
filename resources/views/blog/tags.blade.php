@@ -4,7 +4,7 @@
 @section('content')
 
 <!-- Tags Directory Banner -->
-<section class="page-title py-5" style="padding-top: 90px !important;">
+<section class="page-title py-4">
     <div class="container">
         <div class="row">
             <div class="col-12">
@@ -38,13 +38,13 @@
 </section>
 
 <!-- Tags Index Section -->
-<section class="section pb-5">
+<section class="section pt-4 pb-5">
     <div class="container">
         <div class="row g-4">
             <!-- Left 8 Cols: Tags Directory -->
             <div class="col-lg-8">
                 <!-- Trending Tags Cloud -->
-                <div class="p-4 rounded-4 shadow-sm bg-body border border-light-subtle mb-5">
+                <div class="p-4 rounded-4 shadow-sm bg-body border border-light-subtle mb-4">
                     <h5 class="font-weight-bold text-body mb-3 d-flex align-items-center" style="font-size: 16px;">
                         <i class="fas fa-fire mr-2 text-danger"></i> Trending & High-Volume Topics
                     </h5>

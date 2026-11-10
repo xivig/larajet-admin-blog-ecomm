@@ -5269,3 +5269,27 @@ textarea.form-control-elite {
 [data-theme="light"] .vf-prose {
   color: #334155 !important;
 }
+
+/* ==========================================================================
+   GLOBAL SECTION & PAGE-TITLE VERTICAL RHYTHM NORMALIZATION
+   Cures legacy style.css `.section { padding: 100px 0; }` & bloated banner voids
+   ========================================================================== */
+.section {
+  padding: 36px 0;
+}
+
+.section.pb-5 {
+  padding-top: 28px !important;
+}
+
+.page-title {
+  padding: 36px 0;
+}
+
+.page-title.page-title-compact {
+  padding: 14px 0 !important;
+}
+
+.page-title + .section {
+  padding-top: 28px !important;
+}

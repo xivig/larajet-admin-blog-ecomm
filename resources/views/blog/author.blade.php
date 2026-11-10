@@ -4,12 +4,12 @@
 @section('content')
 
 <!-- Author Hero Banner -->
-<section class="page-title py-5" style="padding-top: 90px !important;">
+<section class="page-title page-title-compact py-3">
     <div class="container">
         <div class="row">
             <div class="col-12">
                 <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb bg-transparent p-0 mb-3 small">
+                    <ol class="breadcrumb bg-transparent p-0 mb-0 small">
                         <li class="breadcrumb-item"><a href="{{ url('/') }}" class="text-muted">Home</a></li>
                         <li class="breadcrumb-item"><a href="{{ url('/blog-list') }}" class="text-muted">Blog</a></li>
                         <li class="breadcrumb-item"><a href="{{ url('/blog/authors') }}" class="text-muted">Authors</a></li>
@@ -22,13 +22,13 @@
 </section>
 
 <!-- Author Content Section -->
-<section class="section pb-5">
+<section class="section pt-4 pb-5">
     <div class="container">
         <div class="row g-4">
             <!-- Left Main Column -->
             <div class="col-lg-8">
                 <!-- Author Bio Box -->
-                <div class="card p-4 p-md-5 mb-5 shadow-sm border rounded-xl text-center bg-white" style="border-radius: 20px;">
+                <div class="card vf-surface-card p-4 p-md-5 mb-4 shadow-sm border rounded-xl text-center" style="border-radius: 20px;">
                     <div class="mb-3 position-relative d-inline-block mx-auto">
                         @php
                             $defaultAvatar = asset('admin-dist/img/avatars/avatar-' . (($author->id % 9) + 1) . '.webp');

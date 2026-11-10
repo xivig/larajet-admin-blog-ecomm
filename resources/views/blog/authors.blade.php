@@ -4,7 +4,7 @@
 @section('content')
 
 <!-- Authors Directory Hero -->
-<section class="page-title py-5" style="padding-top: 90px !important;">
+<section class="page-title py-4">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-8">
@@ -28,7 +28,7 @@
 </section>
 
 <!-- Authors Grid Section -->
-<section class="section py-5">
+<section class="section pt-4 pb-5">
     <div class="container">
         <div class="row">
             @forelse($authors as $author)

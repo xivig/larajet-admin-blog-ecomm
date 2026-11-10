@@ -4,7 +4,7 @@
 @section('content')
 
 <!-- Gallery Hero Banner -->
-<section class="page-title py-5" style="padding-top: 90px !important;">
+<section class="page-title py-4">
     <div class="container text-center">
         <span class="badge-elite badge-elite-dark mb-3">
             <span class="badge-dot pulse"></span> Visual Intelligence & Architectural Imagery
@@ -31,7 +31,7 @@
 </section>
 
 <!-- Gallery Grid Section -->
-<section class="section pb-5">
+<section class="section pt-4 pb-5">
     <div class="container-fluid px-xl-5 px-lg-4 px-3">
         @if(count($galleryItems) > 0)
             <div class="living-gallery mb-5">

@@ -2,7 +2,7 @@
 @section('title', 'Order Receipt ' . $order->order_number . ' - Xivig Store')
 @section('content')
 
-<section class="page-title" style="padding: 95px 0 40px 0;">
+<section class="page-title" style="padding: 40px 0 32px 0;">
     <div class="container">
         <div class="d-flex flex-wrap align-items-center justify-content-between" style="gap: 12px;">
             <div>

@@ -4,12 +4,12 @@
 @section('content')
 
 <!-- Video Hero Banner -->
-<section class="page-title py-5" style="padding-top: 90px !important;">
+<section class="page-title page-title-compact py-3">
     <div class="container">
         <div class="row">
             <div class="col-12">
                 <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb bg-transparent p-0 mb-3 small">
+                    <ol class="breadcrumb bg-transparent p-0 mb-0 small">
                         <li class="breadcrumb-item"><a href="{{ url('/') }}" class="text-muted">Home</a></li>
                         <li class="breadcrumb-item"><a href="{{ url('/blog-list') }}" class="text-muted">Blog</a></li>
                         <li class="breadcrumb-item active text-primary" aria-current="page">Video Insights</li>
@@ -21,13 +21,13 @@
 </section>
 
 <!-- Main Video Section -->
-<section class="section pb-5">
+<section class="section pt-4 pb-5">
     <div class="container">
         <div class="row g-4">
             <!-- Left Main Column: Video Player & Details -->
             <div class="col-lg-8">
                 @if($mainVideo)
-                    <article class="card p-0 mb-5 shadow-sm border rounded-xl overflow-hidden bg-white" style="border-radius: 20px;">
+                    <article class="card vf-surface-card p-0 mb-4 shadow-sm border rounded-xl overflow-hidden" style="border-radius: 20px;">
                         <!-- 16:9 Video Embed Player -->
                         @php
                             $vidUrl = trim($mainVideo->video_url ?? '');

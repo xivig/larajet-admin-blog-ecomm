@@ -4,7 +4,7 @@
 @section('content')
 
 <!-- Tag Hero Banner -->
-<section class="page-title py-5" style="padding-top: 90px !important;">
+<section class="page-title py-4">
     <div class="container">
         <div class="row">
             <div class="col-12">
@@ -38,7 +38,7 @@
 </section>
 
 <!-- Tag Articles Grid Section -->
-<section class="section pb-5">
+<section class="section pt-4 pb-5">
     <div class="container">
         <div class="row g-4">
             <!-- Left Main Column: Tag Articles -->
@@ -46,7 +46,7 @@
                 @if($posts->count() > 0)
                     <div class="row">
                         @foreach($posts as $post)
-                            <div class="col-md-6 mb-4">
+                            <div class="{{ $posts->count() === 1 ? 'col-12' : 'col-md-6' }} mb-4">
                                 <article class="blog-item-elite h-100">
                                     <div class="blog-img-wrap-elite" style="height: 185px;">
                                         <a href="{{ route('single-post', $post->slug) }}">

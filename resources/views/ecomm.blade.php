@@ -10,7 +10,7 @@
 @endif
 
 <!-- E-Commerce Hero Banner -->
-<section class="page-title" style="padding: 95px 0 55px 0;">
+<section class="page-title" style="padding: 40px 0 36px 0;">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-8">
