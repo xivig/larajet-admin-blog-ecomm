@@ -205,3 +205,8 @@ Schedule::job(new PruneSystemAuditLogsJob(30))
 Schedule::command('cms:warm-cache')
     ->daily()
     ->name('warm-cms-cache');
+
+// 8. Daily: Generate and write comprehensive XML Sitemap file (posts, pages, categories, tags, authors, images)
+Schedule::command('sitemap:generate')
+    ->daily()
+    ->name('generate-xml-sitemap');

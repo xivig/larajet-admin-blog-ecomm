@@ -64,6 +64,18 @@ class CommentController extends Controller
         return back()->with('success', 'Comment marked as approved.');
     }
 
+    public function reject(Comment $comment): RedirectResponse
+    {
+        $comment->update(['status' => 'rejected']);
+        return back()->with('success', 'Comment marked as rejected.');
+    }
+
+    public function spam(Comment $comment): RedirectResponse
+    {
+        $comment->update(['status' => 'spam']);
+        return back()->with('success', 'Comment flagged as spam.');
+    }
+
     /**
      * Mark a comment as spam or pending.
      */

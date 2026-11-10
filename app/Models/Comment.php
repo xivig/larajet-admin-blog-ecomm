@@ -18,7 +18,22 @@ class Comment extends Model
         'user_id',
         'post_id',
         'comment',
+        'status',
+        'guest_name',
+        'guest_email',
+        'guest_website',
+        'likes_count',
+        'reports_count',
+        'ip_address',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'likes_count' => 'integer',
+            'reports_count' => 'integer',
+        ];
+    }
 
     public function user(): BelongsTo
     {
@@ -33,5 +48,23 @@ class Comment extends Model
     public function replies(): HasMany
     {
         return $this->hasMany(CommentReply::class);
+    }
+
+    public function approvedReplies(): HasMany
+    {
+        return $this->hasMany(CommentReply::class)->where('status', 'approved');
+    }
+
+    public function getAuthorNameAttribute(): string
+    {
+        if ($this->user) {
+            return $this->user->name;
+        }
+        return $this->guest_name ?: 'Guest Reader';
+    }
+
+    public function scopeApproved($query)
+    {
+        return $query->where('status', 'approved');
     }
 }

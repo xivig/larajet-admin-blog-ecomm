@@ -308,72 +308,8 @@
                             </div>
                         @endif
 
-                        <!-- Comments Section -->
-                        <div class="comment-area pt-4">
-                            <h4 class="mb-4 font-weight-bold text-body">
-                                <i class="far fa-comments text-primary mr-2"></i> Discussion ({{ $post->comments ? $post->comments->count() : 0 }})
-                            </h4>
+                        @include('blog.partials.comments-section')
 
-                            @if($post->comments && $post->comments->count() > 0)
-                                @foreach($post->comments as $comment)
-                                    <div class="comment-area-box mb-4 p-3 rounded-lg bg-light border shadow-sm">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <div class="d-flex align-items-center">
-                                                <div class="comment-avatar mr-3" style="width: 40px; height: 40px; font-size: 16px;">
-                                                    {{ strtoupper(substr($comment->user->name ?? 'G', 0, 1)) }}
-                                                </div>
-                                                <div>
-                                                    <h6 class="mb-0 font-weight-bold text-body">{{ $comment->user->name ?? 'Reader' }}</h6>
-                                                    <span class="text-muted small">{{ $comment->created_at ? $comment->created_at->diffForHumans() : 'Just now' }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="comment-content mt-2 text-body" style="font-size: 15px;">
-                                            <p class="mb-0">{{ $comment->comment }}</p>
-                                        </div>
-
-                                        <!-- Render Replies if present -->
-                                        @if($comment->replies && $comment->replies->count() > 0)
-                                            <div class="pl-4 mt-3 pt-3" style="border-left: 2px solid #e2e8f0;">
-                                                @foreach($comment->replies as $reply)
-                                                    <div class="mb-3">
-                                                        <div class="d-flex align-items-center mb-1">
-                                                            <strong class="text-body small mr-2">{{ $reply->user->name ?? 'Team Member' }}</strong>
-                                                            <span class="text-muted" style="font-size: 12px;">{{ $reply->created_at ? $reply->created_at->diffForHumans() : 'Recent' }}</span>
-                                                        </div>
-                                                        <p class="mb-0 small text-body">{{ $reply->reply }}</p>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @endif
-                                    </div>
-                                @endforeach
-                            @else
-                                <div class="text-center py-4 bg-light rounded mb-4">
-                                    <p class="text-muted mb-0">No comments yet. Start the conversation below!</p>
-                                </div>
-                            @endif
-                        </div>
-
-                        <!-- Comment Submission Form -->
-                        <div class="mt-5 p-4 card-elite rounded shadow-sm border">
-                            <h4 class="mb-3 font-weight-bold text-body">Leave a Comment</h4>
-                            <p class="text-muted small mb-4">Share your perspectives or ask a question regarding this article.</p>
-
-                            <form action="{{ route('comments.store') }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="post_id" value="{{ $post->id }}">
-                                
-                                <div class="form-group mb-3">
-                                    <label class="font-weight-bold small text-body">Your Comment</label>
-                                    <textarea class="form-control form-control-elite" name="comment" rows="4" placeholder="Write your thoughts..." required></textarea>
-                                </div>
-
-                                <button type="submit" class="btn-elite btn-elite-primary btn-sm font-weight-bold">
-                                    <i class="fas fa-paper-plane mr-2"></i> Submit Comment
-                                </button>
-                            </form>
-                        </div>
 
                     </div>
                 </article>

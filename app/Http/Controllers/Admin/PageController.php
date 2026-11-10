@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Page;
+use App\Models\SlugHistory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -97,10 +98,19 @@ class PageController extends Controller
             'meta_description' => 'nullable|string|max:500',
         ]);
 
-        if (empty($validated['slug'])) {
-            $validated['slug'] = Str::slug($validated['title']);
+        $newSlug = !empty($validated['slug']) ? Str::slug($validated['slug']) : Str::slug($validated['title']);
+
+        // Check if slug changed -> record in SlugHistory for automatic 301 redirection
+        if ($newSlug !== $page->slug) {
+            SlugHistory::create([
+                'model_type' => 'Page',
+                'model_id' => $page->id,
+                'old_slug' => $page->slug,
+                'new_slug' => $newSlug,
+            ]);
         }
 
+        $validated['slug'] = $newSlug;
         $validated['status'] = $request->has('status');
 
         $page->update($validated);

@@ -121,4 +121,46 @@ class NewsletterController extends Controller
         $subscriber->delete();
         return redirect()->route('admin.newsletter.index')->with('success', 'Subscriber removed successfully.');
     }
+
+    /**
+     * Test SMTP Connection & Email Delivery.
+     */
+    public function testSmtp(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'test_email' => 'required|email',
+        ]);
+
+        try {
+            $toEmail = $request->test_email;
+            \Illuminate\Support\Facades\Mail::raw('This is an automated SMTP connection test from XIVIG Maison CMS.', function ($message) use ($toEmail) {
+                $message->to($toEmail)
+                    ->subject('XIVIG SMTP Diagnostics: Connection Verified');
+            });
+
+            return back()->with('success', "SMTP test message successfully dispatched to {$toEmail}.");
+        } catch (\Throwable $e) {
+            return back()->with('error', 'SMTP Connection Error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Save Optional Mailchimp Integration configuration.
+     */
+    public function updateMailchimpSettings(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'mailchimp_api_key' => 'nullable|string|max:100',
+            'mailchimp_list_id' => 'nullable|string|max:100',
+            'mailchimp_server_prefix' => 'nullable|string|max:20',
+            'mailchimp_enable' => 'nullable|boolean',
+        ]);
+
+        \App\Models\Setting::set('mailchimp_api_key', $validated['mailchimp_api_key'] ?? '', 'integrations');
+        \App\Models\Setting::set('mailchimp_list_id', $validated['mailchimp_list_id'] ?? '', 'integrations');
+        \App\Models\Setting::set('mailchimp_server_prefix', $validated['mailchimp_server_prefix'] ?? '', 'integrations');
+        \App\Models\Setting::set('mailchimp_enable', $request->has('mailchimp_enable') ? '1' : '0', 'integrations');
+
+        return back()->with('success', 'Mailchimp configuration updated successfully.');
+    }
 }

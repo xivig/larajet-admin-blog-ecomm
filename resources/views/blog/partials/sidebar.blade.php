@@ -7,18 +7,115 @@
 @endphp
 
 <aside class="blog-sidebar-elite w-100" style="max-width: 100%; overflow: hidden;">
-    <!-- Search Widget -->
-    <div class="sidebar-widget-card mb-4" style="overflow: hidden; max-width: 100%;">
+    <!-- Search Widget with Real-Time Autocomplete & Popular Searches -->
+    <div class="sidebar-widget-card mb-4" style="max-width: 100%;">
         <h5 class="sidebar-card-title">
             <i class="fas fa-search mr-2 text-primary"></i> Search Insights
         </h5>
-        <form action="{{ url('/blog-list') }}" method="GET" class="position-relative w-100">
-            <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-elite pr-5" style="border-radius: 999px; padding-right: 52px; height: 46px;" placeholder="Search articles, guides...">
-            <button type="submit" class="btn-elite btn-elite-primary btn-sm position-absolute" style="top: 50%; right: 5px; transform: translateY(-50%); border-radius: 999px; height: 36px; width: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; z-index: 5;" title="Search">
-                <i class="fas fa-search"></i>
-            </button>
-        </form>
+        <div class="position-relative w-100" id="sidebarSearchWrapper">
+            <form action="{{ url('/blog-list') }}" method="GET" class="position-relative w-100 mb-0">
+                <input type="text" name="search" id="sidebarSearchInput" value="{{ request('search') }}" class="form-control form-control-elite pr-5" style="border-radius: 999px; padding-right: 52px; height: 46px;" placeholder="Search articles, topics..." autocomplete="off">
+                <button type="submit" class="btn-elite btn-elite-primary btn-sm position-absolute" style="top: 50%; right: 5px; transform: translateY(-50%); border-radius: 999px; height: 36px; width: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; z-index: 5;" title="Search">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+
+            <!-- Floating Live Autocomplete Dropdown -->
+            <div id="sidebarAutocompleteDropdown" class="card border shadow-lg rounded-lg p-3 position-absolute w-100 bg-white d-none" style="top: 52px; left: 0; z-index: 1050; max-height: 420px; overflow-y: auto;">
+                <div id="autocompleteResultsContent"></div>
+            </div>
+        </div>
+
+        <!-- Popular Search Terms -->
+        @php
+            $popularTerms = \App\Models\SearchLog::where('results_count', '>', 0)->orderBy('hits_count', 'desc')->take(4)->pluck('query');
+        @endphp
+        @if($popularTerms->isNotEmpty())
+            <div class="d-flex flex-wrap align-items-center mt-2" style="gap: 5px;">
+                <small class="text-muted mr-1" style="font-size: 11px;"><i class="fas fa-fire text-danger mr-1"></i> Popular:</small>
+                @foreach($popularTerms as $term)
+                    <a href="{{ url('/blog-list?search=' . urlencode($term)) }}" class="badge badge-light border text-muted px-2 py-1 small text-decoration-none" style="font-size: 11px; border-radius: 999px;">
+                        {{ $term }}
+                    </a>
+                @endforeach
+            </div>
+        @endif
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var searchInput = document.getElementById('sidebarSearchInput');
+        var dropdown = document.getElementById('sidebarAutocompleteDropdown');
+        var resultsBox = document.getElementById('autocompleteResultsContent');
+        var debounceTimer;
+
+        if (!searchInput || !dropdown || !resultsBox) return;
+
+        function fetchResults(query) {
+            fetch('{{ url("/api/search/autocomplete") }}?q=' + encodeURIComponent(query))
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (!data.success) return;
+
+                    var html = '';
+
+                    if (data.posts && data.posts.length > 0) {
+                        html += '<div class="small font-weight-bold text-uppercase text-muted mb-2" style="font-size: 10px; letter-spacing: 0.5px;">Articles</div>';
+                        data.posts.forEach(function(p) {
+                            html += '<a href="' + p.url + '" class="d-flex align-items-center mb-2 pb-2 border-bottom text-decoration-none text-dark hover-item">' +
+                                    '<img src="' + p.thumbnail + '" class="rounded mr-2 flex-shrink-0" style="width: 36px; height: 36px; object-fit: cover;" onerror="this.onerror=null;this.src=\'{{ asset('admin-dist/img/avatar.png') }}\';">' +
+                                    '<div class="min-w-0 flex-grow-1" style="line-height: 1.25;">' +
+                                        '<div class="font-weight-bold text-truncate" style="font-size: 12.5px;">' + p.title + '</div>' +
+                                        '<small class="text-muted" style="font-size: 10.5px;">' + p.category + ' · ' + p.reading_time + '</small>' +
+                                    '</div>' +
+                                '</a>';
+                        });
+                    }
+
+                    if (data.categories && data.categories.length > 0) {
+                        html += '<div class="small font-weight-bold text-uppercase text-muted mt-2 mb-1" style="font-size: 10px;">Categories</div><div class="d-flex flex-wrap gap-1 mb-2">';
+                        data.categories.forEach(function(c) {
+                            html += '<a href="' + c.url + '" class="badge badge-light border text-primary mr-1 mb-1 px-2 py-1 text-decoration-none" style="font-size: 11px;"><i class="far fa-folder mr-1"></i>' + c.name + '</a>';
+                        });
+                        html += '</div>';
+                    }
+
+                    if (data.tags && data.tags.length > 0) {
+                        html += '<div class="small font-weight-bold text-uppercase text-muted mt-2 mb-1" style="font-size: 10px;">Tags</div><div class="d-flex flex-wrap gap-1">';
+                        data.tags.forEach(function(t) {
+                            html += '<a href="' + t.url + '" class="badge badge-light border text-secondary mr-1 mb-1 px-2 py-1 text-decoration-none" style="font-size: 11px;">#' + t.name + '</a>';
+                        });
+                        html += '</div>';
+                    }
+
+                    if (!html) {
+                        html = '<div class="text-center py-3 text-muted small"><i class="fas fa-search mr-1"></i> No matching results for "<strong>' + query + '</strong>"</div>';
+                    }
+
+                    resultsBox.innerHTML = html;
+                    dropdown.classList.remove('d-none');
+                });
+        }
+
+        searchInput.addEventListener('input', function() {
+            var q = this.value.trim();
+            clearTimeout(debounceTimer);
+            if (q.length < 2) {
+                dropdown.classList.add('d-none');
+                return;
+            }
+            debounceTimer = setTimeout(function() {
+                fetchResults(q);
+            }, 250);
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!document.getElementById('sidebarSearchWrapper').contains(e.target)) {
+                dropdown.classList.add('d-none');
+            }
+        });
+    });
+    </script>
 
     <!-- Interactive Tabs Widget: Popular / Recent / Comments -->
     <div class="sidebar-widget-card mb-4" style="overflow: hidden; max-width: 100%;">

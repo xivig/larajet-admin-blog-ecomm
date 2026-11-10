@@ -11,6 +11,16 @@ class Page extends Model
 {
     use HasFactory, SoftDeletes;
 
+    public const TEMPLATES = [
+        'default' => 'Default Content Layout',
+        'landing' => 'Full-Width Landing Page',
+        'about' => 'About Us Profile',
+        'contact' => 'Contact & Inquiry Form',
+        'privacy' => 'Privacy Policy Standard',
+        'terms' => 'Terms & Conditions Standard',
+        'custom' => 'Custom Raw Blade Template',
+    ];
+
     protected $fillable = [
         'title',
         'slug',
@@ -33,5 +43,15 @@ class Page extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function getTemplateNameAttribute(): string
+    {
+        return self::TEMPLATES[$this->template] ?? 'Default Content Layout';
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', true);
     }
 }

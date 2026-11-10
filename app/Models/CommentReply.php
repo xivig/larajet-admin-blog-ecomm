@@ -15,7 +15,20 @@ class CommentReply extends Model
         'comment_id',
         'user_id',
         'reply',
+        'status',
+        'guest_name',
+        'guest_email',
+        'likes_count',
+        'reports_count',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'likes_count' => 'integer',
+            'reports_count' => 'integer',
+        ];
+    }
 
     public function comment(): BelongsTo
     {
@@ -25,5 +38,18 @@ class CommentReply extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function getAuthorNameAttribute(): string
+    {
+        if ($this->user) {
+            return $this->user->name;
+        }
+        return $this->guest_name ?: 'Guest Reader';
+    }
+
+    public function scopeApproved($query)
+    {
+        return $query->where('status', 'approved');
     }
 }

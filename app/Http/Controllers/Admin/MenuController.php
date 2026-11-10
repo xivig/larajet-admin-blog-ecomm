@@ -8,6 +8,7 @@ use App\Models\Menu;
 use App\Models\MenuItem;
 use App\Models\Page;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -75,12 +76,15 @@ class MenuController extends Controller
             'title' => 'required|string|max:100',
             'url' => 'required|string|max:255',
             'target' => 'nullable|in:_self,_blank',
+            'parent_id' => 'nullable|exists:menu_items,id',
         ]);
 
         $maxOrder = $menu->items()->max('order') ?? 0;
+        $parentId = $request->filled('parent_id') ? (int) $request->input('parent_id') : null;
 
         MenuItem::create([
             'menu_id' => $menu->id,
+            'parent_id' => $parentId,
             'title' => $request->title,
             'url' => $request->url,
             'target' => $request->input('target', '_self'),
@@ -110,5 +114,27 @@ class MenuController extends Controller
     {
         $menu->delete();
         return redirect()->route('admin.menu.index')->with('success', 'Menu deleted successfully.');
+    }
+
+    /**
+     * Reorder and update parent hierarchy of menu items.
+     */
+    public function reorder(Request $request): JsonResponse
+    {
+        $items = $request->input('items', []);
+
+        foreach ($items as $index => $itemData) {
+            $itemId = $itemData['id'] ?? null;
+            $parentId = !empty($itemData['parent_id']) ? (int) $itemData['parent_id'] : null;
+
+            if ($itemId) {
+                MenuItem::where('id', $itemId)->update([
+                    'order' => $index + 1,
+                    'parent_id' => $parentId,
+                ]);
+            }
+        }
+
+        return response()->json(['success' => true]);
     }
 }

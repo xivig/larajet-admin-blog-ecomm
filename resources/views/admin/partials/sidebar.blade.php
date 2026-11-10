@@ -80,6 +80,31 @@
           </a>
         </li>
 
+        <!-- Modular Widgets -->
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.widgets.*') ? 'active' : '' }}" href="{{ route('admin.widgets.index') }}">
+            <span class="nav-icon"><i class="ph-light ph-squares-four"></i></span>
+            <span class="nav-text">Widgets</span>
+          </a>
+        </li>
+
+        <!-- URL Management & 301 Redirects -->
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.url-management.*') ? 'active' : '' }}" href="{{ route('admin.url-management.index') }}">
+            <span class="nav-icon"><i class="ph-light ph-link"></i></span>
+            <span class="nav-text">URL Management</span>
+            <span class="badge bg-success-subtle text-success rounded-pill ms-auto" style="font-size: 0.65rem;">301</span>
+          </a>
+        </li>
+
+        <!-- Search Analytics -->
+        <li class="nav-item">
+          <a class="nav-link {{ request()->routeIs('admin.search-analytics.*') ? 'active' : '' }}" href="{{ route('admin.search-analytics.index') }}">
+            <span class="nav-icon"><i class="ph-light ph-magnifying-glass"></i></span>
+            <span class="nav-text">Search Intelligence</span>
+          </a>
+        </li>
+
         <!-- Newsletter Audience -->
         <li class="nav-item">
           <a class="nav-link {{ request()->routeIs('admin.newsletter.*') ? 'active' : '' }}" href="{{ route('admin.newsletter.index') }}">

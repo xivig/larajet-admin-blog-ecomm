@@ -8,7 +8,9 @@ use App\Models\Category;
 use App\Models\Picture;
 use App\Models\Post;
 use App\Models\PostImage;
+use App\Models\SlugHistory;
 use App\Models\Tag;
+use App\Services\ImageOptimizationService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -139,20 +141,11 @@ class PostController extends Controller
             'schema_type' => 'nullable|string|max:50',
         ]);
 
-        // Featured Hero Image
+        // Featured Hero Image with automated WebP & Responsive optimization
         $imageId = $request->filled('image_id') ? $request->input('image_id') : null;
         if ($request->hasFile('featured_image')) {
-            $postsDir = public_path('uploads/posts');
-            if (!file_exists($postsDir)) {
-                mkdir($postsDir, 0755, true);
-            }
-            $file = $request->file('featured_image');
-            $fileName = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
-            $file->move($postsDir, $fileName);
-            $picture = Picture::create([
-                'name' => $request->title,
-                'link' => 'uploads/posts/' . $fileName,
-            ]);
+            $optimizer = app(ImageOptimizationService::class);
+            $picture = $optimizer->processUpload($request->file('featured_image'), 'uploads/posts', $request->title, $request->title);
             $imageId = $picture->id;
         }
 
@@ -353,30 +346,35 @@ class PostController extends Controller
 
         $imageId = $request->filled('image_id') ? $request->input('image_id') : $post->image_id;
         if ($request->hasFile('featured_image')) {
-            $postsDir = public_path('uploads/posts');
-            if (!file_exists($postsDir)) {
-                mkdir($postsDir, 0755, true);
-            }
-            $file = $request->file('featured_image');
-            $fileName = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
-            $file->move($postsDir, $fileName);
-            $picture = Picture::create([
-                'name' => $request->title,
-                'link' => 'uploads/posts/' . $fileName,
-            ]);
+            $optimizer = app(ImageOptimizationService::class);
+            $picture = $optimizer->processUpload($request->file('featured_image'), 'uploads/posts', $request->title, $request->title);
             $imageId = $picture->id;
         }
 
-        // Slug update if title changed
+        // Custom URL or Automatic Slug with Duplicate Detection & Slug History
         $slug = $post->slug;
-        if ($post->title !== $request->title) {
-            $baseSlug = Str::slug($request->title);
-            $slug = $baseSlug;
+        $candidateSlug = null;
+        if ($request->filled('slug')) {
+            $candidateSlug = Str::slug($request->slug);
+        } elseif ($post->title !== $request->title) {
+            $candidateSlug = Str::slug($request->title);
+        }
+
+        if ($candidateSlug && $candidateSlug !== $post->slug) {
+            $slug = $candidateSlug;
             $counter = 1;
             while (Post::where('slug', $slug)->where('id', '!=', $post->id)->exists()) {
-                $slug = $baseSlug . '-' . $counter;
+                $slug = $candidateSlug . '-' . $counter;
                 $counter++;
             }
+
+            // Automatic 301 redirection equity: store previous slug in history
+            SlugHistory::create([
+                'model_type' => 'Post',
+                'model_id' => $post->id,
+                'old_slug' => $post->slug,
+                'new_slug' => $slug,
+            ]);
         }
 
         $excerpt = $request->filled('excerpt')

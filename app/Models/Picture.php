@@ -16,10 +16,13 @@ class Picture extends Model
 
     protected $fillable = [
         'name',
+        'title',
         'alt_text',
         'caption',
         'description',
         'link',
+        'webp_path',
+        'responsive_urls',
         'mime_type',
         'file_size',
         'dimensions',
@@ -28,9 +31,17 @@ class Picture extends Model
 
     protected $appends = [
         'url',
+        'webp_url',
         'formatted_size',
         'is_image',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'responsive_urls' => 'array',
+        ];
+    }
 
     /**
      * Relationship to Posts.
@@ -59,6 +70,70 @@ class Picture extends Model
 
         // Default legacy fallback
         return asset('xivig-blog/images/blog/' . $this->link);
+    }
+
+    /**
+     * Get the WebP asset URL if available.
+     */
+    public function getWebpUrlAttribute(): string
+    {
+        if (!empty($this->webp_path)) {
+            if (Str::startsWith($this->webp_path, ['http://', 'https://'])) {
+                return $this->webp_path;
+            }
+            return asset($this->webp_path);
+        }
+
+        // Fallback to regular url if it's already webp
+        if (Str::endsWith(strtolower($this->link ?? ''), '.webp')) {
+            return $this->url;
+        }
+
+        return $this->url;
+    }
+
+    /**
+     * Generate responsive srcset string.
+     */
+    public function getSrcsetAttribute(): string
+    {
+        if (!empty($this->responsive_urls) && is_array($this->responsive_urls)) {
+            $srcsetParts = [];
+            foreach ($this->responsive_urls as $width => $path) {
+                $itemUrl = Str::startsWith($path, ['http://', 'https://']) ? $path : asset($path);
+                $srcsetParts[] = "{$itemUrl} {$width}w";
+            }
+            if (!empty($srcsetParts)) {
+                return implode(', ', $srcsetParts);
+            }
+        }
+
+        return $this->webp_url . ' 1200w';
+    }
+
+    /**
+     * Clean Alt Text fallback generator.
+     */
+    public function getDisplayAltAttribute(): string
+    {
+        if (!empty($this->alt_text)) {
+            return $this->alt_text;
+        }
+        if (!empty($this->title)) {
+            return $this->title;
+        }
+        if (!empty($this->name)) {
+            return ucwords(str_replace(['-', '_'], ' ', pathinfo($this->name, PATHINFO_FILENAME)));
+        }
+        return 'Article Editorial Visual';
+    }
+
+    /**
+     * Clean Title / Caption fallback generator.
+     */
+    public function getDisplayTitleAttribute(): string
+    {
+        return $this->title ?: ($this->caption ?: $this->display_alt);
     }
 
     /**

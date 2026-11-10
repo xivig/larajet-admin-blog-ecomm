@@ -13,9 +13,15 @@
                 <span class="breadcrumb-item active">Newsletter</span>
             </nav>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#smtpTestModal">
+                <i class="bi bi-shield-check me-1"></i> SMTP Diagnostics
+            </button>
+            <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#mailchimpModal">
+                <i class="bi bi-cloud-arrow-up me-1"></i> Mailchimp Sync
+            </button>
             <a href="{{ route('admin.newsletter.export') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-download me-1"></i> Export Subscribers (.CSV)
+                <i class="bi bi-download me-1"></i> Export (.CSV)
             </a>
             <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#composeCampaignModal">
                 <i class="bi bi-send me-1"></i> Send Broadcast Campaign
@@ -179,6 +185,74 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-send-fill me-1"></i> Dispatch Broadcast
                         </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- SMTP Test Connection Modal -->
+    <div class="modal fade" id="smtpTestModal" tabindex="-1" aria-labelledby="smtpTestModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <form action="{{ route('admin.newsletter.test-smtp') }}" method="POST">
+                    @csrf
+                    <div class="modal-header border-bottom py-3 px-4">
+                        <h5 class="modal-title fw-bold" id="smtpTestModalLabel"><i class="bi bi-shield-check text-info me-2"></i> SMTP Diagnostics &amp; Handshake</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <p class="text-muted small mb-3">Send a live test dispatch to verify that your configured mail driver, TLS handshake, port, and credentials are functioning properly.</p>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Recipient Test Address *</label>
+                            <input type="email" name="test_email" class="form-control rounded-3" value="{{ auth()->user()->email ?? 'admin@xivig.com' }}" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top py-3 px-4">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-info text-white rounded-pill px-4 fw-semibold">
+                            <i class="bi bi-lightning-charge me-1"></i> Send Test Email
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mailchimp Optional Integration Modal -->
+    <div class="modal fade" id="mailchimpModal" tabindex="-1" aria-labelledby="mailchimpModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <form action="{{ route('admin.newsletter.mailchimp') }}" method="POST">
+                    @csrf
+                    <div class="modal-header border-bottom py-3 px-4">
+                        <h5 class="modal-title fw-bold" id="mailchimpModalLabel"><i class="bi bi-cloud-arrow-up text-warning me-2"></i> Mailchimp Synchronization (Optional)</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <p class="text-muted small mb-3">Automatically mirror frontend subscriber registrations to your Mailchimp audience list in real-time.</p>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Mailchimp API Key</label>
+                            <input type="password" name="mailchimp_api_key" class="form-control rounded-3" value="{{ \App\Models\Setting::get('mailchimp_api_key') }}" placeholder="md-xxxxxxxxxxxxxxxxxxxx-us1">
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-8">
+                                <label class="form-label small fw-bold">Audience / List ID</label>
+                                <input type="text" name="mailchimp_list_id" class="form-control rounded-3" value="{{ \App\Models\Setting::get('mailchimp_list_id') }}" placeholder="e.g. 8a9b2c3d4e">
+                            </div>
+                            <div class="col-4">
+                                <label class="form-label small fw-bold">Server Prefix</label>
+                                <input type="text" name="mailchimp_server_prefix" class="form-control rounded-3" value="{{ \App\Models\Setting::get('mailchimp_server_prefix', 'us1') }}" placeholder="us1">
+                            </div>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="mailchimp_enable" value="1" id="mailchimpSwitch" {{ \App\Models\Setting::get('mailchimp_enable') === '1' ? 'checked' : '' }}>
+                            <label class="form-check-label small fw-semibold" for="mailchimpSwitch">Enable Real-Time Audience Sync</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top py-3 px-4">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-warning rounded-pill px-4 fw-semibold">Save Integration</button>
                     </div>
                 </form>
             </div>

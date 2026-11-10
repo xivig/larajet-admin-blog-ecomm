@@ -149,6 +149,16 @@ class Post extends Model
         return $this->hasMany(Comment::class);
     }
 
+    public function approvedComments(): HasMany
+    {
+        return $this->hasMany(Comment::class)->where('status', 'approved')->latest();
+    }
+
+    public function slugHistories(): HasMany
+    {
+        return $this->hasMany(SlugHistory::class, 'model_id')->where('model_type', 'Post');
+    }
+
     /**
      * Unlimited Images / Photo Gallery.
      */

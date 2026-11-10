@@ -26,6 +26,10 @@ return Application::configure(basePath: dirname(__DIR__))
             return route('dashboard');
         });
 
+        $middleware->append([
+            \App\Http\Middleware\UrlRedirectMiddleware::class,
+        ]);
+
         $middleware->web(append: [
             \App\Http\Middleware\CheckSiteMaintenance::class,
         ]);
@@ -36,5 +40,30 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, \Illuminate\Http\Request $request) {
+            if (!$request->is('admin', 'admin/*', 'api/*', 'favicon.ico', '*.png', '*.jpg', '*.css', '*.js')) {
+                $currentUrl = $request->fullUrl();
+                $log = \App\Models\NotFoundLog::where('url', $currentUrl)->first();
+                if ($log) {
+                    $log->increment('hits_count');
+                    $log->update([
+                        'referer' => $request->header('referer'),
+                        'ip' => $request->ip(),
+                        'user_agent' => substr((string) $request->userAgent(), 0, 500),
+                        'last_seen_at' => now(),
+                    ]);
+                } else {
+                    \App\Models\NotFoundLog::create([
+                        'url' => $currentUrl,
+                        'referer' => $request->header('referer'),
+                        'ip' => $request->ip(),
+                        'user_agent' => substr((string) $request->userAgent(), 0, 500),
+                        'hits_count' => 1,
+                        'is_resolved' => false,
+                        'last_seen_at' => now(),
+                    ]);
+                }
+            }
+            return null;
+        });
     })->create();

@@ -27,11 +27,16 @@ use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\TagController as AdminTagController;
 use App\Http\Controllers\Admin\TwoFactorChallengeController as AdminTwoFactorChallengeController;
 use App\Http\Controllers\Admin\TwoFactorController as AdminTwoFactorController;
+use App\Http\Controllers\Admin\UrlManagementController as AdminUrlManagementController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\WidgetController as AdminWidgetController;
+use App\Http\Controllers\Admin\SearchAnalyticsController as AdminSearchAnalyticsController;
+use App\Http\Controllers\Api\SearchApiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CommentReplyController;
 use App\Http\Controllers\Front\BlogController;
+use App\Http\Controllers\Frontend\PageController as FrontendPageController;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
@@ -94,10 +99,20 @@ Route::get('/single-post/{slug}', [BlogController::class, 'singlePost']);
 
 // Comments & replies
 Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+Route::post('/comments/{id}/like', [CommentController::class, 'like'])->name('comments.like');
+Route::post('/comments/{id}/report', [CommentController::class, 'report'])->name('comments.report');
 Route::post('/comment-replies', [CommentReplyController::class, 'store'])->name('comment-replies.store');
+Route::post('/comment-replies/{id}/like', [CommentReplyController::class, 'like'])->name('comment-replies.like');
+Route::post('/comment-replies/{id}/report', [CommentReplyController::class, 'report'])->name('comment-replies.report');
 
 // Newsletter subscription
 Route::post('/newsletter/subscribe', [AdminNewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+
+// Dynamic Static & Content Pages
+Route::get('/page/{slug}', [FrontendPageController::class, 'show'])->name('page.show');
+
+// Live Autocomplete API
+Route::get('/api/search/autocomplete', [SearchApiController::class, 'autocomplete'])->name('api.search.autocomplete');
 
 // General previews
 Route::get('/user', static fn() => view('user'));
@@ -160,6 +175,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('menu', [AdminMenuController::class, 'store'])->name('admin.menu.store');
     Route::delete('menu/{menu}', [AdminMenuController::class, 'destroy'])->name('admin.menu.destroy');
     Route::post('menu/{menu}/items', [AdminMenuController::class, 'addItem'])->name('admin.menu.items.add');
+    Route::post('menu/items/reorder', [AdminMenuController::class, 'reorder'])->name('admin.menu.items.reorder');
     Route::delete('menu/items/{item}', [AdminMenuController::class, 'deleteItem'])->name('admin.menu.items.delete');
 
     // Newsletter Subscribers & Broadcasts
@@ -167,6 +183,8 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::post('newsletter/send', [AdminNewsletterController::class, 'send'])->name('admin.newsletter.send');
     Route::get('newsletter/export', [AdminNewsletterController::class, 'export'])->name('admin.newsletter.export');
     Route::delete('newsletter/{subscriber}', [AdminNewsletterController::class, 'destroy'])->name('admin.newsletter.destroy');
+    Route::post('newsletter/test-smtp', [AdminNewsletterController::class, 'testSmtp'])->name('admin.newsletter.test-smtp');
+    Route::post('newsletter/mailchimp', [AdminNewsletterController::class, 'updateMailchimpSettings'])->name('admin.newsletter.mailchimp');
 
     // Categories Management
     Route::post('categories/bulk', [AdminCategoryController::class, 'bulkAction'])->name('admin.categories.bulk');
@@ -184,6 +202,8 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     // Comments Moderation & Actions
     Route::get('comments', [AdminCommentController::class, 'index'])->name('admin.comments.index');
     Route::match(['get', 'post'], 'comments/{comment}/approve', [AdminCommentController::class, 'approve'])->name('admin.comments.approve');
+    Route::post('comments/{comment}/reject', [AdminCommentController::class, 'reject'])->name('admin.comments.reject');
+    Route::post('comments/{comment}/spam', [AdminCommentController::class, 'spam'])->name('admin.comments.spam');
     Route::post('comments/{comment}/status', [AdminCommentController::class, 'updateStatus'])->name('admin.comments.status');
     Route::post('comments/{comment}/reply', [AdminCommentController::class, 'reply'])->name('admin.comments.reply');
     Route::put('comments/{comment}', [AdminCommentController::class, 'update'])->name('admin.comments.update');
@@ -317,11 +337,34 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     // Admin Active Sessions Management
     Route::delete('profile/sessions/{sessionId}', [AdminSessionController::class, 'destroy'])->name('admin.profile.sessions.destroy');
     Route::post('profile/sessions/logout-others', [AdminSessionController::class, 'logoutOthers'])->name('admin.profile.sessions.logout-others');
+
+    // URL Management & SEO Redirects
+    Route::get('url-management', [AdminUrlManagementController::class, 'index'])->name('admin.url-management.index');
+    Route::post('url-management/redirects', [AdminUrlManagementController::class, 'storeRedirect'])->name('admin.url-management.redirects.store');
+    Route::put('url-management/redirects/{rule}', [AdminUrlManagementController::class, 'updateRedirect'])->name('admin.url-management.redirects.update');
+    Route::delete('url-management/redirects/{rule}', [AdminUrlManagementController::class, 'destroyRedirect'])->name('admin.url-management.redirects.destroy');
+    Route::post('url-management/redirects/{rule}/toggle', [AdminUrlManagementController::class, 'toggleRedirect'])->name('admin.url-management.redirects.toggle');
+    Route::post('url-management/404/{log}/resolve', [AdminUrlManagementController::class, 'resolve404'])->name('admin.url-management.404.resolve');
+    Route::post('url-management/404/clear-resolved', [AdminUrlManagementController::class, 'clearResolved404'])->name('admin.url-management.404.clear-resolved');
+    Route::get('url-management/404/export', [AdminUrlManagementController::class, 'export404'])->name('admin.url-management.404.export');
+    Route::post('url-management/sitemap/generate', [AdminUrlManagementController::class, 'generateSitemapNow'])->name('admin.url-management.sitemap.generate');
+
+    // Modular Widgets Manager
+    Route::get('widgets', [AdminWidgetController::class, 'index'])->name('admin.widgets.index');
+    Route::post('widgets', [AdminWidgetController::class, 'store'])->name('admin.widgets.store');
+    Route::put('widgets/{widget}', [AdminWidgetController::class, 'update'])->name('admin.widgets.update');
+    Route::delete('widgets/{widget}', [AdminWidgetController::class, 'destroy'])->name('admin.widgets.destroy');
+    Route::post('widgets/{widget}/toggle', [AdminWidgetController::class, 'toggle'])->name('admin.widgets.toggle');
+    Route::post('widgets/reorder', [AdminWidgetController::class, 'reorder'])->name('admin.widgets.reorder');
+
+    // Search Intelligence & Analytics
+    Route::get('search-analytics', [AdminSearchAnalyticsController::class, 'index'])->name('admin.search-analytics.index');
+    Route::post('search-analytics/clear', [AdminSearchAnalyticsController::class, 'clear'])->name('admin.search-analytics.clear');
 });
 
 // Dynamic Public Feeds & Crawlers
 Route::get('/feed.xml', [AdminSettingController::class, 'feedXml'])->name('feed.xml');
-Route::get('/sitemap.xml', [AdminSettingController::class, 'sitemapXml'])->name('sitemap.xml');
+Route::get('/sitemap.xml', [\App\Http\Controllers\Frontend\SitemapController::class, 'index'])->name('sitemap.xml');
 Route::get('/robots.txt', [AdminSeoSettingController::class, 'robotsTxt'])->name('robots.txt');
 
 // Auth logout & user dashboard subpages

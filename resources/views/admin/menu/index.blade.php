@@ -89,6 +89,15 @@
                                         <option value="_blank">New Tab (_blank)</option>
                                     </select>
                                 </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-semibold">Parent Level (Hierarchy)</label>
+                                    <select name="parent_id" class="form-select form-select-sm">
+                                        <option value="">Top Level (Root)</option>
+                                        @foreach($currentMenu->items as $parentOpt)
+                                            <option value="{{ $parentOpt->id }}">— Sub-item of: {{ $parentOpt->title }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                                 <button type="submit" class="btn btn-primary btn-sm w-100">
                                     <i class="bi bi-plus-circle me-1"></i> Add to Menu
                                 </button>
@@ -179,11 +188,16 @@
                     @else
                         <div class="list-group" id="menuItemsList">
                             @foreach ($currentMenu->items as $item)
-                                <div class="list-group-item d-flex flex-wrap justify-content-between align-items-center py-3">
+                                <div class="list-group-item d-flex flex-wrap justify-content-between align-items-center py-3 {{ $item->parent_id ? 'ms-4 border-start border-primary border-3 bg-light' : '' }}">
                                     <div class="d-flex align-items-center gap-3">
                                         <i class="bi bi-grip-vertical text-muted fs-5 cursor-grab"></i>
                                         <div>
-                                            <div class="fw-bold">{{ $item->title }}</div>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="fw-bold">{{ $item->title }}</span>
+                                                @if($item->parent_id)
+                                                    <span class="badge bg-primary-subtle text-primary rounded-pill small" style="font-size: 10px;">Sub-link</span>
+                                                @endif
+                                            </div>
                                             <small class="text-muted">
                                                 <code>{{ $item->url }}</code> &bull; <span class="badge bg-light text-dark border">{{ $item->target }}</span>
                                             </small>
