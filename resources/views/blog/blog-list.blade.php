@@ -89,27 +89,29 @@
 
                                 <!-- Badges Overlay: Pinned/Featured Left, Category Right -->
                                 <div class="blog-card-badges">
-                                    <div class="d-inline-flex align-items-center" style="gap: 6px;">
-                                        @if($post->is_sticky)
-                                            <span class="badge-elite-pinned">
-                                                <i class="fas fa-thumbtack mr-1"></i> Pinned
-                                            </span>
-                                        @elseif($post->is_featured)
-                                            <span class="badge-elite-featured">
-                                                <i class="fas fa-star mr-1"></i> Featured
-                                            </span>
-                                        @endif
+                                    @if($post->is_sticky || $post->is_featured || in_array($post->visibility, ['password_protected', 'private']))
+                                        <div class="badge-status-wrap">
+                                            @if($post->is_sticky)
+                                                <span class="badge-elite-pinned">
+                                                    <i class="fas fa-thumbtack mr-1"></i> Pinned
+                                                </span>
+                                            @elseif($post->is_featured)
+                                                <span class="badge-elite-featured">
+                                                    <i class="fas fa-star mr-1"></i> Featured
+                                                </span>
+                                            @endif
 
-                                        @if($post->visibility === 'password_protected')
-                                            <span class="badge-elite-locked" title="Password Protected">
-                                                <i class="fas fa-lock"></i>
-                                            </span>
-                                        @elseif($post->visibility === 'private')
-                                            <span class="badge-elite-locked" title="Members Only">
-                                                <i class="fas fa-user-lock"></i>
-                                            </span>
-                                        @endif
-                                    </div>
+                                            @if($post->visibility === 'password_protected')
+                                                <span class="badge-elite-locked" title="Password Protected">
+                                                    <i class="fas fa-lock"></i>
+                                                </span>
+                                            @elseif($post->visibility === 'private')
+                                                <span class="badge-elite-locked" title="Members Only">
+                                                    <i class="fas fa-user-lock"></i>
+                                                </span>
+                                            @endif
+                                        </div>
+                                    @endif
 
                                     <span class="badge-elite-category" title="{{ $post->category->name ?? 'General' }}">
                                         {{ $post->category->name ?? 'General' }}

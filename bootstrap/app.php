@@ -27,11 +27,13 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $middleware->append([
+            \App\Http\Middleware\SecurityHeadersMiddleware::class,
             \App\Http\Middleware\UrlRedirectMiddleware::class,
         ]);
 
         $middleware->web(append: [
             \App\Http\Middleware\CheckSiteMaintenance::class,
+            \App\Http\Middleware\TrackVisitorMiddleware::class,
         ]);
 
         $middleware->alias([

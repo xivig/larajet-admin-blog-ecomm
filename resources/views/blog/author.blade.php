@@ -98,15 +98,17 @@
                                         </a>
 
                                         <div class="blog-card-badges">
-                                            <span>
-                                                @if($post->is_sticky)
-                                                    <span class="badge-elite-pinned"><i class="fas fa-thumbtack mr-1"></i> Pinned</span>
-                                                @elseif($post->is_featured)
-                                                    <span class="badge-elite-featured"><i class="fas fa-star mr-1"></i> Featured</span>
-                                                @endif
-                                            </span>
-                                            <span class="badge-elite-category">
-                                                {{ $post->category->name ?? 'Architecture' }}
+                                            @if($post->is_sticky || $post->is_featured || in_array($post->visibility, ['password_protected', 'private']))
+                                                <div class="badge-status-wrap">
+                                                    @if($post->is_sticky)
+                                                        <span class="badge-elite-pinned"><i class="fas fa-thumbtack mr-1"></i> Pinned</span>
+                                                    @elseif($post->is_featured)
+                                                        <span class="badge-elite-featured"><i class="fas fa-star mr-1"></i> Featured</span>
+                                                    @endif
+                                                </div>
+                                            @endif
+                                            <span class="badge-elite-category" title="{{ $post->category->name ?? 'General' }}">
+                                                {{ $post->category->name ?? 'General' }}
                                             </span>
                                         </div>
                                     </div>

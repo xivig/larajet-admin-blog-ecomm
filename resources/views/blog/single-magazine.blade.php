@@ -125,12 +125,15 @@
                             </div>
                         @endif
 
-                        <form action="{{ route('blog.unlock', $post->slug) }}" method="POST" class="d-flex justify-content-center">
+                        <form action="{{ route('blog.unlock', $post->slug) }}" method="POST" class="mx-auto w-100" style="max-width: 440px;">
                             @csrf
-                            <div class="unlock-box-elite d-inline-flex align-items-center">
-                                <input type="password" name="password" class="unlock-input" placeholder="Enter passphrase..." required autofocus>
-                                <button type="submit" class="unlock-btn">
-                                    <i class="fas fa-key mr-1"></i> UNLOCK
+                            <div class="unlock-box-elite">
+                                <span class="unlock-icon-slot">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                <input type="password" name="password" class="unlock-field-elite" placeholder="Enter passphrase..." required autofocus>
+                                <button class="unlock-btn-elite" type="submit">
+                                    <i class="fas fa-key mr-1"></i> Unlock
                                 </button>
                             </div>
                         </form>

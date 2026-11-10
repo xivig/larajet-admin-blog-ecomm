@@ -39,6 +39,16 @@ class AppServiceProvider extends ServiceProvider
             \App\Listeners\RecordLoginHistory::class,
         );
 
+        \Illuminate\Support\Facades\Event::listen(
+            \App\Events\PostViewed::class,
+            \App\Listeners\RecordPostViewListener::class,
+        );
+
+        \Illuminate\Support\Facades\Event::listen(
+            \App\Events\ContactSubmitted::class,
+            \App\Listeners\SendContactNotificationListener::class,
+        );
+
         // Permission-Based Access Control Gates
         \Illuminate\Support\Facades\Gate::before(function ($user, string $ability) {
             if (method_exists($user, 'isSuperAdmin') && $user->isSuperAdmin()) {
