@@ -113,6 +113,39 @@
           </a>
         </li>
 
+        <li class="nav-heading"><span>Commerce &amp; Gateways</span></li>
+
+        <!-- E-Commerce Store & Gateways -->
+        <li class="nav-item has-submenu {{ request()->routeIs('admin.store.*') ? 'open' : '' }}">
+          <a class="nav-link {{ request()->routeIs('admin.store.*') ? 'active' : '' }}" href="#" aria-expanded="{{ request()->routeIs('admin.store.*') ? 'true' : 'false' }}">
+            <span class="nav-icon"><i class="ph-light ph-storefront"></i></span>
+            <span class="nav-text">E-Commerce Store</span>
+            <span class="nav-arrow"><i class="bi bi-chevron-right"></i></span>
+          </a>
+          <ul class="nav-submenu {{ request()->routeIs('admin.store.*') ? 'show' : '' }}">
+            <li>
+              <a class="nav-link {{ request()->routeIs('admin.store.products') ? 'active' : '' }}" href="{{ route('admin.store.products') }}">
+                <span class="nav-dot"></span>Products &amp; Catalog
+              </a>
+            </li>
+            <li>
+              <a class="nav-link {{ request()->routeIs('admin.store.orders') ? 'active' : '' }}" href="{{ route('admin.store.orders') }}">
+                <span class="nav-dot"></span>Orders &amp; Fulfillment
+              </a>
+            </li>
+            <li>
+              <a class="nav-link {{ request()->routeIs('admin.store.gateways') ? 'active' : '' }}" href="{{ route('admin.store.gateways') }}">
+                <span class="nav-dot"></span>Payment Gateways
+              </a>
+            </li>
+            <li>
+              <a class="nav-link {{ request()->routeIs('admin.store.coupons') ? 'active' : '' }}" href="{{ route('admin.store.coupons') }}">
+                <span class="nav-dot"></span>Promo Coupons
+              </a>
+            </li>
+          </ul>
+        </li>
+
         <li class="nav-heading"><span>Applications &amp; Workspace</span></li>
 
         <!-- Chat -->

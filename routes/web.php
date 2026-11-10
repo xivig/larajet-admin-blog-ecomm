@@ -31,11 +31,13 @@ use App\Http\Controllers\Admin\UrlManagementController as AdminUrlManagementCont
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\WidgetController as AdminWidgetController;
 use App\Http\Controllers\Admin\SearchAnalyticsController as AdminSearchAnalyticsController;
+use App\Http\Controllers\Admin\StoreAdminController as AdminStoreController;
 use App\Http\Controllers\Api\SearchApiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CommentReplyController;
 use App\Http\Controllers\Front\BlogController;
+use App\Http\Controllers\Front\StoreController;
 use App\Http\Controllers\Frontend\PageController as FrontendPageController;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -53,7 +55,20 @@ Route::get('/contact', static fn() => view('home.contact'))->name('contact');
 Route::get('/services', static fn() => view('home.services'))->name('services');
 Route::get('/pricing', static fn() => view('home.pricing'))->name('pricing');
 Route::get('/project', static fn() => view('home.project'))->name('project');
-Route::get('/ecomm', static fn() => view('ecomm'))->name('ecomm');
+
+// E-Commerce Storefront, Cart, Checkout & Payment Gateway Callbacks
+Route::get('/ecomm', [StoreController::class, 'index'])->name('ecomm');
+Route::get('/ecomm/cart', [StoreController::class, 'getCart'])->name('ecomm.cart');
+Route::post('/ecomm/cart/add', [StoreController::class, 'addToCart'])->name('ecomm.cart.add');
+Route::post('/ecomm/cart/update', [StoreController::class, 'updateCart'])->name('ecomm.cart.update');
+Route::post('/ecomm/cart/clear', [StoreController::class, 'clearCart'])->name('ecomm.cart.clear');
+Route::post('/ecomm/cart/coupon', [StoreController::class, 'applyCoupon'])->name('ecomm.cart.coupon');
+Route::get('/ecomm/checkout', [StoreController::class, 'checkout'])->name('ecomm.checkout');
+Route::post('/ecomm/checkout', [StoreController::class, 'processCheckout'])->name('ecomm.checkout.process');
+Route::get('/ecomm/gateway/{driver}/checkout/{orderNumber}', [StoreController::class, 'sandboxGateway'])->name('ecomm.gateway.sandbox');
+Route::match(['get', 'post'], '/ecomm/callback/{driver}/{orderNumber}', [StoreController::class, 'gatewayCallback'])->name('ecomm.callback');
+Route::get('/ecomm/order/{orderNumber}', [StoreController::class, 'orderReceipt'])->name('ecomm.order.receipt');
+Route::post('/webhooks/payment/{driver}', [StoreController::class, 'webhook'])->name('webhooks.payment');
 
 // Blog routes
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
@@ -360,6 +375,33 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     // Search Intelligence & Analytics
     Route::get('search-analytics', [AdminSearchAnalyticsController::class, 'index'])->name('admin.search-analytics.index');
     Route::post('search-analytics/clear', [AdminSearchAnalyticsController::class, 'clear'])->name('admin.search-analytics.clear');
+
+    // E-Commerce Store & Payment Gateway Administration
+    Route::prefix('store')->name('admin.store.')->group(function () {
+        Route::get('/', static fn() => redirect()->route('admin.store.products'));
+        Route::get('products', [AdminStoreController::class, 'products'])->name('products');
+        Route::post('products', [AdminStoreController::class, 'storeProduct'])->name('products.store');
+        Route::put('products/{product}', [AdminStoreController::class, 'updateProduct'])->name('products.update');
+        Route::post('products/{product}/toggle', [AdminStoreController::class, 'toggleProduct'])->name('products.toggle');
+        Route::delete('products/{product}', [AdminStoreController::class, 'destroyProduct'])->name('products.destroy');
+        Route::post('products/{id}/restore', [AdminStoreController::class, 'restoreProduct'])->name('products.restore');
+        Route::delete('products/{id}/force-delete', [AdminStoreController::class, 'forceDeleteProduct'])->name('products.force-delete');
+
+        Route::get('orders', [AdminStoreController::class, 'orders'])->name('orders');
+        Route::post('orders/{order}/status', [AdminStoreController::class, 'updateOrderStatus'])->name('orders.status');
+        Route::get('orders/export', [AdminStoreController::class, 'exportOrders'])->name('orders.export');
+        Route::delete('orders/{order}', [AdminStoreController::class, 'destroyOrder'])->name('orders.destroy');
+
+        Route::get('gateways', [AdminStoreController::class, 'gateways'])->name('gateways');
+        Route::post('gateways/{gateway}/toggle', [AdminStoreController::class, 'toggleGateway'])->name('gateways.toggle');
+        Route::put('gateways/{gateway}', [AdminStoreController::class, 'updateGateway'])->name('gateways.update');
+        Route::post('settings', [AdminStoreController::class, 'updateStoreSettings'])->name('settings.update');
+
+        Route::get('coupons', [AdminStoreController::class, 'coupons'])->name('coupons');
+        Route::post('coupons', [AdminStoreController::class, 'storeCoupon'])->name('coupons.store');
+        Route::post('coupons/{coupon}/toggle', [AdminStoreController::class, 'toggleCoupon'])->name('coupons.toggle');
+        Route::delete('coupons/{coupon}', [AdminStoreController::class, 'destroyCoupon'])->name('coupons.destroy');
+    });
 });
 
 // Dynamic Public Feeds & Crawlers

@@ -14,7 +14,8 @@ class SettingObserver
     public function saved(Setting $setting): void
     {
         Cache::forget('site_settings_all');
-        event(new SettingsUpdated($setting->key, $setting->value));
+        Cache::forget(Setting::CACHE_PREFIX . $setting->key);
+        event(new SettingsUpdated($setting->group ?? 'general', [$setting->key => $setting->value]));
     }
 
     /**
@@ -23,6 +24,7 @@ class SettingObserver
     public function deleted(Setting $setting): void
     {
         Cache::forget('site_settings_all');
-        event(new SettingsUpdated($setting->key, null));
+        Cache::forget(Setting::CACHE_PREFIX . $setting->key);
+        event(new SettingsUpdated($setting->group ?? 'general', [$setting->key => null]));
     }
 }
