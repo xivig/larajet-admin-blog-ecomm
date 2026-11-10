@@ -183,36 +183,78 @@ For production deployment on cPanel, Plesk, or Apache/LiteSpeed shared hosting, 
 ```text
 laravel-blog-admin-template/
 ├── app/
-│   ├── Console/Commands/         # Storage checks and maintenance Artisan commands
+│   ├── Actions/                  # Fortify & Jetstream user action classes
+│   ├── Console/Commands/         # Storage health & maintenance Artisan commands
+│   ├── Enums/                    # CommentStatus, EmailFolder, PostStatus, UserRole
+│   ├── Events/                   # Domain events (CommentSubmitted, ContactSubmitted, PostViewed, etc.)
+│   ├── Exceptions/               # Custom CMS exceptions
+│   ├── Helpers/                  # Global helper functions (helpers.php)
 │   ├── Http/
-│   │   ├── Controllers/          # Admin/, Front/, Frontend/, Api/, and Auth controllers
+│   │   ├── Controllers/          # Admin/, Api/, Front/, Frontend/, and shared controllers
 │   │   ├── Middleware/           # SecurityHeaders, UrlRedirect, CheckPermission, CheckSiteMaintenance
-│   │   └── Requests/             # FormRequest validation & rate-limited AdminLoginRequest
+│   │   ├── Requests/             # FormRequest validation & rate-limited AdminLoginRequest
+│   │   └── Resources/            # API resource transformers
+│   ├── Jobs/                     # Queued image optimization, scheduled publishing, audit log pruning
+│   ├── Listeners/                # Login history, post view & contact alert listeners
+│   ├── Mail/                     # AdminAlertMail, ContactNotificationMail, PostPublishedMail
 │   ├── Models/                   # Post, Page, Menu, MenuItem, Widget, Product, Order, Admin, User, etc.
+│   ├── Notifications/            # Comment, post publication, and system alert notifications
+│   ├── Observers/                # CommentObserver, PostObserver, SettingObserver
+│   ├── Policies/                 # Authorization policies (Comment, Post, Setting, User)
+│   ├── Providers/                # App, Fortify, Jetstream & Repository service providers
+│   ├── Repositories/             # Contracts/ and Eloquent/ repository bindings
 │   ├── Services/                 # SecurityFileGuard, SeoService, PaymentGatewayService, BackupService, AnalyticsService
-│   └── Traits/                   # HasRolesAndPermissions
+│   ├── Traits/                   # HasRolesAndPermissions, HasSeoMeta, HasSlug, Auditable, etc.
+│   └── View/Components/          # Reusable Blade component classes
 ├── bootstrap/
-│   └── app.php                   # Proxy trust, global middleware, exception 404 tracking
+│   ├── app.php                   # Proxy trust, global middleware stack, 404 exception logging
+│   └── providers.php             # Registered application service providers
+├── config/                       # Laravel, Fortify, Jetstream, Sanctum, auth & database configs
 ├── database/
-│   ├── migrations/               # Complete schema + default Header/Footer menus and footer widgets
-│   └── seeders/                  # Roles, demo posts, store catalog, and widgets seeders
+│   ├── factories/                # Model factories
+│   ├── migrations/               # Schema migrations + default Header/Footer menus, footer widgets & comment fixes
+│   ├── seeders/                  # Roles, demo catalog, curated posts, SEO settings & widget seeders
+│   └── database.sqlite           # Portable local SQLite database
 ├── docs/
 │   └── SHARED_HOSTING_DEPLOYMENT.md
 ├── public/
-│   ├── build/                    # Compiled Vite JS/CSS bundles
-│   ├── uploads/                  # User uploads protected by public/uploads/.htaccess
-│   ├── xivig-admin/              # Admin static theme CSS, JS, Quill, SweetAlert2, images
-│   ├── xivig-public/             # Frontend static vendor plugins, elite-design.css, images
-│   └── .htaccess                 # Apache rules (Indexes/MultiViews disabled, dotfile denial, front controller)
+│   ├── build/                    # Compiled Vite CSS/JS bundles & manifest.json
+│   ├── uploads/                  # User uploads (avatars, chat, email-attachments, media, posts, trash + .htaccess)
+│   ├── xivig-admin/              # Admin CSS, JS, fonts, Quill, SweetAlert2 & images
+│   ├── xivig-public/             # Frontend vendor plugins, CSS, JS, assets & elite-design.css
+│   ├── .htaccess                 # Apache rules (-Indexes, dotfile/manifest blocking, front controller)
+│   └── index.php                 # Laravel front controller
 ├── resources/
-│   ├── js/frontend/              # Modular Vite frontend scripts & hover navigation
-│   ├── scss/frontend/            # Bootstrap-integrated light/dark theme SCSS architecture
-│   └── views/                    # Admin, Auth, Blog, Store, Layouts, and SEO Blade templates
+│   ├── css/                      # Tailwind & compiled frontend CSS entrypoints
+│   ├── js/
+│   │   ├── Components/           # Vue/Jetstream components
+│   │   ├── Pages/                # Auth/Jetstream page scripts
+│   │   └── frontend/             # Modular Vite frontend scripts & hover navigation
+│   ├── scss/frontend/            # Bootstrap-integrated light/dark theme SCSS sources
+│   └── views/
+│       ├── admin/                # Dashboard, posts, pages (Quill), menu, widgets, store, media, file-manager, etc.
+│       ├── auth/                 # Xivig-themed Fortify login, register, password reset & 2FA pages
+│       ├── blog/                 # Layouts, partials (header, footer, blog-mega-menu, widget-renderer), posts & formats
+│       ├── home/                 # Landing sections, services, pricing & portfolio views
+│       ├── layouts/              # Master admin, blog, user & guest layouts
+│       ├── partials/             # Shared SEO meta partials
+│       ├── user/                 # Community user panel partials & sidebar
+│       └── ecomm*.blade.php      # Storefront, checkout, payment gateway terminal & order receipt views
 ├── routes/
-│   ├── web.php                   # Public, storefront, webhook, SEO, and auth:admin routes
-│   ├── api.php                   # Sanctum API routes
-│   └── console.php               # Cron-friendly scheduled commands & queue runner
-└── tests/                        # PHPUnit Feature & Unit tests
+│   ├── api.php                   # Sanctum authenticated API endpoints
+│   ├── console.php               # Cron-friendly scheduled jobs, queue worker & storage checks
+│   ├── jetstream.php             # Jetstream profile/API/team routes
+│   └── web.php                   # Public, storefront, webhook, SEO, auth & auth:admin routes
+├── storage/                      # Logs, framework caches, private files & system ZIP backups (app/backups/)
+├── stubs/                        # Artisan generator stubs
+├── tests/
+│   ├── Feature/                  # Auth, registration, magazine portal, pricing, e-commerce & seeder tests
+│   └── Unit/                     # Unit test suite
+├── .env.example                  # Production & shared-hosting environment template
+├── artisan                       # Laravel CLI runner
+├── composer.json                 # PHP dependencies & scripts
+├── package.json                  # Vite & Sass build scripts
+└── vite.config.js                # Vite build configuration
 ```
 
 ---
